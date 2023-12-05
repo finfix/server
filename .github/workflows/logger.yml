@@ -1,0 +1,16 @@
+name: deploy logger
+on:
+  push:
+    branches:
+    - main
+#    paths:
+#    - 'logger/**'
+#    - 'pkg/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Dockerfile build
+      run: |
+        sed -e "s|@{project_name}|logger|" -e "s|@{service_port}|9090|" < "ci-scripts/templates/Dockerfile" > "logger/Dockerfile"
