@@ -1,0 +1,4 @@
+###
+POST {{url}}/crontab/updCurrencies
+# POST http://localhost:8069/crontab/updCurrencies
+MySecretKey: {{secretKey}}

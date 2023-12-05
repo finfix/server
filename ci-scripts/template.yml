@@ -1,0 +1,59 @@
+image: ubuntu:latest
+
+variables:
+  SHARE: $CI_PROJECT_DIR/$CI_PIPELINE_ID
+  SCRIPTS: $SHARE/scripts
+
+stages:
+  - prepare
+  - test
+  - files
+  - docker
+  - deploy
+
+default:
+  artifacts:
+    paths:
+      - $SHARE
+
+
+
+setup-ci-scripts:
+  stage: prepare
+  script:
+    - apt-get update && apt-get install git -y 1> /dev/null
+    - git clone --depth 1 https://gitlab.com/myCoin/server/ci-scripts.git $SCRIPTS
+    - chmod +x $SCRIPTS/*.sh
+
+
+
+.go-test:
+  stage: test
+  script: $SCRIPTS/go-test.sh
+
+
+
+.dockerfile-build:
+  stage: files
+  script: $SCRIPTS/dockerfile-build.sh
+
+.compose-build:
+  stage: files
+  script: $SCRIPTS/compose-build.sh
+
+
+
+.docker-build:
+  stage: docker
+  image: docker:20.10.13-alpine3.15
+  services:
+    - docker:20.10.13-dind-alpine3.15
+  script: $SCRIPTS/docker-build.sh
+
+
+
+.deploy:
+  stage: deploy
+  script:
+    - $SCRIPTS/connect-to-server.sh
+    - $SCRIPTS/deploy.sh

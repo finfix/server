@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option go_package = "logger/app/pblogger";
+
+import "google/protobuf/empty.proto";
+
+package pblogger;
+
+service logger {
+  rpc AddLog(Log) returns (google.protobuf.Empty);
+}
+
+message Log {
+  // Уровень лога
+  string level = 1;
+  // Путь до строки, на которой был вызван лог
+  string path = 2;
+  // Сообщение лога
+  string message = 3;
+  // Время лога
+  string time = 4;
+  // Сервис, в котором был вызван лог
+  string service = 5;
+  // Контекст ошибки
+  optional string context = 6;
+}

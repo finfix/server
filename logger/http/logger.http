@@ -1,0 +1,12 @@
+
+### Добавление лога
+GRPC {{url}}/pblogger.logger/AddLog
+
+{
+  "level": "debug",
+  "message": "just debug",
+  "service": "core",
+  "context": "some context",
+  "path": "logger.http",
+  "time": "2021-03-03 12:00:00"
+}
