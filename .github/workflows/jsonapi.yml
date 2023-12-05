@@ -1,0 +1,35 @@
+name: deploy jsonapi
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'jsonapi/**'
+
+env:
+  service_name: jsonapi
+  service_port: 8069
+
+jobs:
+
+  go-test:
+    uses: ./.github/workflows/go-test.yml
+    with:
+      service_name: jsonapi
+
+  build-configs:
+    uses: ./.github/workflows/prepare.yml
+    with:
+      service_port: 8069
+      service_name: jsonapi
+
+  deploy:
+    needs:
+      - build-configs
+      - go-test
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service_name: jsonapi
+      service_port: 8069
+    secrets: inherit

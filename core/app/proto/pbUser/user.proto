@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option go_package = "core/app/proto/pbUser";
+
+import "pkg/proto/pbDatetime/datetime.proto";
+import "google/protobuf/empty.proto";
+
+package pbUser;
+
+service user {
+  rpc Get(GetReq) returns (GetRes) {}
+  rpc Create(CreateReq) returns (CreateRes) {}
+  rpc GetCurrencies(google.protobuf.Empty) returns (GetCurrenciesRes) {}
+}
+
+message User {
+  uint32 ID = 1; // Идентификатор пользователя
+  string name = 2; // Имя пользователя
+  string email = 3; // Электронная почта
+  string passwordHash = 4; // Хэш пароля
+  optional string verificationEmailCode = 5; // Временный код, приходящий на почту
+  optional datetime.Timestamp timeCreate = 6; // Дата создания аккаунта
+  optional string FCMToken = 7; // Токен уведомлений
+  string defaultCurrency = 8; // Валюта по умолчанию
+}
+
+message GetReq {
+  repeated uint32 IDs = 1; // Идентификатор пользователя
+  repeated string emails = 2; // Электронная почта
+}
+
+message CreateReq {
+  string email = 1; // Электронная почта
+  string passwordHash = 2; // Хеш пароля
+  string defaultCurrency = 3; // Валюта по умолчанию
+  string name = 4; // Имя
+  datetime.Timestamp timeCreate = 5; // Время создания
+}
+
+message GetRes {
+  repeated User users = 1;
+}
+
+message CreateRes {
+  uint32 ID = 1;
+}
+
+message GetCurrenciesRes {
+  repeated Currency currencies = 1;
+}
+
+message Currency {
+  string signatura = 1; // Сигнатура валюты
+  string name = 2; // Название валюты
+  string symbol = 3; // Символ валюты
+  double rate = 4; // Курс валюты
+}

@@ -1,0 +1,2 @@
+GET https://api.currencyapi.com/v3/latest?
+    apikey={{API_KEY_CURRENCY_PROVIDER}}

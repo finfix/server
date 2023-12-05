@@ -1,0 +1,43 @@
+### Создание транзакции
+POST {{url}}/transaction
+Authorization: {{authToken}}
+
+{
+    "accountFromID": 6,
+    "accountToID": 1100,
+    "amountFrom": 9,
+    "amountTo": 9,
+    "dateTransaction": "2023-03-05",
+    "note": "Шаурма",
+    "type": "consumption",
+    "isExecuted": true
+}
+
+### Редактирование транзакции
+PATCH {{url}}/transaction
+Authorization: {{authToken}}
+
+{
+    "id": 4507,
+    "dateTransaction": "2024-01-01"
+}
+
+### Удаление транзакции
+DELETE {{url}}/transaction
+Authorization: {{authToken}}
+
+{
+  "id": 4508
+}
+
+### Получение всех транзакций
+GET {{url}}/transaction
+Authorization: {{authToken}}
+
+{
+    "list": 0,
+    "type": "transfer",
+    "accountID": 0,
+    "dateFrom": "2022-11-29",
+    "dateTo": "2022-10-01"
+}

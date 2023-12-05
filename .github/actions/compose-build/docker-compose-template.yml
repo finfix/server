@@ -1,0 +1,13 @@
+version: "1.0"
+
+services:
+  coin-@{project_name}:
+    image: @{image_name}
+    container_name: coin-@{project_name}
+    restart: always
+    ports:
+      - @{service_port}:@{service_port}
+    volumes:
+      - ./logs:/@{project_name}/logs
+    env_file: .env
+    @{network_mode}

@@ -1,0 +1,28 @@
+name: go-test
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+
+jobs:
+  testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: cd to service directory
+        run: cd ${{ inputs.service_name }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+          cache-dependency-path: ${{ inputs.service_name }}/go.sum
+
+      - name: Go test
+        run: |
+          cd ${{ inputs.service_name }}
+          go test -v ./...

@@ -1,0 +1,51 @@
+name: prepare
+
+on:
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      service_port:
+        required: true
+        type: number
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+
+  dockerfile-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Dockerfile build
+        uses: ./.github/actions/dockerfile-build
+        with:
+          project_name: ${{ inputs.service_name }}
+          service_port: ${{ inputs.service_port }}
+
+      - name: Upload Dockerfile
+        uses: actions/upload-artifact@v3
+        with:
+          name: Dockerfile
+          path: Dockerfile
+
+  docker-compose-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Docker Compose build
+        uses: ./.github/actions/compose-build
+        with:
+          project_name: ${{ inputs.service_name }}
+          service_port: ${{ inputs.service_port }}
+          image_name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ inputs.service_name }}:${{ github.run_id }}
+
+      - name: Upload docker-compose.yml
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-compose.yml
+          path: docker-compose.yml

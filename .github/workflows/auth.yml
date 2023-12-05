@@ -1,0 +1,35 @@
+name: deploy auth
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'auth/**'
+
+env:
+  service_name: auth
+  service_port: 8071
+
+jobs:
+
+  go-test:
+    uses: ./.github/workflows/go-test.yml
+    with:
+      service_name: auth
+
+  build-configs:
+    uses: ./.github/workflows/prepare.yml
+    with:
+      service_port: 8071
+      service_name: auth
+
+  deploy:
+    needs:
+      - build-configs
+      - go-test
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service_name: auth
+      service_port: 8071
+    secrets: inherit

@@ -1,0 +1,35 @@
+name: deploy core
+
+on:
+  push:
+    branches:
+    - main
+    paths:
+    - 'core/**'
+
+env:
+  service_name: core
+  service_port: 8068
+
+jobs:
+
+  go-test:
+    uses: ./.github/workflows/go-test.yml
+    with:
+      service_name: core
+
+  build-configs:
+    uses: ./.github/workflows/prepare.yml
+    with:
+      service_port: 8068
+      service_name: core
+
+  deploy:
+    needs:
+      - build-configs
+      - go-test
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service_name: core
+      service_port: 8068
+    secrets: inherit
