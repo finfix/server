@@ -11,6 +11,7 @@ on:
 env:
   REGISTRY: ghcr.io
   SERVICE_NAME: logger
+  SERVICE_PORT: 8069
 
 jobs:
   build:
@@ -18,19 +19,46 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Login to the Container registry
-      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+#    - name: Set up Go
+#      uses: actions/setup-go@v4
+#      with:
+#        go-version: '1.20'
+#
+#    - name: Go test
+#      run: |
+#        cd logger
+#        go test -v ./...
+#
+#    - name: Login to the Container registry
+#      uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+#      with:
+#        registry: ${{ env.REGISTRY }}
+#        username: ${{ github.actor }}
+#        password: ${{ secrets.GITHUB_TOKEN }}
+#
+#    - name: Dockerfile build
+#      uses: ./.github/actions/dockerfile-build
+#      with:
+#          project_name: ${{ env.SERVICE_NAME }}
+#          service_port: ${{ env.SERVICE_PORT }}
+#
+#    - name: Docker Compose build
+#      uses: ./.github/actions/compose-build
+#      with:
+#          project_name: ${{ env.SERVICE_NAME }}
+#          service_port: ${{ env.SERVICE_PORT }}
+#          image_name: ${{ env.REGISTRY }}/finfix/${{ env.SERVICE_NAME }}:${{ github.sha }}
+#
+#    - name: Build and push Docker image
+#      uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+#      with:
+#        context: .
+#        push: true
+#        tags: ${{ env.REGISTRY }}/finfix/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+    - name: Connect To Server
+      uses: ./.github/actions/connect-to-server
       with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Dockerfile build
-      run: |
-        sed -e "s|@{project_name}|logger|" -e "s|@{service_port}|9090|" < "ci-scripts/templates/Dockerfile" > "Dockerfile"
-
-    - name: Docker build and push
-      run: |
-        docker build -t logger:$GITHUB_RUN_ID .
-        docker login -u $GITHUB_REPOSITORY_OWNER -p $CI_REGISTRY_PASSWORD https://ghcr.io
-        docker push -a $CI_REGISTRY_IMAGE
+        ssh_key: ${{ secrets.SSH_KEY }}
+        host: bonavii.com
+        port: 2002

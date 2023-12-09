@@ -1,0 +1,22 @@
+name: "dockerfile-build"
+description: "Create new dockerfile in root project directory"
+inputs:
+  project_name:
+    required: true
+    description: "Project name"
+  service_port:
+    required: true
+    description: "Port which service will be listening on"
+runs:
+  using: composite
+  steps:
+    - name: Sed the template
+      id: sed-template
+      shell: bash
+      run: |
+        sed \
+          -e "s|@{project_name}|${{ inputs.project_name }}|" \
+          -e "s|@{service_port}|${{ inputs.service_port }}|" \
+          < "ci-scripts/templates/Dockerfile" \
+          > "Dockerfile"
+        cat Dockerfile

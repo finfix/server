@@ -1,0 +1,45 @@
+name: "connect-to-server"
+description: "Create new dockerfile in root project directory"
+inputs:
+  ssh_key:
+    required: true
+    description: "SSH key"
+  host:
+    required: true
+    description: "Host to connect server"
+  port:
+    required: false
+    default: "22"
+    description: "Port to connect server"
+runs:
+  using: composite
+  steps:
+    - name: Run ssh-agent
+      shell: bash
+      run: |
+        command -v ssh-agent || ( apt-get update && apt-get install -y openssh-client )
+        eval $(ssh-agent -s)
+
+    - name: Make a directory for ssh key
+      shell: bash
+      run: |
+        mkdir -p ~/.ssh
+        chmod -R 700 ~/.ssh
+
+    - name: Add ssh key to ssh-agent
+      shell: bash
+      run: |
+        echo "${{ inputs.ssh_key }}" | tr -d '\r' > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+        ssh-add ~/.ssh/id_rsa
+
+#    - name: Add host to known_hosts
+#      shell: bash
+#      run: echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+
+    - name: Get and save server public key
+      shell: bash
+      run: |
+        ssh-keyscan -p ${{ inputs.port }} ${{ inputs.host }} >> ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
