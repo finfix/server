@@ -16,7 +16,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/schema v1.2.0
 	github.com/swaggo/http-swagger v1.3.4
-	google.golang.org/grpc v1.58.2
+	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
 	logger v0.0.0-00010101000000-000000000000
 	pkg v0.0.0-20231025211159-75bb09ada85b
