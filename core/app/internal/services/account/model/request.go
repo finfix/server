@@ -6,6 +6,7 @@ import (
 )
 
 type GetReq struct {
+	IDs             []uint32          // Идентификаторы счетов
 	UserID          uint32            // Идентификатор пользователя
 	DeviceID        string            // Идентификатор устройства
 	AccountGroupIDs []uint32          // Идентификатор группы счета
@@ -38,7 +39,6 @@ type UpdateReq struct {
 	Name                 *string  // Название счета
 	IconID               *uint32  // Идентификатор иконки
 	Visible              *bool    // Видимость счета
-	AccountGroupID       *uint32  // Идентификатор группы счета
 	Accounting           *bool    // Будет ли счет учитываться в статистике
 	GradualBudgetFilling *bool    // Постепенное пополнение бюджета
 }

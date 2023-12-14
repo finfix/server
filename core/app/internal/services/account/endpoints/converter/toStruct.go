@@ -13,6 +13,7 @@ type PbGetReq struct {
 
 func (pb PbGetReq) ConvertToStruct() model.GetReq {
 	var p model.GetReq
+	p.IDs = pb.IDs
 	p.UserID = pb.UserID
 	p.Accounting = pb.Accounting
 	p.Visible = pb.Visible
@@ -36,7 +37,6 @@ func (pb PbUpdateReq) ConvertToStruct() model.UpdateReq {
 	p.Name = pb.Name
 	p.IconID = pb.IconID
 	p.Visible = pb.Visible
-	p.AccountGroupID = pb.AccountGroupID
 	p.Accounting = pb.Accounting
 	p.GradualBudgetFilling = pb.GradualBudgetFilling
 	return p

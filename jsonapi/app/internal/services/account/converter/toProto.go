@@ -34,7 +34,6 @@ func (p UpdateReq) ConvertToProto() *pbAccount.UpdateReq {
 	pb.Name = p.Name
 	pb.IconID = p.IconID
 	pb.Visible = p.Visible
-	pb.AccountGroupID = p.AccountGroupID
 	pb.Accounting = p.Accounting
 	pb.GradualBudgetFilling = p.GradualBudgetFilling
 	return &pb

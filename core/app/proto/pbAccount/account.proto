@@ -87,6 +87,7 @@ message GetReq {
   optional datetime.Timestamp dateFrom = 6; // Дата начала выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
   optional datetime.Timestamp dateTo = 7; // Дата конца выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
   optional bool visible = 8; // Видимость счета
+  repeated uint32 IDs = 9; // Идентификаторы счетов
 }
 
 message UpdateReq {
@@ -97,7 +98,6 @@ message UpdateReq {
   optional string name = 5; // Название счета
   optional uint32 iconID = 6; // Идентификатор иконки
   optional bool visible = 7; // Видимость счета
-  optional uint32 accountGroupID = 8; // Идентификатор группы счета
   optional bool accounting = 9; // Будет ли счет учитываться в статистике
   optional bool gradualBudgetFilling = 10; // Постепенное пополнение бюджета
 }
