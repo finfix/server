@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="test jsonapi" type="GoTestRunConfiguration" factoryName="Go Test">
-    <module name="coin-server" />
+    <module name="Server" />
     <working_directory value="$PROJECT_DIR$" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />
