@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	accountService "core/app/internal/services/account/service"
+	"pkg/errors"
 
 	"logger/app/logging"
 
@@ -14,6 +16,11 @@ import (
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ Repository = &transactionRepository.TransactionRepository{}
+var _ AccountService = &accountService.Service{}
+
+type AccountService interface {
+	GetPermissions(ctx context.Context, id uint32) (accountService.Permissions, error)
+}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -37,6 +44,21 @@ func (s *Service) Create(ctx context.Context, transaction model.CreateReq) (id u
 	// Проверяем доступ пользователя к счетам
 	if err = s.general.CheckAccess(ctx, checker.Accounts, transaction.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
 		return id, err
+	}
+
+	// Получаем разрешения счетов
+	permissions1, err := s.account.GetPermissions(ctx, transaction.AccountFromID)
+	if err != nil {
+		return id, err
+	}
+	permissions2, err := s.account.GetPermissions(ctx, transaction.AccountToID)
+	if err != nil {
+		return id, err
+	}
+
+	// Проверяем, что счета можно использовать
+	if !permissions1.CreateTransaction || !permissions2.CreateTransaction {
+		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов")
 	}
 
 	// Создаем транзакцию
@@ -110,13 +132,20 @@ func (s *Service) Delete(ctx context.Context, id model.DeleteReq) error {
 type Service struct {
 	pb.UnsafeTransactionServer
 	transaction Repository
+	account     AccountService
 	general     GeneralRepository
 	logger      *logging.Logger
 }
 
-func New(rep Repository, generalRepository GeneralRepository, logger *logging.Logger) *Service {
+func New(
+	transactionRepository Repository,
+	accountService AccountService,
+	generalRepository GeneralRepository,
+	logger *logging.Logger,
+) *Service {
 	return &Service{
-		transaction: rep,
+		transaction: transactionRepository,
+		account:     accountService,
 		general:     generalRepository,
 		logger:      logger,
 	}
