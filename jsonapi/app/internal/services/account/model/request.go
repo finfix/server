@@ -38,7 +38,6 @@ type UpdateReq struct {
 	Name                 *string  `json:"name"`                               // Название счета
 	IconID               *uint32  `json:"iconID" minimum:"1"`                 // Идентификатор иконки
 	Visible              *bool    `json:"visible"`                            // Видимость счета
-	AccountGroupID       *uint32  `json:"accountGroupID" minimum:"1"`         // Идентификатор группы счета
 	Accounting           *bool    `json:"accounting"`                         // Будет ли счет учитываться в статистике
 	GradualBudgetFilling *bool    `json:"gradualBudgetFilling"`               // Постепенное пополнение бюджета
 	DeviceID             string   `json:"-" validate:"required"`              // Идентификатор устройства

@@ -34,7 +34,7 @@ func (repo *Repository) CreateAccountGroup(ctx context.Context, req model.Create
 
 func (repo *Repository) CalculateBalancingAmount(ctx context.Context, accountGroupIDs []uint32, dateFrom, dateTo date.Date) (amount []model.BalancingAmount, err error) {
 	return amount, repo.db.Select(ctx, &amount, `
-			SELECT a.account_group_id, a.currency_signatura, sum(t.amount_to) AS amount 
+			SELECT a.account_group_id, a.currency_signatura, SUM(t.amount_to) AS amount 
 			FROM coin.transactions t
 			  JOIN coin.accounts a ON a.id = t.account_to_id 
 			WHERE t.type_signatura = ?
@@ -125,13 +125,22 @@ func (repo *Repository) Get(ctx context.Context, req model.GetReq) (accounts []m
 		reqFields []string
 	)
 
-	_query, _args, err := repo.db.In(`a.account_group_id IN (?)`, req.AccountGroupIDs)
-	if err != nil {
-		return accounts, err
+	if len(req.AccountGroupIDs) != 0 {
+		_query, _args, err := repo.db.In(`a.account_group_id IN (?)`, req.AccountGroupIDs)
+		if err != nil {
+			return accounts, err
+		}
+		reqFields = append(reqFields, _query)
+		variables = append(variables, _args...)
 	}
-	reqFields = append(reqFields, _query)
-	variables = append(variables, _args...)
-
+	if len(req.IDs) != 0 {
+		_query, _args, err := repo.db.In(`a.id IN (?)`, req.IDs)
+		if err != nil {
+			return accounts, err
+		}
+		reqFields = append(reqFields, _query)
+		variables = append(variables, _args...)
+	}
 	if req.Type != nil {
 		reqFields = append(reqFields, `a.type_signatura = ?`)
 		variables = append(variables, req.Type)
@@ -143,6 +152,10 @@ func (repo *Repository) Get(ctx context.Context, req model.GetReq) (accounts []m
 	if req.Visible != nil {
 		reqFields = append(reqFields, `a.visible = ?`)
 		variables = append(variables, req.Visible)
+	}
+
+	if len(reqFields) == 0 {
+		return accounts, errors.BadRequest.New("No filters")
 	}
 
 	// Выполняем запрос
@@ -315,10 +328,6 @@ func (repo *Repository) Update(ctx context.Context, fields model.UpdateReq) erro
 	)
 
 	// Добавляем в запрос только те поля, которые необходимо обновить
-	if fields.AccountGroupID != nil {
-		queryFields = append(queryFields, "account_group_id = ?")
-		args = append(args, fields.AccountGroupID)
-	}
 	if fields.Budget != nil {
 		queryFields = append(queryFields, "budget = ?")
 		args = append(args, fields.Budget)
