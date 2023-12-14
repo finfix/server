@@ -21,6 +21,17 @@ func (s *Service) Update(ctx context.Context, account model.UpdateReq) error {
 		return err
 	}
 
+	// Получаем разрешения счета
+	permissions, err := s.GetPermissions(ctx, account.ID)
+	if err != nil {
+		return err
+	}
+
+	// Проверяем, что входные данные не противоречат разрешениям
+	if err = s.CheckPermissions(account, permissions); err != nil {
+		return err
+	}
+
 	return s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Если есть остаток
