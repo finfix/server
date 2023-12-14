@@ -110,6 +110,7 @@ func main() {
 
 	transactionService := transactionService.New(
 		transactionRepository,
+		accountService,
 		generalRepository,
 		logger,
 	)
