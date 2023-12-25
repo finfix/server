@@ -1,0 +1,1 @@
+protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbTgBot:./ --go_out=./app/proto/pbTgBot --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbTgBot --go-grpc_opt=paths=source_relative tgBot.proto
