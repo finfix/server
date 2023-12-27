@@ -59,8 +59,7 @@ func main() {
 	pbTgBot.RegisterTgBotServer(s, tgBotEndpoint.New(tgBotService, logger))
 
 	// Запускаем gRPC-сервер
-	logger.Info("gRPC-server is listening %v", cfg.Services.TgBot.GRPC)
-	if err := grpcPkg.StartGRPC(s, cfg.Services.TgBot.GRPC); err != nil {
+	if err = grpcPkg.ServeGRPC(s, cfg.Services.TgBot.GRPC); err != nil {
 		logger.Fatal(errors.InternalServer.Wrap(err))
 	}
 }

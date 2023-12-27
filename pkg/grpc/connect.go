@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func StartGRPC(s *grpc.Server, port string) error {
+func ServeGRPC(s *grpc.Server, port string) error {
 
 	// Проверяем наличие порта для запуска gRPC-сервера
 	if port == "" {
