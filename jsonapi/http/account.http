@@ -14,8 +14,8 @@ Authorization: {{authToken}}
 
 ### Получение всех счетов
 GET {{url}}/account
-    ?type=regular
-#    &isRemoveParents=true
+    ?dateFrom=2023-09-01
+    &dateTo=2023-10-01
 Authorization: {{authToken}}
 
 ### Получение всех счетов, сгруппированных по родительским счетам

@@ -2,15 +2,14 @@ package transaction
 
 import (
 	"context"
-	"net/http"
-
-	"jsonapi/app/internal/services/transaction/converter"
-
-	"github.com/gorilla/schema"
-
+	pb "core/app/proto/pbTransaction"
 	"jsonapi/app/internal/services/transaction/model"
+	"net/http"
+	"pkg/converter"
 	"pkg/errors"
 	"pkg/validation"
+
+	"github.com/gorilla/schema"
 )
 
 // @Summary Получение всех транзакций
@@ -30,14 +29,24 @@ func (s *service) getTransactions(ctx context.Context, r *http.Request) (any, er
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.GetReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	proto, err := s.client.Get(ctx, converter.GetReq{req}.ConvertToProto())
+	out, err := s.client.Get(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.GetRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbGetRes{proto}.ConvertToStruct().Transactions, nil
+	return res.Transactions, nil
 }
 
 func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.GetReq, err error) {

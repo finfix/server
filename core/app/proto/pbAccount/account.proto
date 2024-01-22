@@ -4,7 +4,6 @@ option go_package = "core/app/proto/pbAccount";
 
 import "google/protobuf/empty.proto";
 import "pkg/proto/pbDatetime/datetime.proto";
-import "app/proto/pbEnum/enum.proto";
 
 package pbAccount;
 
@@ -14,7 +13,6 @@ service account {
   rpc Update(UpdateReq) returns (google.protobuf.Empty);
   rpc Delete(DeleteReq) returns (google.protobuf.Empty);
   rpc Switch(SwitchReq) returns (google.protobuf.Empty);
-  rpc QuickStatistic(QuickStatisticReq) returns (QuickStatisticRes);
   rpc GetAccountGroups(GetAccountGroupsReq) returns (GetAccountGroupsRes);
 }
 
@@ -35,22 +33,6 @@ message AccountGroup {
   bool visible = 5; // Видимость группы счетов
 }
 
-message QuickStatisticReq {
-  uint32 userID = 1; // Идентификатор пользователя
-}
-
-message QuickStatisticRes {
-  repeated QuickStatistic quickStatistic = 1; // Краткая статистика
-}
-
-message QuickStatistic {
-  double totalRemainder = 1; // Общая сумма видимых счетов
-  double totalExpense = 2; // Общая сумма расходов
-  uint32 accountGroupID = 3; // Идентификатор группы счетов
-  double totalBudget = 4; // Общая сумма расходов
-  string currency = 5; // Валюта
-}
-
 message SwitchReq {
   uint32 ID1 = 1; // Идентификатор первого счета
   uint32 ID2 = 2; // Идентификатор второго счета
@@ -67,7 +49,7 @@ message CreateReq {
   double remainder = 2; // Остаток средств на счету
   string name = 3; // Название счета
   uint32 iconID = 4; // Идентификатор иконки
-  enums.AccountType type = 5; // Тип счета
+  string type = 5; // Тип счета
   string currency = 6; // Валюта счета
   uint32 accountGroupID = 7; // Группа счета
   bool accounting = 8; // Подсчет суммы счета в статистике
@@ -81,7 +63,7 @@ message CreateRes {
 
 message GetReq {
   uint32 userID = 1; // Идентификатор пользователя
-  optional enums.AccountType type = 2; // Тип счета
+  optional string type = 2; // Тип счета
   optional bool accounting = 3; // Будет ли счет учитываться в статистике
   repeated uint32 accountGroupIDs = 4; // Идентификатор группы счета
   optional datetime.Timestamp dateFrom = 6; // Дата начала выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
@@ -112,7 +94,7 @@ message Account {
   double remainder = 3; // Остаток средств на счету
   string name = 4; // Название счета
   uint32 iconID = 5; // Идентификатор иконки
-  enums.AccountType type = 6; // Тип счета
+  string type = 6; // Тип счета
   string currency = 7; // Валюта счета
   bool visible = 8; // Видимость счета
   uint32 accountGroupID = 9; // Идентификатор группы счета

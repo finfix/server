@@ -1,11 +1,12 @@
 package auth
 
 import (
+	pb "auth/app/proto/pbAuth"
 	"context"
 	"encoding/json"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/auth/converter"
 	"jsonapi/app/internal/services/auth/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -27,14 +28,24 @@ func (s *service) refreshTokens(ctx context.Context, r *http.Request) (any, erro
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.RefreshTokensReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	proto, err := s.client.RefreshTokens(ctx, converter.RefreshTokensReq{&req}.ConvertToProto())
+	out, err := s.client.RefreshTokens(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.RefreshTokensRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbRefreshTokensRes{proto}.ConvertToStruct(), nil
+	return res, nil
 }
 
 func decodeRefreshTokensReq(_ context.Context, r *http.Request) (req model.RefreshTokensReq, err error) {

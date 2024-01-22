@@ -2,10 +2,10 @@ package user
 
 import (
 	"context"
-	"net/http"
-
-	"jsonapi/app/internal/services/user/converter"
+	pb "core/app/proto/pbUser"
 	"jsonapi/app/internal/services/user/model"
+	"net/http"
+	"pkg/converter"
 	"pkg/errors"
 	"pkg/validation"
 )
@@ -25,13 +25,21 @@ func (s *service) getUser(ctx context.Context, r *http.Request) (any, error) {
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.GetReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	res, err := s.client.Get(ctx, converter.GetReq{req}.ConvertToProto())
+	out, err := s.client.Get(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
-	users := converter.PbGetRes{res}.ConvertToStruct().Users
+	users, err := converter.Convert([]model.User{}, out)
+	if err != nil {
+		return nil, err
+	}
 	if len(users) == 0 {
 		return nil, errors.NotFound.NewCtx("Пользователь не найден", "UserID: %v", req.ID)
 	}

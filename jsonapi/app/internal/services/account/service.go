@@ -39,7 +39,6 @@ func NewService(client pbAccount.AccountClient) http.Handler {
 	r.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateAccount, options...))
 	r.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteAccount, options...))
 	r.Methods("PATCH").Path(part + "/switch").Handler(server.NewChain(s.switchAccounts, options...))
-	r.Methods("GET").Path(part + "/quickStatistic").Handler(server.NewChain(s.quickStatistic, options...))
 	r.Methods("GET").Path(part + "/accountGroups").Handler(server.NewChain(s.getAccountGroups, options...))
 
 	return r

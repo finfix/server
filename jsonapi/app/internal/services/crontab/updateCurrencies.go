@@ -2,21 +2,25 @@ package crontab
 
 import (
 	"context"
+	"jsonapi/app/internal/services/crontab/model"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/crontab/converter"
 	"pkg/errors"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 func (s *service) updateCurrencies(ctx context.Context, _ *http.Request) (any, error) {
 
 	// Вызываем метод сервиса
-	proto, err := s.client.UpdateCurrencies(ctx, &emptypb.Empty{})
+	out, err := s.client.UpdateCurrencies(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.UpdateCurrenciesRes{}, out)
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbUpdateCurrenciesRes{proto}.ConvertToStruct(), nil
+	return res, nil
 }

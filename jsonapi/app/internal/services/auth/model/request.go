@@ -7,12 +7,14 @@ type RefreshTokensReq struct {
 type SignInReq struct {
 	Email    string `json:"email" validate:"required" format:"email"` // Электронная почта пользователя
 	Password string `json:"password" validate:"required"`             // Пароль пользователя
-	DeviceID string `json:"-" validate:"required"`                    // Идентификатор устройства
+	// TODO: Убрать тег
+	DeviceID string `json:"deviceID" validate:"required"` // Идентификатор устройства
 }
 
 type SignUpReq struct {
 	Name     string `json:"name" validate:"required"`                 // Имя пользователя
 	Email    string `json:"email" validate:"required" format:"email"` // Электронная почта пользователя
 	Password string `json:"password" validate:"required"`             // Пароль пользователя
-	DeviceID string `json:"-" validate:"required"`                    // Идентификатор устройства
+	// TODO: Убрать тег
+	DeviceID string `json:"deviceID" validate:"required"` // Идентификатор устройства
 }

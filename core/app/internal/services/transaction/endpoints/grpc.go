@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"context"
+	"pkg/converter"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -21,21 +22,33 @@ type TransactionService interface {
 func (s *Endpoint) Create(_ context.Context, in *pb.CreateReq) (*pb.CreateRes, error) {
 	s.logger.Info("Method Create")
 
-	req := model.PbCreateReq{CreateReq: in}
-	id, err := s.service.Create(context.Background(), *req.ConvertToStruct())
+	req, err := converter.Convert(model.CreateReq{}, in)
 	if err != nil {
 		return nil, err
 	}
 
-	res := model.CreateRes{ID: id}
-	return res.ConvertToProto(), nil
+	id, err := s.service.Create(context.Background(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := converter.Convert(pb.CreateRes{}, model.CreateRes{ID: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 func (s *Endpoint) Update(_ context.Context, in *pb.UpdateReq) (*emptypb.Empty, error) {
 	s.logger.Info("Method Update")
 
-	req := model.PbUpdateReq{UpdateReq: in}
-	if err := s.service.Update(context.Background(), *req.ConvertToStruct()); err != nil {
+	req, err := converter.Convert(model.UpdateReq{}, in)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.service.Update(context.Background(), req); err != nil {
 		return nil, err
 	}
 
@@ -45,8 +58,12 @@ func (s *Endpoint) Update(_ context.Context, in *pb.UpdateReq) (*emptypb.Empty, 
 func (s *Endpoint) Delete(_ context.Context, in *pb.DeleteReq) (*emptypb.Empty, error) {
 	s.logger.Info("Method Delete")
 
-	req := model.PbDeleteReq{DeleteReq: in}
-	if err := s.service.Delete(context.Background(), *req.ConvertToStruct()); err != nil {
+	req, err := converter.Convert(model.DeleteReq{}, in)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.service.Delete(context.Background(), req); err != nil {
 		return nil, err
 	}
 
@@ -56,14 +73,22 @@ func (s *Endpoint) Delete(_ context.Context, in *pb.DeleteReq) (*emptypb.Empty, 
 func (s *Endpoint) Get(ctx context.Context, in *pb.GetReq) (*pb.GetRes, error) {
 	s.logger.Info("Method Get")
 
-	req := model.PbGetReq{GetReq: in}
-	transactions, err := s.service.Get(ctx, *req.ConvertToStruct())
+	req, err := converter.Convert(model.GetReq{}, in)
 	if err != nil {
 		return nil, err
 	}
 
-	res := model.GetRes{Transactions: transactions}
-	return res.ConvertToProto(), nil
+	transactions, err := s.service.Get(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := converter.Convert(pb.GetRes{}, model.GetRes{Transactions: transactions})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 type Endpoint struct {

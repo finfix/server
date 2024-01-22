@@ -2,13 +2,14 @@ package endpoints
 
 import (
 	"context"
+	converter "pkg/converter"
 
 	"logger/app/logging"
 
-	"core/app/internal/services/account/endpoints/converter"
 	"core/app/internal/services/account/model"
 	accountService "core/app/internal/services/account/service"
 	pb "core/app/proto/pbAccount"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -20,7 +21,6 @@ type AccountService interface {
 	Update(context.Context, model.UpdateReq) error
 	Delete(context.Context, model.DeleteReq) error
 	Switch(context.Context, model.SwitchReq) error
-	QuickStatistic(context.Context, model.QuickStatisticReq) ([]model.QuickStatistic, error)
 	GetAccountGroups(context.Context, model.GetAccountGroupsReq) ([]model.AccountGroup, error)
 }
 
@@ -33,31 +33,54 @@ type Endpoint struct {
 func (s *Endpoint) Create(_ context.Context, in *pb.CreateReq) (*pb.CreateRes, error) {
 	s.logger.Info("Method Create")
 
-	id, err := s.service.Create(context.Background(), converter.PbCreateReq{CreateReq: in}.ConvertToStruct())
+	req, err := converter.Convert(model.CreateReq{}, in)
 	if err != nil {
 		return nil, err
 	}
 
-	res := model.CreateRes{ID: id}
-	return converter.CreateRes{res}.ConvertToProto(), nil
+	id, err := s.service.Create(context.Background(), req)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := converter.Convert(pb.CreateRes{}, model.CreateRes{ID: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 func (s *Endpoint) Get(ctx context.Context, in *pb.GetReq) (*pb.GetRes, error) {
 	s.logger.Info("Method Get")
 
-	accounts, err := s.service.Get(ctx, converter.PbGetReq{GetReq: in}.ConvertToStruct())
+	req, err := converter.Convert(model.GetReq{}, in)
 	if err != nil {
 		return nil, err
 	}
 
-	res := model.GetRes{Accounts: accounts}
-	return converter.GetRes{res}.ConvertToProto(), nil
+	accounts, err := s.service.Get(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := converter.Convert(pb.GetRes{}, model.GetRes{Accounts: accounts})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 func (s *Endpoint) Update(_ context.Context, in *pb.UpdateReq) (*emptypb.Empty, error) {
 	s.logger.Info("Method Update")
 
-	if err := s.service.Update(context.Background(), converter.PbUpdateReq{UpdateReq: in}.ConvertToStruct()); err != nil {
+	req, err := converter.Convert(model.UpdateReq{}, in)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.service.Update(context.Background(), req); err != nil {
 		return nil, err
 	}
 
@@ -67,7 +90,12 @@ func (s *Endpoint) Update(_ context.Context, in *pb.UpdateReq) (*emptypb.Empty, 
 func (s *Endpoint) Delete(_ context.Context, in *pb.DeleteReq) (*emptypb.Empty, error) {
 	s.logger.Info("Method Delete")
 
-	if err := s.service.Delete(context.Background(), converter.PbDeleteReq{DeleteReq: in}.ConvertToStruct()); err != nil {
+	req, err := converter.Convert(model.DeleteReq{}, in)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.service.Delete(context.Background(), req); err != nil {
 		return nil, err
 	}
 
@@ -77,34 +105,37 @@ func (s *Endpoint) Delete(_ context.Context, in *pb.DeleteReq) (*emptypb.Empty, 
 func (s *Endpoint) Switch(_ context.Context, in *pb.SwitchReq) (*emptypb.Empty, error) {
 	s.logger.Info("Method Switch")
 
-	if err := s.service.Switch(context.Background(), converter.PbSwitchReq{SwitchReq: in}.ConvertToStruct()); err != nil {
+	req, err := converter.Convert(model.SwitchReq{}, in)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := s.service.Switch(context.Background(), req); err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Endpoint) QuickStatistic(ctx context.Context, in *pb.QuickStatisticReq) (*pb.QuickStatisticRes, error) {
-	s.logger.Info("Method QuickStatistic")
-
-	statisticArr, err := s.service.QuickStatistic(ctx, converter.PbQuickStatisticReq{QuickStatisticReq: in}.ConvertToStruct())
-	if err != nil {
-		return nil, err
-	}
-	res := model.QuickStatisticRes{QuickStatistic: statisticArr}
-	return converter.QuickStatisticRes{res}.ConvertToProto(), nil
-}
-
-func (s *Endpoint) GetAccountGroups(ctx context.Context, req *pb.GetAccountGroupsReq) (*pb.GetAccountGroupsRes, error) {
+func (s *Endpoint) GetAccountGroups(ctx context.Context, in *pb.GetAccountGroupsReq) (*pb.GetAccountGroupsRes, error) {
 	s.logger.Info("Method GetAccountGroups")
 
-	accountGroups, err := s.service.GetAccountGroups(ctx, converter.PbGetAccountGroupsReq{GetAccountGroupsReq: req}.ConvertToStruct())
+	req, err := converter.Convert(model.GetAccountGroupsReq{}, in)
 	if err != nil {
 		return nil, err
 	}
 
-	res := model.GetAccountGroupsRes{AccountGroups: accountGroups}
-	return converter.GetAccountGroupsRes{res}.ConvertToProto(), nil
+	accountGroups, err := s.service.GetAccountGroups(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := converter.Convert(pb.GetAccountGroupsRes{}, model.GetAccountGroupsRes{AccountGroups: accountGroups})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 func New(service AccountService, logger *logging.Logger) pb.AccountServer {

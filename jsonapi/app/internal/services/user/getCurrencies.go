@@ -2,9 +2,10 @@ package user
 
 import (
 	"context"
+	"jsonapi/app/internal/services/user/model"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/user/converter"
 	_ "jsonapi/app/internal/services/user/model"
 	"pkg/errors"
 
@@ -21,11 +22,16 @@ import (
 func (s *service) getCurrencies(ctx context.Context, _ *http.Request) (any, error) {
 
 	// Вызываем метод сервиса
-	res, err := s.client.GetCurrencies(ctx, &emptypb.Empty{})
+	out, err := s.client.GetCurrencies(ctx, &emptypb.Empty{})
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.GetCurrenciesRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbGetCurrenciesRes{res}.ConvertToStruct().Currencies, nil
+	return res.Currencies, nil
 }

@@ -165,7 +165,7 @@ func shareLog(values *pb.Log, isSendToLogger bool) {
 				Service: values.Service,
 				Time:    values.Time,
 			}); err != nil {
-				processingErrorLog(enum.Error, false, errors.InternalServer.WrapCtx(err, "Не смогли отправить лог на сервер"))
+				processingErrorLog(enum.Warning, false, errors.InternalServer.WrapCtx(err, "Не смогли отправить лог на сервер"))
 			}
 		}()
 	}

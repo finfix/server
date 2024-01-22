@@ -2,9 +2,10 @@ package account
 
 import (
 	"context"
+	pb "core/app/proto/pbAccount"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/account/converter"
 	"jsonapi/app/internal/services/account/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -29,10 +30,16 @@ func (s *service) deleteAccount(ctx context.Context, r *http.Request) (any, erro
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.DeleteReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	if _, err := s.client.Delete(ctx, converter.DeleteReq{req}.ConvertToProto()); err != nil {
+	if _, err = s.client.Delete(ctx, &in); err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
+
 	return nil, nil
 }
 

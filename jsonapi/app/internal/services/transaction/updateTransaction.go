@@ -2,11 +2,11 @@ package transaction
 
 import (
 	"context"
+	pb "core/app/proto/pbTransaction"
 	"encoding/json"
-	"net/http"
-
-	"jsonapi/app/internal/services/transaction/converter"
 	"jsonapi/app/internal/services/transaction/model"
+	"net/http"
+	"pkg/converter"
 	"pkg/errors"
 	"pkg/validation"
 )
@@ -29,10 +29,16 @@ func (s *service) updateTransaction(ctx context.Context, r *http.Request) (any, 
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.UpdateReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	if _, err = s.client.Update(ctx, converter.UpdateReq{req}.ConvertToProto()); err != nil {
+	if _, err = s.client.Update(ctx, &in); err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
+
 	return nil, nil
 }
 

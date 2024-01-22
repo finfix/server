@@ -4,7 +4,6 @@ option go_package = "core/app/proto/pbTransaction";
 
 import "google/protobuf/empty.proto";
 import "pkg/proto/pbDatetime/datetime.proto";
-import "app/proto/pbEnum/enum.proto";
 
 package pbTransaction;
 
@@ -21,7 +20,7 @@ message DeleteReq {
 }
 
 message CreateReq {
-  enums.TransactionType type = 1; // Тип транзакции
+  string type = 1; // Тип транзакции
   double amountFrom = 2; // Сумма списания с первого счета
   double amountTo = 3; // Сумма пополнения второго счета (в случаях меж валютной транзакции цифры отличаются)
   string note = 4; // Заметка для транзакции
@@ -53,7 +52,7 @@ message GetReq {
   optional uint32 offset = 2; // Смещение для пагинации
   optional uint32 limit = 3; // Лимит для пагинации
   optional uint32 accountID = 4; // Транзакции какого счета нас интересуют
-  optional enums.TransactionType type = 5; // Тип транзакции
+  optional string type = 5; // Тип транзакции
   optional datetime.Timestamp dateFrom = 6; // Дата, от которой начинать учитывать транзакции
   optional datetime.Timestamp dateTo = 7; // Дата, до которой учитывать транзакции
 }
@@ -64,7 +63,7 @@ message GetRes {
 
 message Transaction {
   uint32 ID = 1; // Идентификатор транзакции
-  enums.TransactionType type = 2; // Тип транзакции
+  string type = 2; // Тип транзакции
   repeated Tag tags = 3; // Подкатегории
   double amountFrom = 4; // Сумма сделки в первой валюте
   double amountTo = 5; // Сумма сделки во второй валюте

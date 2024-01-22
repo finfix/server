@@ -2,9 +2,10 @@ package account
 
 import (
 	"context"
+	pb "core/app/proto/pbAccount"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/account/converter"
 	"jsonapi/app/internal/services/account/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -28,14 +29,24 @@ func (s *service) get(ctx context.Context, r *http.Request) (any, error) {
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.GetReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	proto, err := s.client.Get(ctx, converter.GetReq{req}.ConvertToProto())
+	out, err := s.client.Get(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.GetRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbGetRes{proto}.ConvertToStruct().Accounts, nil
+	return res.Accounts, nil
 }
 
 func decodeGetReq(ctx context.Context, r *http.Request) (req model.GetReq, err error) {

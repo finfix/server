@@ -1,11 +1,12 @@
 package auth
 
 import (
+	pb "auth/app/proto/pbAuth"
 	"context"
 	"encoding/json"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/auth/converter"
 	"jsonapi/app/internal/services/auth/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -28,14 +29,24 @@ func (s *service) signUp(ctx context.Context, r *http.Request) (any, error) {
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.SignUpReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	proto, err := s.client.SignUp(ctx, converter.SignUpReq{&req}.ConvertToProto())
+	out, err := s.client.SignUp(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.AuthRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbAuthRes{proto}.ConvertToStruct(), nil
+	return res, nil
 }
 
 func decodeSignUpReq(ctx context.Context, r *http.Request) (req model.SignUpReq, err error) {

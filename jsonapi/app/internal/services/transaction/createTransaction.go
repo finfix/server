@@ -2,10 +2,11 @@ package transaction
 
 import (
 	"context"
+	pb "core/app/proto/pbTransaction"
 	"encoding/json"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/transaction/converter"
 	"jsonapi/app/internal/services/transaction/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -29,14 +30,24 @@ func (s *service) createTransaction(ctx context.Context, r *http.Request) (any, 
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.CreateReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	proto, err := s.client.Create(ctx, converter.CreateReq{req}.ConvertToProto())
+	out, err := s.client.Create(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
+	res, err := converter.Convert(model.CreateRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
 	// Конвертируем ответ во внутреннюю структуру
-	return converter.PbCreateRes{proto}.ConvertToStruct(), nil
+	return res, nil
 }
 
 func decodeCreateTransactionReq(ctx context.Context, r *http.Request) (req model.CreateReq, err error) {

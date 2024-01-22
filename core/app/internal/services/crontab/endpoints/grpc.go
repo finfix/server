@@ -2,6 +2,7 @@ package endpoints
 
 import (
 	"context"
+	"pkg/converter"
 
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -23,8 +24,12 @@ func (s *Endpoint) UpdateCurrencies(ctx context.Context, _ *emptypb.Empty) (*pb.
 		return nil, err
 	}
 
-	res := model.UpdateCurrenciesRes{Rates: rates}
-	return res.ConvertToProto(), nil
+	out, err := converter.Convert(pb.UpdateCurrenciesRes{}, model.UpdateCurrenciesRes{Rates: rates})
+	if err != nil {
+		return nil, err
+	}
+
+	return &out, nil
 }
 
 type Endpoint struct {

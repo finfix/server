@@ -2,9 +2,10 @@ package account
 
 import (
 	"context"
+	pb "core/app/proto/pbAccount"
 	"net/http"
+	"pkg/converter"
 
-	"jsonapi/app/internal/services/account/converter"
 	"jsonapi/app/internal/services/account/model"
 	"pkg/errors"
 	"pkg/validation"
@@ -26,12 +27,24 @@ func (s *service) getAccountGroups(ctx context.Context, r *http.Request) (any, e
 		return nil, err
 	}
 
+	in, err := converter.Convert(pb.GetAccountGroupsReq{}, req)
+	if err != nil {
+		return nil, err
+	}
+
 	// Вызываем метод сервиса
-	groups, err := s.client.GetAccountGroups(ctx, converter.GetAccountGroupsReq{req}.ConvertToProto())
+	out, err := s.client.GetAccountGroups(ctx, &in)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
-	return converter.PbGetAccountGroupsRes{groups}.ConvertToStruct().AccountGroups, nil
+
+	res, err := converter.Convert(model.GetAccountGroupsRes{}, out)
+	if err != nil {
+		return nil, err
+	}
+
+	// Конвертируем ответ во внутреннюю структуру
+	return res, nil
 }
 
 func decodeGetAccountGroupsReq(ctx context.Context, _ *http.Request) (req model.GetAccountGroupsReq, err error) {
