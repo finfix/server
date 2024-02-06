@@ -56,26 +56,22 @@ type PbQuickStatistic struct {
 	*pbAccount.QuickStatistic
 }
 
-func (pb PbQuickStatistic) ConvertToStruct() model.QuickStatistic {
-	var p model.QuickStatistic
-	p.AccountGroupID = pb.AccountGroupID
-	p.Currency = pb.Currency
-	p.TotalRemainder = pb.TotalRemainder
-	p.TotalExpense = pb.TotalExpense
-	p.TotalBudget = pb.TotalBudget
+func (pb PbBudget) ConvertToStruct() model.Budget {
+	var p model.Budget
+	p.Amount = pb.Amount
+	p.FixedSum = pb.FixedSum
+	p.DaysOffset = pb.DaysOffset
+	p.GradualFilling = pb.GradualFilling
 	return p
 }
 
-type PbQuickStatisticRes struct {
-	*pbAccount.QuickStatisticRes
+type PbCreateRes struct {
+	*pbAccount.CreateRes
 }
 
-func (pb PbQuickStatisticRes) ConvertToStruct() model.QuickStatisticRes {
-	var p model.QuickStatisticRes
-	p.QuickStatistic = make([]model.QuickStatistic, len(pb.QuickStatistic))
-	for i, statistic := range pb.QuickStatistic {
-		p.QuickStatistic[i] = PbQuickStatistic{statistic}.ConvertToStruct()
-	}
+func (pb PbCreateRes) ConvertToStruct() model.CreateRes {
+	var p model.CreateRes
+	p.ID = pb.ID
 	return p
 }
 

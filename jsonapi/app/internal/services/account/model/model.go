@@ -28,11 +28,3 @@ type AccountGroup struct {
 	SerialNumber uint32 `json:"serialNumber"` // Порядковый номер группы счетов
 	Visible      bool   `json:"visible"`      // Видимость группы счетов
 }
-
-type QuickStatistic struct {
-	AccountGroupID uint32  `json:"accountGroupID"` // Идентификатор группы счетов
-	Currency       string  `json:"currency"`       // Валюта
-	TotalRemainder float64 `json:"totalRemainder"` // Общий баланс видимых счетов
-	TotalExpense   float64 `json:"totalExpense"`   // Общая сумма расходов
-	TotalBudget    float64 `json:"totalBudget"`    // Общая сумма бюджетов
-}

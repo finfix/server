@@ -56,11 +56,6 @@ type SwitchReq struct {
 	DeviceID string `json:"-" validate:"required"`                // Идентификатор устройства
 }
 
-type QuickStatisticReq struct {
-	UserID   uint32 `json:"-" validate:"required" minimum:"1"` // Идентификатор пользователя
-	DeviceID string `json:"-" validate:"required"`             // Идентификатор устройства
-}
-
 type GetAccountGroupsReq struct {
 	UserID          uint32   `json:"-" validate:"required" minimum:"1"`                    // Идентификатор пользователя
 	DeviceID        string   `json:"-" validate:"required"`                                // Идентификатор устройства

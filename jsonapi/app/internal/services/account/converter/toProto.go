@@ -102,16 +102,6 @@ func (p SwitchReq) ConvertToProto() *pbAccount.SwitchReq {
 	return &pb
 }
 
-type QuickStatisticReq struct {
-	model.QuickStatisticReq
-}
-
-func (p QuickStatisticReq) ConvertToProto() *pbAccount.QuickStatisticReq {
-	var pb pbAccount.QuickStatisticReq
-	pb.UserID = p.UserID
-	return &pb
-}
-
 type GetAccountGroupsReq struct {
 	model.GetAccountGroupsReq
 }

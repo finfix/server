@@ -84,16 +84,6 @@ func (pb PbSwitchReq) ConvertToStruct() model.SwitchReq {
 	return p
 }
 
-type PbQuickStatisticReq struct {
-	*pbAccount.QuickStatisticReq
-}
-
-func (pb PbQuickStatisticReq) ConvertToStruct() model.QuickStatisticReq {
-	var p model.QuickStatisticReq
-	p.UserID = pb.UserID
-	return p
-}
-
 type PbGetAccountGroupsReq struct {
 	*pbAccount.GetAccountGroupsReq
 }

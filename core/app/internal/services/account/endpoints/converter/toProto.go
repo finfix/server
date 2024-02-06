@@ -51,30 +51,10 @@ func (p Account) ConvertToProto() *pbAccount.Account {
 	return &pb
 }
 
-type QuickStatisticRes struct {
-	model.QuickStatisticRes
+type Budget struct {
+	model.Budget
 }
 
-func (p QuickStatisticRes) ConvertToProto() *pbAccount.QuickStatisticRes {
-	var pb pbAccount.QuickStatisticRes
-	pb.QuickStatistic = make([]*pbAccount.QuickStatistic, len(p.QuickStatisticRes.QuickStatistic))
-	for i, statistic := range p.QuickStatistic {
-		pb.QuickStatistic[i] = QuickStatistic{statistic}.ConvertToProto()
-	}
-	return &pb
-}
-
-type QuickStatistic struct {
-	model.QuickStatistic
-}
-
-func (p QuickStatistic) ConvertToProto() *pbAccount.QuickStatistic {
-	var pb pbAccount.QuickStatistic
-	pb.TotalRemainder = p.TotalRemainder
-	pb.TotalExpense = p.TotalExpense
-	pb.AccountGroupID = p.AccountGroupID
-	pb.TotalBudget = p.TotalBudget
-	pb.Currency = p.Currency
 	return &pb
 }
 

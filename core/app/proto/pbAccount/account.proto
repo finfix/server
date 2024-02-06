@@ -14,7 +14,6 @@ service account {
   rpc Update(UpdateReq) returns (google.protobuf.Empty);
   rpc Delete(DeleteReq) returns (google.protobuf.Empty);
   rpc Switch(SwitchReq) returns (google.protobuf.Empty);
-  rpc QuickStatistic(QuickStatisticReq) returns (QuickStatisticRes);
   rpc GetAccountGroups(GetAccountGroupsReq) returns (GetAccountGroupsRes);
 }
 
@@ -33,22 +32,6 @@ message AccountGroup {
   string currency = 3; // Валюта группы счетов
   uint32 serialNumber = 4; // Порядковый номер группы счетов
   bool visible = 5; // Видимость группы счетов
-}
-
-message QuickStatisticReq {
-  uint32 userID = 1; // Идентификатор пользователя
-}
-
-message QuickStatisticRes {
-  repeated QuickStatistic quickStatistic = 1; // Краткая статистика
-}
-
-message QuickStatistic {
-  double totalRemainder = 1; // Общая сумма видимых счетов
-  double totalExpense = 2; // Общая сумма расходов
-  uint32 accountGroupID = 3; // Идентификатор группы счетов
-  double totalBudget = 4; // Общая сумма расходов
-  string currency = 5; // Валюта
 }
 
 message SwitchReq {

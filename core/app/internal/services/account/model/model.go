@@ -32,11 +32,3 @@ type BalancingAmount struct {
 	Currency       string  `db:"currency_signatura"`
 	AccountGroupID uint32  `db:"account_group_id"`
 }
-
-type QuickStatistic struct {
-	AccountGroupID uint32  // Идентификатор группы счетов
-	Currency       string  // Валюта
-	TotalRemainder float64 // Общий баланс видимых счетов
-	TotalExpense   float64 // Общая сумма расходов
-	TotalBudget    float64 // Общая сумма бюджетов
-}
