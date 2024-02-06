@@ -32,13 +32,25 @@ func (pb PbUpdateReq) ConvertToStruct() model.UpdateReq {
 	var p model.UpdateReq
 	p.UserID = pb.UserID
 	p.ID = pb.ID
-	p.Budget = pb.Budget
 	p.Remainder = pb.Remainder
 	p.Name = pb.Name
 	p.IconID = pb.IconID
 	p.Visible = pb.Visible
 	p.Accounting = pb.Accounting
-	p.GradualBudgetFilling = pb.GradualBudgetFilling
+	p.Budget = PbUpdateBudgetReq{pb.Budget}.ConvertToStruct()
+	return p
+}
+
+type PbUpdateBudgetReq struct {
+	*pbAccount.UpdateBudgetReq
+}
+
+func (pb PbUpdateBudgetReq) ConvertToStruct() model.UpdateBudgetReq {
+	var p model.UpdateBudgetReq
+	p.Amount = pb.Amount
+	p.GradualFilling = pb.GradualFilling
+	p.FixedSum = pb.FixedSum
+	p.DaysOffset = pb.DaysOffset
 	return p
 }
 

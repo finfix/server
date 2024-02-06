@@ -19,19 +19,23 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	logging.Off()
 
 	validJson := testingFunc.NewJSONUpdater(t, `{
-		"id": 1,
-		"budget": 1,	
+		"id": 1,	
 		"remainder": 1.1,
 		"name": "name",	
 		"iconID": 1,
 		"visible": true,
 		"accountGroupID": 1,
-		"accounting": true
+		"accounting": true,
+		"budget": {
+			"amount": 1.1,
+			"fixedSum": 1.1,
+			"daysOffset": 1,
+			"gradualFilling": true
+		}
 	}`)
 
 	validWant := &model.UpdateReq{
 		ID:         1,
-		Budget:     pointer.Pointer(int32(1)),
 		Remainder:  pointer.Pointer(1.1),
 		Name:       pointer.Pointer("name"),
 		IconID:     pointer.Pointer(uint32(1)),
@@ -39,6 +43,12 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		Accounting: pointer.Pointer(true),
 		UserID:     1,
 		DeviceID:   "DeviceID",
+		Budget: model.UpdateBudgetReq{
+			Amount:         pointer.Pointer(1.1),
+			FixedSum:       pointer.Pointer(1.1),
+			DaysOffset:     pointer.Pointer(uint32(1)),
+			GradualFilling: pointer.Pointer(true),
+		},
 	}
 
 	for _, tt := range []struct {

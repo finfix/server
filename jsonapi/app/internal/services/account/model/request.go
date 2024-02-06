@@ -31,16 +31,22 @@ type CreateReq struct {
 }
 
 type UpdateReq struct {
-	UserID               uint32   `json:"-" validate:"required" minimum:"1"`  // Идентификатор пользователя
-	ID                   uint32   `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
-	Budget               *int32   `json:"budget" minimum:"0"`                 // Месячный бюджет
-	Remainder            *float64 `json:"remainder"`                          // Остаток средств на счету
-	Name                 *string  `json:"name"`                               // Название счета
-	IconID               *uint32  `json:"iconID" minimum:"1"`                 // Идентификатор иконки
-	Visible              *bool    `json:"visible"`                            // Видимость счета
-	Accounting           *bool    `json:"accounting"`                         // Будет ли счет учитываться в статистике
-	GradualBudgetFilling *bool    `json:"gradualBudgetFilling"`               // Постепенное пополнение бюджета
-	DeviceID             string   `json:"-" validate:"required"`              // Идентификатор устройства
+	UserID     uint32          `json:"-" validate:"required" minimum:"1"`  // Идентификатор пользователя
+	ID         uint32          `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
+	Remainder  *float64        `json:"remainder"`                          // Остаток средств на счету
+	Name       *string         `json:"name"`                               // Название счета
+	IconID     *uint32         `json:"iconID" minimum:"1"`                 // Идентификатор иконки
+	Visible    *bool           `json:"visible"`                            // Видимость счета
+	Accounting *bool           `json:"accounting"`                         // Будет ли счет учитываться в статистике
+	DeviceID   string          `json:"-" validate:"required"`              // Идентификатор устройства
+	Budget     UpdateBudgetReq `json:"budget"`                             // Месячный бюджет
+}
+
+type UpdateBudgetReq struct {
+	Amount         *float64 `json:"amount"`         // Сумма
+	FixedSum       *float64 `json:"fixedSum"`       // Фиксированная сумма
+	DaysOffset     *uint32  `json:"daysOffset"`     // Смещение в днях
+	GradualFilling *bool    `json:"gradualFilling"` // Постепенное пополнение
 }
 
 type DeleteReq struct {

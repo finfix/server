@@ -8,9 +8,9 @@ import (
 )
 
 type Permissions struct {
-	UpdateBudget               bool
-	UpdateGradualBudgetFilling bool
-	UpdateRemainder            bool
+	UpdateBudget bool
+
+	UpdateRemainder bool
 
 	DeleteAccount bool
 
@@ -34,12 +34,8 @@ func (s *Service) GetPermissions(ctx context.Context, accountID uint32) (permiss
 
 func (s *Service) CheckPermissions(req model.UpdateReq, permissions Permissions) error {
 
-	if req.Budget != nil && !permissions.UpdateBudget {
+	if (req.Budget.DaysOffset != nil || req.Budget.Amount != nil || req.Budget.FixedSum != nil || req.Budget.GradualFilling != nil) && !permissions.UpdateBudget {
 		return errors.BadRequest.New("Нельзя менять бюджет")
-	}
-
-	if req.GradualBudgetFilling != nil && !permissions.UpdateGradualBudgetFilling {
-		return errors.BadRequest.New("Нельзя менять постепенное пополнение бюджета")
 	}
 
 	if req.Remainder != nil && !permissions.UpdateRemainder {
@@ -53,7 +49,6 @@ func joinPermissions(permissions ...Permissions) (joinedPermissions Permissions)
 	joinedPermissions = generalPermissions
 	for _, permission := range permissions {
 		joinedPermissions.UpdateBudget = joinedPermissions.UpdateBudget && permission.UpdateBudget
-		joinedPermissions.UpdateGradualBudgetFilling = joinedPermissions.UpdateGradualBudgetFilling && permission.UpdateGradualBudgetFilling
 		joinedPermissions.UpdateRemainder = joinedPermissions.UpdateRemainder && permission.UpdateRemainder
 
 		joinedPermissions.DeleteAccount = joinedPermissions.DeleteAccount && permission.DeleteAccount
@@ -81,61 +76,55 @@ var (
 var (
 	// Общие разрешения для всех типов счетов
 	generalPermissions = Permissions{
-		UpdateBudget:               true,
-		UpdateGradualBudgetFilling: true,
-		UpdateRemainder:            true,
-		DeleteAccount:              true,
-		CreateTransaction:          true,
-		LinkToParentAccount:        true,
+		UpdateBudget:        true,
+		UpdateRemainder:     true,
+		DeleteAccount:       true,
+		CreateTransaction:   true,
+		LinkToParentAccount: true,
 	}
 
 	// Разрешения для обычных счетов - нельзя менять только бюджеты
 	regularPermissions = Permissions{
-		UpdateBudget:               false,
-		UpdateGradualBudgetFilling: false,
-		UpdateRemainder:            true,
-		DeleteAccount:              true,
-		CreateTransaction:          true,
-		LinkToParentAccount:        true,
+		UpdateBudget:        false,
+		UpdateRemainder:     true,
+		DeleteAccount:       true,
+		CreateTransaction:   true,
+		LinkToParentAccount: true,
 	}
 
 	// Разрешения для счетов долгов - нельзя менять только бюджеты
 	debtPermissions = Permissions{
-		UpdateBudget:               false,
-		UpdateGradualBudgetFilling: false,
-		UpdateRemainder:            true,
-		DeleteAccount:              true,
-		CreateTransaction:          true,
-		LinkToParentAccount:        true,
+		UpdateBudget:        false,
+		UpdateRemainder:     true,
+		DeleteAccount:       true,
+		CreateTransaction:   true,
+		LinkToParentAccount: true,
 	}
 
 	// Разрешения для счетов доходов - нельзя менять только остатки счетов
 	earningsPermissions = Permissions{
-		UpdateBudget:               true,
-		UpdateGradualBudgetFilling: true,
-		UpdateRemainder:            false,
-		DeleteAccount:              true,
-		CreateTransaction:          true,
-		LinkToParentAccount:        true,
+		UpdateBudget:        true,
+		UpdateRemainder:     false,
+		DeleteAccount:       true,
+		CreateTransaction:   true,
+		LinkToParentAccount: true,
 	}
 
 	// Разрешения для счетов расходов - нельзя менять только остатки счетов
 	expensePermissions = Permissions{
-		UpdateBudget:               true,
-		UpdateGradualBudgetFilling: true,
-		UpdateRemainder:            false,
-		DeleteAccount:              true,
-		CreateTransaction:          true,
-		LinkToParentAccount:        true,
+		UpdateBudget:        true,
+		UpdateRemainder:     false,
+		DeleteAccount:       true,
+		CreateTransaction:   true,
+		LinkToParentAccount: true,
 	}
 
 	// Разрешения для родительских счетов - нельзя менять остатки счетов, создавать транзакции и привязывать к родительским счетам
 	parentPermissions = Permissions{
-		UpdateBudget:               true,
-		UpdateGradualBudgetFilling: true,
-		UpdateRemainder:            false,
-		DeleteAccount:              true,
-		CreateTransaction:          false,
-		LinkToParentAccount:        false,
+		UpdateBudget:        true,
+		UpdateRemainder:     false,
+		DeleteAccount:       true,
+		CreateTransaction:   false,
+		LinkToParentAccount: false,
 	}
 )
