@@ -35,7 +35,6 @@ type Account struct {
 func (p Account) ConvertToProto() *pbAccount.Account {
 	var pb pbAccount.Account
 	pb.ID = p.ID
-	pb.Budget = p.Budget
 	pb.Remainder = p.Remainder
 	pb.Name = p.Name
 	pb.IconID = p.IconID
@@ -45,36 +44,22 @@ func (p Account) ConvertToProto() *pbAccount.Account {
 	pb.AccountGroupID = p.AccountGroupID
 	pb.Accounting = p.Accounting
 	pb.ParentAccountID = p.ParentAccountID
-	pb.GradualBudgetFilling = p.GradualBudgetFilling
 	pb.SerialNumber = p.SerialNumber
 	pb.IsParent = p.IsParent
+	pb.Budget = Budget{p.Budget}.ConvertToProto()
 	return &pb
 }
 
-type QuickStatisticRes struct {
-	model.QuickStatisticRes
+type Budget struct {
+	model.Budget
 }
 
-func (p QuickStatisticRes) ConvertToProto() *pbAccount.QuickStatisticRes {
-	var pb pbAccount.QuickStatisticRes
-	pb.QuickStatistic = make([]*pbAccount.QuickStatistic, len(p.QuickStatisticRes.QuickStatistic))
-	for i, statistic := range p.QuickStatistic {
-		pb.QuickStatistic[i] = QuickStatistic{statistic}.ConvertToProto()
-	}
-	return &pb
-}
-
-type QuickStatistic struct {
-	model.QuickStatistic
-}
-
-func (p QuickStatistic) ConvertToProto() *pbAccount.QuickStatistic {
-	var pb pbAccount.QuickStatistic
-	pb.TotalRemainder = p.TotalRemainder
-	pb.TotalExpense = p.TotalExpense
-	pb.AccountGroupID = p.AccountGroupID
-	pb.TotalBudget = p.TotalBudget
-	pb.Currency = p.Currency
+func (p Budget) ConvertToProto() *pbAccount.Budget {
+	var pb pbAccount.Budget
+	pb.Amount = p.Amount
+	pb.FixedSum = p.FixedSum
+	pb.DaysOffset = p.DaysOffset
+	pb.GradualFilling = p.GradualFilling
 	return &pb
 }
 

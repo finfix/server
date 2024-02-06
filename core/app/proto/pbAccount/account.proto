@@ -14,7 +14,6 @@ service account {
   rpc Update(UpdateReq) returns (google.protobuf.Empty);
   rpc Delete(DeleteReq) returns (google.protobuf.Empty);
   rpc Switch(SwitchReq) returns (google.protobuf.Empty);
-  rpc QuickStatistic(QuickStatisticReq) returns (QuickStatisticRes);
   rpc GetAccountGroups(GetAccountGroupsReq) returns (GetAccountGroupsRes);
 }
 
@@ -33,22 +32,6 @@ message AccountGroup {
   string currency = 3; // Валюта группы счетов
   uint32 serialNumber = 4; // Порядковый номер группы счетов
   bool visible = 5; // Видимость группы счетов
-}
-
-message QuickStatisticReq {
-  uint32 userID = 1; // Идентификатор пользователя
-}
-
-message QuickStatisticRes {
-  repeated QuickStatistic quickStatistic = 1; // Краткая статистика
-}
-
-message QuickStatistic {
-  double totalRemainder = 1; // Общая сумма видимых счетов
-  double totalExpense = 2; // Общая сумма расходов
-  uint32 accountGroupID = 3; // Идентификатор группы счетов
-  double totalBudget = 4; // Общая сумма расходов
-  string currency = 5; // Валюта
 }
 
 message SwitchReq {
@@ -93,13 +76,19 @@ message GetReq {
 message UpdateReq {
   uint32 userID = 1; // Идентификатор пользователя
   uint32 ID = 2; // Идентификатор счета
-  optional int32 budget = 3; // Месячный бюджет
   optional double remainder = 4; // Остаток средств на счету
   optional string name = 5; // Название счета
   optional uint32 iconID = 6; // Идентификатор иконки
   optional bool visible = 7; // Видимость счета
   optional bool accounting = 9; // Будет ли счет учитываться в статистике
-  optional bool gradualBudgetFilling = 10; // Постепенное пополнение бюджета
+  UpdateBudgetReq budget = 10; // Бюджет
+}
+
+message UpdateBudgetReq {
+  optional double amount = 1; // Сумма
+  optional double fixedSum = 2; // Фиксированная сумма
+  optional uint32 daysOffset = 3; // Смещение в днях
+  optional bool gradualFilling = 4; // Постепенное пополнение
 }
 
 message GetRes {
@@ -108,7 +97,6 @@ message GetRes {
 
 message Account {
   uint32 ID = 1; // Идентификатор счета
-  double budget = 2; // Месячный бюджет
   double remainder = 3; // Остаток средств на счету
   string name = 4; // Название счета
   uint32 iconID = 5; // Идентификатор иконки
@@ -121,7 +109,14 @@ message Account {
   optional uint32 parentAccountID = 12; // Идентификатор связи
   repeated Account childrenAccounts = 13; // Дочерние аккаунты
   string currencySymbol = 14; // Символ валюты
-  bool gradualBudgetFilling = 15; // Постепенное пополнение бюджета
   uint32 serialNumber = 16; // Порядковый номер счета
   bool isParent = 17; // Является ли счет родительским
+  Budget budget = 18; // Бюджет
+}
+
+message Budget {
+  double amount = 1; // Сумма
+  double fixedSum = 2; // Фиксированная сумма
+  uint32 daysOffset = 3; // Смещение в днях
+  bool gradualFilling = 4; // Постепенное пополнение
 }

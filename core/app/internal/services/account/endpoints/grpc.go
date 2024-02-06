@@ -9,6 +9,7 @@ import (
 	"core/app/internal/services/account/model"
 	accountService "core/app/internal/services/account/service"
 	pb "core/app/proto/pbAccount"
+
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -20,7 +21,6 @@ type AccountService interface {
 	Update(context.Context, model.UpdateReq) error
 	Delete(context.Context, model.DeleteReq) error
 	Switch(context.Context, model.SwitchReq) error
-	QuickStatistic(context.Context, model.QuickStatisticReq) ([]model.QuickStatistic, error)
 	GetAccountGroups(context.Context, model.GetAccountGroupsReq) ([]model.AccountGroup, error)
 }
 
@@ -82,17 +82,6 @@ func (s *Endpoint) Switch(_ context.Context, in *pb.SwitchReq) (*emptypb.Empty, 
 	}
 
 	return &emptypb.Empty{}, nil
-}
-
-func (s *Endpoint) QuickStatistic(ctx context.Context, in *pb.QuickStatisticReq) (*pb.QuickStatisticRes, error) {
-	s.logger.Info("Method QuickStatistic")
-
-	statisticArr, err := s.service.QuickStatistic(ctx, converter.PbQuickStatisticReq{QuickStatisticReq: in}.ConvertToStruct())
-	if err != nil {
-		return nil, err
-	}
-	res := model.QuickStatisticRes{QuickStatistic: statisticArr}
-	return converter.QuickStatisticRes{res}.ConvertToProto(), nil
 }
 
 func (s *Endpoint) GetAccountGroups(ctx context.Context, req *pb.GetAccountGroupsReq) (*pb.GetAccountGroupsRes, error) {
