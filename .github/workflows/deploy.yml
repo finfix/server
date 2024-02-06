@@ -65,13 +65,7 @@ jobs:
           path: .
 
       - name: Copy docker-compose.yml to server
-        uses: ./.github/actions/copy-file-to-server
-        with:
-            local_path: docker-compose.yml
-            remote_path: /opt/coin/server/${{ inputs.service_name }}/docker-compose.yml
-            user: ${{ secrets.USER }}
-            host: ${{ secrets.HOST }}
-            port: ${{ secrets.PORT }}
+        run: scp -P ${{ secrets.PORT }} -p docker-compose.yml  ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/coin/server/${{ inputs.service_name }}/docker-compose.yml
 
       - name: Login to the Container registry on server
         run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "docker login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}"
