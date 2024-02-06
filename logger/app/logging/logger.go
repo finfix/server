@@ -16,7 +16,6 @@ import (
 
 // loggerSettings - Конфигурация логгера
 type loggerSettings struct {
-	errorFile     *os.File
 	loggingServer pb.LoggerClient
 	serviceName   string
 	isOff         bool
@@ -38,18 +37,6 @@ func Init(loggingServer pb.LoggerClient, serviceName string) {
 	s = &loggerSettings{
 		loggingServer: loggingServer,
 		serviceName:   serviceName,
-	}
-
-	// Создаем директиву для логов
-	err := os.MkdirAll("./logs", 0755)
-	if err != nil {
-		GetLogger().Fatal(errors.InternalServer.Wrap(err))
-	}
-
-	// Сохраняем файл для логов ошибок
-	s.errorFile, err = os.OpenFile("./logs/error.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0664)
-	if err != nil {
-		GetLogger().Fatal(errors.InternalServer.Wrap(err))
 	}
 }
 
@@ -83,17 +70,17 @@ func DefaultRequestLoggerFunc(r *http.Request) {
 }
 
 func (logger *Logger) Panic(err error) {
-	processingErrorLog(enum.Panic, true, true, err)
+	processingErrorLog(enum.Panic, true, err)
 }
 
 // Error логгирует сообщения для ошибок системы
 func (logger *Logger) Error(err error) {
-	processingErrorLog(enum.Error, true, true, err)
+	processingErrorLog(enum.Error, true, err)
 }
 
 // Warning логгирует сообщения для ошибок пользователя
 func (logger *Logger) Warning(err error) {
-	processingErrorLog(enum.Warning, true, true, err)
+	processingErrorLog(enum.Warning, true, err)
 }
 
 // Info логгирует сообщения для информации
@@ -103,7 +90,7 @@ func (logger *Logger) Info(msg string, args ...any) {
 
 // Fatal логгирует сообщения для фатальных ошибок
 func (logger *Logger) Fatal(err error) {
-	processingErrorLog(enum.Fatal, true, true, err)
+	processingErrorLog(enum.Fatal, true, err)
 	time.Sleep(1 * time.Second)
 	os.Exit(1)
 }
@@ -114,7 +101,7 @@ func (logger *Logger) Debug(msg string, args ...any) {
 }
 
 // processingErrorLog обрабатывает ошибки для логгирования
-func processingErrorLog(level enum.LogLevel, sendToLogger, writeInFile bool, err error) {
+func processingErrorLog(level enum.LogLevel, sendToLogger bool, err error) {
 
 	// Приводим пришедшую ошибку к нашей кастомной ошибке
 	customErr, ok := err.(errors.CustomError)
@@ -138,7 +125,7 @@ func processingErrorLog(level enum.LogLevel, sendToLogger, writeInFile bool, err
 	values.Time = time.Now().Format("2006-01-02 15:04:05")
 	values.Service = s.serviceName
 
-	shareLog(values, sendToLogger, writeInFile)
+	shareLog(values, sendToLogger)
 }
 
 // processingLog обрабатывает входные данные для логгирования
@@ -154,10 +141,10 @@ func processingLog(level enum.LogLevel, msg string, args ...any) {
 	values.Time = time.Now().Format("2006-01-02 15:04:05")
 	values.Service = s.serviceName
 
-	shareLog(values, true, true)
+	shareLog(values, true)
 }
 
-func shareLog(values *pb.Log, isSendToLogger, isWriteInFile bool) {
+func shareLog(values *pb.Log, isSendToLogger bool) {
 
 	if s.isOff {
 		return
@@ -178,20 +165,10 @@ func shareLog(values *pb.Log, isSendToLogger, isWriteInFile bool) {
 				Service: values.Service,
 				Time:    values.Time,
 			}); err != nil {
-				processingErrorLog(enum.Error, false, isWriteInFile, errors.InternalServer.WrapCtx(err, "Не смогли отправить лог на сервер"))
+				processingErrorLog(enum.Error, false, errors.InternalServer.WrapCtx(err, "Не смогли отправить лог на сервер"))
 			}
 		}()
 	}
-
-	// Записываем лог в файл
-	if isWriteInFile && s.errorFile != nil {
-		fileLog := getFileLog(values)
-		err := writeInFile(enum.LogLevel(values.Level), fileLog)
-		if err != nil {
-			processingErrorLog(enum.Error, isSendToLogger, false, errors.InternalServer.Wrap(err))
-		}
-	}
-
 }
 
 // getConsoleLog возвращает цветной лог из входных данных
@@ -220,32 +197,4 @@ func getConsoleLog(values *pb.Log) (log string) {
 	}
 
 	return log
-}
-
-// getFileLog возвращает информативный лог для файла из входных данных
-func getFileLog(values *pb.Log) (log string) {
-
-	// Форматируем лог
-	log += fmt.Sprintf("time=\"%v\" level=\"%s\" msg=\"%s\" ", values.Time, values.Level, values.Message)
-	if values.Context != nil {
-		log += fmt.Sprintf("context=\"%s\" ", *values.Context)
-	}
-	log += fmt.Sprintf("path=\"%v\" ", values.Path)
-
-	return log
-
-}
-
-// writeInFile распределяет логи и пишет их в соответствующие файлы, если для конкретного лога не указано есть такая необходимость
-func writeInFile(level enum.LogLevel, log string) error {
-
-	switch level {
-	case enum.Error, enum.Panic:
-		_, err := s.errorFile.WriteString("\n\n" + log)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

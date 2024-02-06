@@ -14,8 +14,7 @@ import (
 	userRepository "core/app/internal/services/user/repository"
 	userService "core/app/internal/services/user/service"
 	"core/app/proto/pbUser"
-
-	"net"
+	grpcPkg "pkg/grpc"
 
 	"google.golang.org/grpc"
 
@@ -75,17 +74,6 @@ func main() {
 	}
 	defer db.Close()
 
-	// Проверяем наличие порта для запуска gRPC-сервера
-	if cfg.Services.Core.GRPC == "" {
-		logger.Fatal(errors.InternalServer.New("Переменная окружения CORE_LISTEN_GRPC не задана"))
-	}
-
-	// Начинаем слушать порт
-	lis, err := net.Listen("tcp", cfg.Services.Core.GRPC)
-	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err))
-	}
-
 	// Регистрируем gRPC-сервер
 	s := grpc.NewServer(grpc.UnaryInterceptor(loggingMiddleware.LoggingError))
 
@@ -133,9 +121,8 @@ func main() {
 	pbUser.RegisterUserServer(s, userEndpoint.New(userService, logger))
 	pbCrontab.RegisterCrontabServer(s, crontabEndpoint.New(crontabService, logger))
 
-	// Запускаем  gRPC-сервер
-	logger.Info("gRPC-server is listening %v", cfg.Services.Core.GRPC)
-	if err := s.Serve(lis); err != nil {
+	// Запускаем gRPC-сервер
+	if err = grpcPkg.ServeGRPC(s, cfg.Services.Core.GRPC); err != nil {
 		logger.Fatal(errors.InternalServer.Wrap(err))
 	}
 }

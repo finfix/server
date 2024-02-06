@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="test jsonapi" type="GoTestRunConfiguration" factoryName="Go Test">
+  <configuration default="false" name="run tgBot" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="Server" />
-    <working_directory value="$PROJECT_DIR$/jsonapi" />
+    <working_directory value="$PROJECT_DIR$" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />
@@ -13,11 +13,10 @@
         <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="$PROJECT_DIR$/../env" />
       </ENTRIES>
     </EXTENSION>
-    <kind value="DIRECTORY" />
-    <package value="jsonapi" />
-    <directory value="$PROJECT_DIR$/jsonapi" />
+    <kind value="PACKAGE" />
+    <package value="tgBot/app/cmd" />
+    <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$" />
-    <framework value="gotest" />
     <method v="2" />
   </configuration>
 </component>
