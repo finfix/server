@@ -1,7 +1,7 @@
 package main
 
 import (
-	"net"
+	grpcPkg "pkg/grpc"
 
 	"google.golang.org/grpc"
 
@@ -37,25 +37,13 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	// Check env variable
-	if cfg.Services.Logger.GRPC == "" {
-		logger.Fatal(errors.InternalServer.New("Environment variable LOGGER_LISTEN_GRPC don't set"))
-	}
-
-	lis, err := net.Listen("tcp", cfg.Services.Logger.GRPC)
-	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err))
-	}
-
 	// Create gRPC server
 	s := grpc.NewServer(grpc.UnaryInterceptor(middleware.LoggingError))
 
 	pb.RegisterLoggerServer(s, service.New(repository.New(dbx, logger), logger))
 
-	logger.Info("gRPC-server is listening port %v", cfg.Services.Logger.GRPC)
-
-	// Run gRPC server
-	if err := s.Serve(lis); err != nil {
+	// Запускаем gRPC-сервер
+	if err = grpcPkg.ServeGRPC(s, cfg.Services.Logger.GRPC); err != nil {
 		logger.Fatal(errors.InternalServer.Wrap(err))
 	}
 }

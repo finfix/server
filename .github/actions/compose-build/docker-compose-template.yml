@@ -7,7 +7,5 @@ services:
     restart: always
     ports:
       - @{service_port}:@{service_port}
-    volumes:
-      - ./logs:/@{project_name}/logs
     env_file: .env
     @{network_mode}
