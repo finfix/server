@@ -139,18 +139,17 @@ loop:
 		}
 
 		accounts = append(accounts, model.Account{
-			ID:                   currentID,
-			Budget:               0,
-			Remainder:            remainder,
-			Name:                 "Балансировочный",
-			IconID:               0,
-			Type:                 accType,
-			Currency:             accountGroupsMap[accountGroupID].Currency,
-			Visible:              true,
-			AccountGroupID:       accountGroupID,
-			Accounting:           true,
-			ParentAccountID:      nil,
-			GradualBudgetFilling: false,
+			ID:              currentID,
+			Remainder:       remainder,
+			Name:            "Балансировочный",
+			IconID:          0,
+			Type:            accType,
+			Currency:        accountGroupsMap[accountGroupID].Currency,
+			Visible:         true,
+			AccountGroupID:  accountGroupID,
+			Accounting:      true,
+			ParentAccountID: nil,
+			SerialNumber:    currentID,
 		})
 		currentID++
 	}

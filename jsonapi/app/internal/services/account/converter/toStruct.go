@@ -26,7 +26,6 @@ type PbAccount struct {
 func (pb PbAccount) ConvertToStruct() model.Account {
 	var p model.Account
 	p.ID = pb.ID
-	p.Budget = pb.Budget
 	p.Remainder = pb.Remainder
 	p.Name = pb.Name
 	p.IconID = pb.IconID
@@ -36,24 +35,14 @@ func (pb PbAccount) ConvertToStruct() model.Account {
 	p.AccountGroupID = pb.AccountGroupID
 	p.Accounting = pb.Accounting
 	p.ParentAccountID = pb.ParentAccountID
-	p.GradualBudgetFilling = pb.GradualBudgetFilling
 	p.SerialNumber = pb.SerialNumber
 	p.IsParent = pb.IsParent
+	p.Budget = PbBudget{pb.Budget}.ConvertToStruct()
 	return p
 }
 
-type PbCreateRes struct {
-	*pbAccount.CreateRes
-}
-
-func (pb PbCreateRes) ConvertToStruct() model.CreateRes {
-	var p model.CreateRes
-	p.ID = pb.ID
-	return p
-}
-
-type PbQuickStatistic struct {
-	*pbAccount.QuickStatistic
+type PbBudget struct {
+	*pbAccount.Budget
 }
 
 func (pb PbBudget) ConvertToStruct() model.Budget {

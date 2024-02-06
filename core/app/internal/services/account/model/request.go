@@ -32,15 +32,21 @@ type CreateReq struct {
 }
 
 type UpdateReq struct {
-	UserID               uint32   // Идентификатор пользователя
-	ID                   uint32   // Идентификатор счета
-	Budget               *int32   // Месячный бюджет
-	Remainder            *float64 // Остаток средств на счету
-	Name                 *string  // Название счета
-	IconID               *uint32  // Идентификатор иконки
-	Visible              *bool    // Видимость счета
-	Accounting           *bool    // Будет ли счет учитываться в статистике
-	GradualBudgetFilling *bool    // Постепенное пополнение бюджета
+	UserID     uint32          // Идентификатор пользователя
+	ID         uint32          // Идентификатор счета
+	Remainder  *float64        // Остаток средств на счету
+	Name       *string         // Название счета
+	IconID     *uint32         // Идентификатор иконки
+	Visible    *bool           // Видимость счета
+	Accounting *bool           // Будет ли счет учитываться в статистике
+	Budget     UpdateBudgetReq // Бюджет
+}
+
+type UpdateBudgetReq struct {
+	Amount         *float64 // Сумма
+	GradualFilling *bool    // Постепенное пополнение бюджета
+	FixedSum       *float64 // Фиксированная сумма
+	DaysOffset     *uint32  // Смещение даты
 }
 
 type DeleteReq struct {

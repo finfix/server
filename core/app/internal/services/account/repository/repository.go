@@ -26,7 +26,7 @@ func (repo *Repository) CreateAccountGroup(ctx context.Context, req model.Create
 			  name,
               available_budget,
               currency_signatura
-            ) VALUES (?, ?, ?, ?)`,
+            ) VALUES (?, ?, ?)`,
 		req.Name,
 		req.AvailableBudget,
 		req.Currency)
@@ -162,8 +162,7 @@ func (repo *Repository) Get(ctx context.Context, req model.GetReq) (accounts []m
 	query := fmt.Sprintf(`
 			SELECT a.*
 			FROM coin.accounts a
-			WHERE %v
-			ORDER BY a.serial_number`, strings.Join(reqFields, " AND "))
+			WHERE %v`, strings.Join(reqFields, " AND "))
 	if err = repo.db.Select(ctx, &accounts, query, variables...); err != nil {
 		return accounts, err
 	}
@@ -328,10 +327,6 @@ func (repo *Repository) Update(ctx context.Context, fields model.UpdateReq) erro
 	)
 
 	// Добавляем в запрос только те поля, которые необходимо обновить
-	if fields.Budget != nil {
-		queryFields = append(queryFields, "budget = ?")
-		args = append(args, fields.Budget)
-	}
 	if fields.IconID != nil {
 		queryFields = append(queryFields, "icon_id = ?")
 		args = append(args, fields.IconID)
@@ -348,10 +343,23 @@ func (repo *Repository) Update(ctx context.Context, fields model.UpdateReq) erro
 		queryFields = append(queryFields, "visible = ?")
 		args = append(args, fields.Visible)
 	}
-	if fields.GradualBudgetFilling != nil {
-		queryFields = append(queryFields, "gradual_budget_filling = ?")
-		args = append(args, fields.GradualBudgetFilling)
+	if fields.Budget.DaysOffset != nil {
+		queryFields = append(queryFields, "budget_days_offset = ?")
+		args = append(args, fields.Budget.DaysOffset)
 	}
+	if fields.Budget.Amount != nil {
+		queryFields = append(queryFields, "budget_amount = ?")
+		args = append(args, fields.Budget.Amount)
+	}
+	if fields.Budget.FixedSum != nil {
+		queryFields = append(queryFields, "budget_fixed_sum = ?")
+		args = append(args, fields.Budget.FixedSum)
+	}
+	if fields.Budget.GradualFilling != nil {
+		queryFields = append(queryFields, "budget_gradual_filling = ?")
+		args = append(args, fields.Budget.GradualFilling)
+	}
+
 	if len(queryFields) == 0 {
 		if fields.Remainder == nil {
 			return errors.BadRequest.New("No fields to update")

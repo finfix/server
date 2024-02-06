@@ -35,7 +35,6 @@ type Account struct {
 func (p Account) ConvertToProto() *pbAccount.Account {
 	var pb pbAccount.Account
 	pb.ID = p.ID
-	pb.Budget = p.Budget
 	pb.Remainder = p.Remainder
 	pb.Name = p.Name
 	pb.IconID = p.IconID
@@ -45,9 +44,9 @@ func (p Account) ConvertToProto() *pbAccount.Account {
 	pb.AccountGroupID = p.AccountGroupID
 	pb.Accounting = p.Accounting
 	pb.ParentAccountID = p.ParentAccountID
-	pb.GradualBudgetFilling = p.GradualBudgetFilling
 	pb.SerialNumber = p.SerialNumber
 	pb.IsParent = p.IsParent
+	pb.Budget = Budget{p.Budget}.ConvertToProto()
 	return &pb
 }
 
@@ -55,6 +54,12 @@ type Budget struct {
 	model.Budget
 }
 
+func (p Budget) ConvertToProto() *pbAccount.Budget {
+	var pb pbAccount.Budget
+	pb.Amount = p.Amount
+	pb.FixedSum = p.FixedSum
+	pb.DaysOffset = p.DaysOffset
+	pb.GradualFilling = p.GradualFilling
 	return &pb
 }
 
