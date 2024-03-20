@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"pkg/testingFunc"
+	"server/pkg/testingFunc"
 )
 
 func TestEncodeResponse(t *testing.T) {

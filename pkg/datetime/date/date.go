@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	myTime "pkg/datetime/time"
-	"pkg/proto/pbDatetime"
 )
 
 const DateFormat = "2006-01-02"
@@ -88,38 +85,4 @@ func (d *Date) Scan(src any) error {
 
 func (d Date) Value() (driver.Value, error) {
 	return d.Time, nil
-}
-
-func (d Date) ConvertToProto() *pbDatetime.Timestamp {
-	return myTime.Time{d.Time}.ConvertToProto()
-}
-
-func (d *Date) ConvertToOptionalProto() *pbDatetime.Timestamp {
-	if d == nil || d.Time.IsZero() {
-		return nil
-	}
-	return d.ConvertToProto()
-}
-
-type PbDate struct {
-	*pbDatetime.Timestamp
-}
-
-func (d PbDate) ConvertToDate() Date {
-	var date Date
-	if d.Timestamp.Timestamp == nil {
-		return date
-	}
-	date.Time = time.Unix(d.Timestamp.Timestamp.Seconds, 0)
-	zone := time.FixedZone("", int(d.Zone))
-	date.Time = date.In(zone)
-	return date
-}
-
-func (d PbDate) ConvertToOptionalDate() *Date {
-	if d.Timestamp == nil {
-		return nil
-	}
-	date := d.ConvertToDate()
-	return &date
 }

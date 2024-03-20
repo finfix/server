@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"pkg/errors"
+	"server/pkg/errors"
 )
 
 func DefaultDeviceIDValidator(ctx context.Context, r *http.Request) (context.Context, error) {
