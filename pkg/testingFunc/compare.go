@@ -3,7 +3,7 @@ package testingFunc
 import (
 	"testing"
 
-	"pkg/errors"
+	"server/pkg/errors"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

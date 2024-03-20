@@ -3,9 +3,10 @@ package database
 import (
 	"fmt"
 
+	"server/pkg/errors"
+	"server/pkg/sql"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
-	"pkg/errors"
-	"pkg/sql"
 )
 
 func NewClientSQL(repo RepoConfig, database string) (*sql.DB, error) {

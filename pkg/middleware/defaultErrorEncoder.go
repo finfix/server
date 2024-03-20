@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"pkg/errors"
+	"server/pkg/errors"
 )
 
 func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, err error, loggingFunc func(error)) {
@@ -13,8 +13,6 @@ func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, err error, lo
 	if err == nil {
 		err = errors.InternalServer.NewPath("В функцию DefaultErrorEncoder передан nil", 2)
 	}
-
-	err = errors.ConvertGrpcErrorToCustomError(err)
 
 	err = addDefaultHumanText(err)
 

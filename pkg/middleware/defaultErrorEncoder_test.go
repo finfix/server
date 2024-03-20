@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"pkg/errors"
+	"server/pkg/errors"
 )
 
 func TestEncodeErrorResponse(t *testing.T) {

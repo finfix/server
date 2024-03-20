@@ -1,5 +1,0 @@
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbAccount:./ --go_out=./app/proto/pbAccount --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbAccount --go-grpc_opt=paths=source_relative account.proto
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbUser:./ --go_out=./app/proto/pbUser --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbUser --go-grpc_opt=paths=source_relative user.proto
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbCrontab:./ --go_out=./app/proto/pbCrontab --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbCrontab --go-grpc_opt=paths=source_relative crontab.proto
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbEnum:./ --go_out=./app/proto/pbEnum --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbEnum --go-grpc_opt=paths=source_relative enum.proto
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbTransaction:./ --go_out=./app/proto/pbTransaction --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbTransaction --go-grpc_opt=paths=source_relative transaction.proto
