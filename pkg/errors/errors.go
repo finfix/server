@@ -6,10 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"runtime"
-
-	"google.golang.org/grpc/status"
-
-	"pkg/errors/pbError"
 )
 
 // Определяем типы ошибок
@@ -98,8 +94,6 @@ func (typ ErrorType) WrapPathCtx(err error, skip int, context string, args ...an
 		return nil
 	}
 
-	err = ConvertGrpcErrorToCustomError(err)
-
 	// Если это уже обернутая ошибка, добавляем контекст, меняем тип и возвращаем
 	if customErr, ok := err.(CustomError); ok {
 		//customErr.ErrorType = typ
@@ -123,32 +117,6 @@ func (typ ErrorType) WrapPathCtx(err error, skip int, context string, args ...an
 		customError.Context = &context
 	}
 	return customError
-}
-
-func ConvertGrpcErrorToCustomError(err error) error {
-
-	// Если это ошибка gRPC
-	if st, ok := status.FromError(err); ok {
-
-		// Если это наша кастомная ошибка, то достаем ее данные
-		if details := st.Details(); len(details) > 0 {
-			if errProto, ok := details[0].(*pbError.CustomError); ok {
-				err = CustomError{
-					ErrorType:   ErrorType(errProto.ErrorType),
-					HumanText:   errProto.HumanText,
-					Err:         fmt.Errorf(errProto.Err),
-					Path:        errProto.Path,
-					Context:     errProto.Context,
-					DevelopText: errProto.DevelopText,
-				}
-				return err
-			}
-		}
-
-		// Если это внутренняя ошибка gRPC, то получаем ее данные и оборачиваем
-		err = errors.New(st.Message())
-	}
-	return err
 }
 
 // Добавляем в ошибку текст, который можно отдать пользователю

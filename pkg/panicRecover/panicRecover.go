@@ -2,9 +2,9 @@ package panicRecover
 
 import (
 	"fmt"
-	"pkg/errors"
-	"pkg/strings"
 	"runtime"
+	"server/pkg/errors"
+	"server/pkg/strings"
 )
 
 func getErrorFromPanic(r interface{}) error {

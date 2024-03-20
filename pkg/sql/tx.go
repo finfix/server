@@ -1,8 +1,9 @@
 package sql
 
 import (
+	"server/pkg/errors"
+
 	"github.com/jmoiron/sqlx"
-	"pkg/errors"
 )
 
 type TxInterface interface {

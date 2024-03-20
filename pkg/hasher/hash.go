@@ -4,7 +4,7 @@ import (
 	"crypto/sha1"
 	"fmt"
 
-	"pkg/errors"
+	"server/pkg/errors"
 )
 
 func Hash(password, shasalt string) (string, error) {

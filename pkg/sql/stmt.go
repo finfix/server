@@ -2,8 +2,9 @@ package sql
 
 import (
 	"context"
+	"server/pkg/errors"
+
 	"github.com/jmoiron/sqlx"
-	"pkg/errors"
 )
 
 type StmtInterface interface {

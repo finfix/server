@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"pkg/errors"
+	"server/pkg/errors"
 
 	"github.com/dgrijalva/jwt-go"
 )
