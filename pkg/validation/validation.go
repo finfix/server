@@ -3,7 +3,7 @@ package validation
 import (
 	"reflect"
 
-	"pkg/errors"
+	"server/pkg/errors"
 
 	"regexp"
 )

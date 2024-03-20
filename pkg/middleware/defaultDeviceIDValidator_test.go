@@ -5,8 +5,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"pkg/errors"
-	"pkg/testingFunc"
+	"server/pkg/errors"
+	"server/pkg/testingFunc"
 )
 
 func TestGetDeviceID(t *testing.T) {

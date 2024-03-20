@@ -1,1 +1,0 @@
-protoc --proto_path=${GOPATH}/Coin/Server:./ --proto_path=app/proto/pbAuth:./ --go_out=./app/proto/pbAuth --go_opt=paths=source_relative --go-grpc_out=./app/proto/pbAuth --go-grpc_opt=paths=source_relative auth.proto

@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"pkg/auth"
-	"pkg/errors"
+	"server/pkg/auth"
+	"server/pkg/errors"
 )
 
 type authMiddlewareConfig struct {

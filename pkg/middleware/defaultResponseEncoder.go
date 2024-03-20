@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"pkg/errors"
+	"server/pkg/errors"
 )
 
 func DefaultResponseEncoder(_ context.Context, w http.ResponseWriter, response any) error {
