@@ -17,7 +17,7 @@ type Account struct {
 	ParentAccountID *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`                        // Идентификатор родительского аккаунта
 	SerialNumber    uint32           `json:"serialNumber" db:"serial_number"`                                                   // Порядковый номер счета
 	IsParent        bool             `json:"isParent" db:"is_parent"`                                                           // Является ли счет родительским
-	Budget          Budget           `json:"budget"`                                                                            // Бюджет
+	Budget          `json:"budget"`                                                                                             // Бюджет
 }
 
 type Budget struct {

@@ -92,19 +92,22 @@ func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (ui
 	// Создаем счет
 	return repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.accounts (
-    		  budget, 
-   			  name, 
-    		  icon_id, 
-    		  type_signatura, 
-    		  currency_signatura, 
-    		  visible, 
-    		  account_group_id, 
-    		  accounting, 
-			  gradual_budget_filling,
-    		  serial_number
-		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
+			  budget_amount,
+			  name,
+			  icon_id,
+			  type_signatura,
+			  currency_signatura,
+			  visible,
+			  account_group_id,
+			  accounting,
+			  budget_gradual_filling,
+			  is_parent,
+			  budget_fixed_sum,
+			  budget_days_offset,            
+			  serial_number
+		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
 		  	  FROM coin.accounts`,
-		account.Budget,
+		account.Budget.Amount,
 		account.Name,
 		account.IconID,
 		account.Type,
@@ -112,7 +115,9 @@ func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (ui
 		true,
 		account.AccountGroupID,
 		account.Accounting,
-		account.GradualBudgetFilling,
+		account.Budget.GradualFilling,
+		account.Budget.FixedSum,
+		account.Budget.DaysOffset,
 	)
 }
 
