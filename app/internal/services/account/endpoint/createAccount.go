@@ -29,7 +29,12 @@ func (s *endpoint) createAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return s.service.Create(ctx, req)
+	id, err := s.service.Create(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return model.CreateRes{ID: id}, nil
 }
 
 func decodeCreateAccountReq(ctx context.Context, r *http.Request) (req model.CreateReq, err error) {

@@ -20,7 +20,6 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 	logging.Off()
 
 	validJson := testingFunc.NewJSONUpdater(t, `{
-		"budget": 1.1,
 		"remainder": 1.1,
 		"name": "name",
 		"iconID": 1,
@@ -28,21 +27,31 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		"currency": "USD",
 		"accountGroupID": 1,
 		"accounting": true,
-		"gradualBudgetFilling": true
+		"gradualBudgetFilling": true,
+		"budget": {
+			"amount": 1.1,
+			"fixedSum": 1.1,
+			"daysOffset": 1,
+			"gradualFilling": true
+		}
 	}`)
 
 	validWant := &model.CreateReq{
-		Budget:               1.1,
-		Remainder:            1.1,
-		Name:                 "name",
-		IconID:               1,
-		Type:                 accountType.Expense,
-		Currency:             "USD",
-		AccountGroupID:       1,
-		Accounting:           pointer.Pointer(true),
-		GradualBudgetFilling: pointer.Pointer(true),
-		UserID:               1,
-		DeviceID:             "DeviceID",
+		Remainder:      1.1,
+		Name:           "name",
+		IconID:         1,
+		Type:           accountType.Expense,
+		Currency:       "USD",
+		AccountGroupID: 1,
+		Accounting:     pointer.Pointer(true),
+		Budget: model.CreateBudgetReq{
+			Amount:         1.1,
+			FixedSum:       1.1,
+			DaysOffset:     1,
+			GradualFilling: pointer.Pointer(true),
+		},
+		UserID:   1,
+		DeviceID: "DeviceID",
 	}
 
 	for _, tt := range []struct {

@@ -18,17 +18,23 @@ type GetReq struct {
 }
 
 type CreateReq struct {
-	Name                 string           `json:"name" validate:"required"`                                                          // Название счета
-	IconID               uint32           `json:"iconID" validate:"required" minimum:"1"`                                            // Идентификатор иконки
-	Type                 accountType.Type `json:"type" validate:"required" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
-	Currency             string           `json:"currency" validate:"required"`                                                      // Валюта счета
-	AccountGroupID       uint32           `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
-	Accounting           *bool            `json:"accounting" validate:"required"`                                                    // Подсчет суммы счета в статистике
-	UserID               uint32           `json:"-" validate:"required" minimum:"1"`                                                 // Идентификатор пользователя
-	DeviceID             string           `json:"-" validate:"required"`                                                             // Идентификатор устройства
-	Budget               float64          `json:"budget"`                                                                            // Месячный бюджет
-	Remainder            float64          `json:"remainder"`                                                                         // Остаток средств на счету
-	GradualBudgetFilling *bool            `json:"gradualBudgetFilling" validate:"required"`                                          // Постепенное пополнение бюджета
+	Name           string           `json:"name" validate:"required"`                                                          // Название счета
+	IconID         uint32           `json:"iconID" validate:"required" minimum:"1"`                                            // Идентификатор иконки
+	Type           accountType.Type `json:"type" validate:"required" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
+	Currency       string           `json:"currency" validate:"required"`                                                      // Валюта счета
+	AccountGroupID uint32           `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
+	Accounting     *bool            `json:"accounting" validate:"required"`                                                    // Подсчет суммы счета в статистике
+	UserID         uint32           `json:"-" validate:"required" minimum:"1"`                                                 // Идентификатор пользователя
+	DeviceID       string           `json:"-" validate:"required"`                                                             // Идентификатор устройства
+	Remainder      float64          `json:"remainder"`                                                                         // Остаток средств на счету
+	Budget         CreateBudgetReq  `json:"budget"`                                                                            // Бюджет
+}
+
+type CreateBudgetReq struct {
+	Amount         float64 `json:"amount"`         // Сумма
+	FixedSum       float64 `json:"fixedSum"`       // Фиксированная сумма
+	DaysOffset     uint32  `json:"daysOffset"`     // Смещение в днях
+	GradualFilling *bool   `json:"gradualFilling"` // Постепенное пополнение
 }
 
 type UpdateReq struct {
