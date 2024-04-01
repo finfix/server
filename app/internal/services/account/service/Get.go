@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"server/app/internal/services/generalRepository/checker"
+	"sort"
 
 	"server/app/enum/accountType"
 	"server/app/internal/services/account/model"
@@ -46,6 +47,13 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 		}
 		accounts = append(accounts, balancingAccounts...)
 	}
+
+	sort.Slice(accounts, func(i, j int) bool {
+		if accounts[i].IsParent {
+			return true
+		}
+		return false
+	})
 
 	return accounts, nil
 }
