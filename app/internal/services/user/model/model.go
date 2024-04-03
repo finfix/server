@@ -13,9 +13,9 @@ type User struct {
 	ID                    uint32    `db:"id" json:"id"`                                      // Идентификатор пользователя
 	Name                  string    `db:"name" json:"name"`                                  // Имя пользователя
 	Email                 string    `db:"email" json:"email"`                                // Электронная почта
-	PasswordHash          string    `db:"password_hash"`                                     // Хэш пароля
-	VerificationEmailCode *string   `db:"verification_email_code"`                           // Временный код, приходящий на почту
+	PasswordHash          string    `db:"password_hash" json:"-"`                            // Хэш пароля
+	VerificationEmailCode *string   `db:"verification_email_code" json:"-"`                  // Временный код, приходящий на почту
 	TimeCreate            time.Time `db:"time_create" json:"timeCreate"`                     // Дата и время создания аккаунта
-	FCMToken              *string   `db:"fcm_token"`                                         // Токен уведомлений
+	FCMToken              *string   `db:"fcm_token" json:"-"`                                // Токен уведомлений
 	DefaultCurrency       string    `db:"default_currency_signatura" json:"defaultCurrency"` // Валюта по умолчанию
 }
