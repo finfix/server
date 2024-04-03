@@ -1,9 +1,9 @@
 package model
 
 import (
-	"server/app/enum/transactionType"
 	"time"
 
+	"server/app/enum/transactionType"
 	"server/pkg/datetime/date"
 )
 

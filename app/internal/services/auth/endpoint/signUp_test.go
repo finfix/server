@@ -6,11 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"server/app/internal/services/auth/model"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
-
-	"server/app/internal/services/auth/model"
 )
 
 func TestDecodeSignUp(t *testing.T) {

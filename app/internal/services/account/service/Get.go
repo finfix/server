@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"server/app/internal/services/generalRepository/checker"
 	"sort"
 
 	"server/app/enum/accountType"
 	"server/app/internal/services/account/model"
+	"server/app/internal/services/generalRepository/checker"
 	"server/pkg/errors"
 	"server/pkg/slice"
 )

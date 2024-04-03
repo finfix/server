@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 
-	"server/pkg/errors"
-
 	"github.com/jmoiron/sqlx"
+
+	"server/pkg/errors"
 )
 
 type DBInterface interface {

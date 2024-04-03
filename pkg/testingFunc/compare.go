@@ -3,10 +3,10 @@ package testingFunc
 import (
 	"testing"
 
-	"server/pkg/errors"
-
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+
+	"server/pkg/errors"
 )
 
 func CheckError(t *testing.T, wantErr error, getErr error) bool {

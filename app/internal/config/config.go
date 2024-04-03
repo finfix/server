@@ -1,13 +1,13 @@
 package config
 
 import (
-	"server/pkg/database"
 	"sync"
 
+	"github.com/caarlos0/env/v7"
+
+	"server/pkg/database"
 	"server/pkg/errors"
 	"server/pkg/logging"
-
-	"github.com/caarlos0/env/v7"
 )
 
 // Общая структура конфига

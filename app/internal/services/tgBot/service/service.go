@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
-	"server/pkg/logging"
+	"gopkg.in/telebot.v3"
 
 	"server/app/internal/services/tgBot/model"
-
-	"gopkg.in/telebot.v3"
+	"server/pkg/errors"
+	"server/pkg/logging"
 )
 
 // SendMessage отправляет сообщение пользователю в телеграм

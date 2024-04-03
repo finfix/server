@@ -3,38 +3,35 @@ package main
 import (
 	"context"
 	"net/http"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+
 	_ "server/app/docs"
 	"server/app/internal/config"
-
 	accountEndpoint "server/app/internal/services/account/endpoint"
 	accountRepository "server/app/internal/services/account/repository"
 	accountService "server/app/internal/services/account/service"
-
+	adminEndpoint "server/app/internal/services/admin/endpoint"
+	adminRepository "server/app/internal/services/admin/repository"
+	adminService "server/app/internal/services/admin/service"
 	authEndpoint "server/app/internal/services/auth/endpoint"
 	authRepository "server/app/internal/services/auth/repository"
 	authService "server/app/internal/services/auth/service"
-
-	crontabEndpoint "server/app/internal/services/crontab/endpoint"
-	crontabRepository "server/app/internal/services/crontab/repository"
-	crontabService "server/app/internal/services/crontab/service"
-
 	"server/app/internal/services/generalRepository"
-
+	"server/app/internal/services/scheduler"
+	tgBotService "server/app/internal/services/tgBot/service"
 	transactionEndpoint "server/app/internal/services/transaction/endpoint"
 	transactionRepository "server/app/internal/services/transaction/repository"
 	transactionService "server/app/internal/services/transaction/service"
-
 	userEndpoint "server/app/internal/services/user/endpoint"
 	userRepository "server/app/internal/services/user/repository"
 	userService "server/app/internal/services/user/service"
-
 	"server/pkg/database"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/middleware"
 	"server/pkg/panicRecover"
-
-	httpSwagger "github.com/swaggo/http-swagger"
+	"server/pkg/tgBot"
 )
 
 // @title COIN Server Documentation

@@ -4,12 +4,11 @@ import (
 	"context"
 	"time"
 
+	"server/app/internal/config"
 	"server/pkg/auth"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/sql"
-
-	"server/app/internal/config"
 )
 
 // CreateSession Создает новую сессию для пользователя и добавляет ее в БД

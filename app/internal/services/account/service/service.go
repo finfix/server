@@ -2,16 +2,15 @@ package service
 
 import (
 	"context"
-	"server/app/internal/services/generalRepository"
-	"server/app/internal/services/generalRepository/checker"
-
-	"server/pkg/datetime/date"
-	"server/pkg/logging"
 
 	"server/app/internal/services/account/model"
 	accountRepository "server/app/internal/services/account/repository"
+	"server/app/internal/services/generalRepository"
+	"server/app/internal/services/generalRepository/checker"
 	transactionModel "server/app/internal/services/transaction/model"
 	userModel "server/app/internal/services/user/model"
+	"server/pkg/datetime/date"
+	"server/pkg/logging"
 )
 
 var _ GeneralRepository = &generalRepository.Repository{}

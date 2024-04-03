@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	"server/app/internal/services/generalRepository/checker"
-	"server/pkg/errors"
 
 	"server/app/internal/services/account/model"
+	"server/app/internal/services/generalRepository/checker"
+	"server/pkg/errors"
 )
 
 // Delete удаляет счет

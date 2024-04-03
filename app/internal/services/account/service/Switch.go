@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"server/app/internal/services/generalRepository/checker"
 
 	"server/app/internal/services/account/model"
+	"server/app/internal/services/generalRepository/checker"
 )
 
 // Switch меняет местами два счета

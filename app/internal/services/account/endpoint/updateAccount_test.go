@@ -6,12 +6,11 @@ import (
 	"strings"
 	"testing"
 
+	"server/app/internal/services/account/model"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
 	"server/pkg/testingFunc"
-
-	"server/app/internal/services/account/model"
 )
 
 func TestDecodeUpdateAccountReq(t *testing.T) {

@@ -2,10 +2,9 @@ package validation
 
 import (
 	"reflect"
+	"regexp"
 
 	"server/pkg/errors"
-
-	"regexp"
 )
 
 func Mail(email string) error {
