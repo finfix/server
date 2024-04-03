@@ -5,19 +5,19 @@ import (
 )
 
 type Account struct {
-	ID              uint32           `json:"id" db:"id"`                                                                        // Идентификатор счета
-	Remainder       float64          `json:"remainder" db:"remainder"`                                                          // Остаток средств на счету
-	Name            string           `json:"name" db:"name"`                                                                    // Название счета
-	IconID          uint32           `json:"iconID" db:"icon_id"`                                                               // Идентификатор иконки
-	Type            accountType.Type `json:"type" db:"type_signatura" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
-	Currency        string           `json:"currency" db:"currency_signatura"`                                                  // Валюта счета
-	Visible         bool             `json:"visible" db:"visible"`                                                              // Видимость счета
-	AccountGroupID  uint32           `json:"accountGroupID" db:"account_group_id"`                                              // Идентификатор группы счета
-	Accounting      bool             `json:"accounting" db:"accounting"`                                                        // Будет ли счет учитываться в статистике
-	ParentAccountID *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`                        // Идентификатор родительского аккаунта
-	SerialNumber    uint32           `json:"serialNumber" db:"serial_number"`                                                   // Порядковый номер счета
-	IsParent        bool             `json:"isParent" db:"is_parent"`                                                           // Является ли счет родительским
-	Budget          `json:"budget"`                                                                                             // Бюджет
+	ID              uint32           `json:"id" db:"id"`                                                     // Идентификатор счета
+	Remainder       float64          `json:"remainder" db:"remainder"`                                       // Остаток средств на счету
+	Name            string           `json:"name" db:"name"`                                                 // Название счета
+	IconID          uint32           `json:"iconID" db:"icon_id"`                                            // Идентификатор иконки
+	Type            accountType.Type `json:"type" db:"type_signatura" enums:"regular,expense,debt,earnings"` // Тип счета
+	Currency        string           `json:"currency" db:"currency_signatura"`                               // Валюта счета
+	Visible         bool             `json:"visible" db:"visible"`                                           // Видимость счета
+	AccountGroupID  uint32           `json:"accountGroupID" db:"account_group_id"`                           // Идентификатор группы счета
+	Accounting      bool             `json:"accounting" db:"accounting"`                                     // Будет ли счет учитываться в статистике
+	ParentAccountID *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`     // Идентификатор родительского аккаунта
+	SerialNumber    uint32           `json:"serialNumber" db:"serial_number"`                                // Порядковый номер счета
+	IsParent        bool             `json:"isParent" db:"is_parent"`                                        // Является ли счет родительским
+	Budget          `json:"budget"`                                                                          // Бюджет
 }
 
 type Budget struct {

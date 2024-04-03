@@ -8,12 +8,13 @@ const stackDepth = 2
 
 type Type string
 
-// enum:"regular,expense,credit,debt,income,investments"
+// enums:"regular,expense,debt,income,balancing"
 const (
-	Regular  = Type("regular")
-	Expense  = Type("expense")
-	Debt     = Type("debt")
-	Earnings = Type("earnings")
+	Regular   = Type("regular")
+	Expense   = Type("expense")
+	Debt      = Type("debt")
+	Earnings  = Type("earnings")
+	Balancing = Type("balancing")
 )
 
 func (t *Type) Validate() error {
@@ -21,7 +22,7 @@ func (t *Type) Validate() error {
 		return nil
 	}
 	switch *t {
-	case Earnings, Expense, Debt, Regular:
+	case Earnings, Expense, Debt, Regular, Balancing:
 	default:
 		err := errors.BadRequest.NewPathCtx("Unknown account type", stackDepth, "type: %v", *t)
 		return errors.AddHumanText(err, "Неизвестный тип счета")
