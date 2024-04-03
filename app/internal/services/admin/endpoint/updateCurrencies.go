@@ -6,7 +6,5 @@ import (
 )
 
 func (s *endpoint) updateCurrencies(ctx context.Context, _ *http.Request) (any, error) {
-
-	// Вызываем метод сервиса
-	return s.service.UpdateCurrencies(ctx)
+	return nil, s.service.UpdateCurrencies(ctx)
 }

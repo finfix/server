@@ -1,24 +1,23 @@
 package endpoint
 
 import (
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/middleware"
-	"server/pkg/server"
-
-	"server/app/internal/config"
-	crontabService "server/app/internal/services/crontab/service"
-
 	"context"
 	"net/http"
 
 	"github.com/gorilla/mux"
+
+	"server/app/internal/config"
+	adminService "server/app/internal/services/admin/service"
+	"server/pkg/errors"
+	"server/pkg/logging"
+	"server/pkg/middleware"
+	"server/pkg/server"
 )
 
-var part = "/crontab"
+var part = "/admin"
 
 type endpoint struct {
-	service *crontabService.Service
+	service *adminService.Service
 }
 
 func authorization(ctx context.Context, r *http.Request) (context.Context, error) {
@@ -30,7 +29,7 @@ func authorization(ctx context.Context, r *http.Request) (context.Context, error
 	return ctx, nil
 }
 
-func NewEndpoint(service *crontabService.Service) http.Handler {
+func NewEndpoint(service *adminService.Service) http.Handler {
 
 	s := &endpoint{
 		service: service,

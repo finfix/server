@@ -11,10 +11,14 @@ import (
 )
 
 // SendMessage отправляет сообщение пользователю в телеграм
-func (s *Service) SendMessage(ctx context.Context, req model.SendMessageReq) error {
+func (s *Service) SendMessage(_ context.Context, req model.SendMessageReq) error {
 
-	if _, err := s.bot.Send(s.chat, req.Message); err != nil {
-		return err
+	opts := &telebot.SendOptions{
+		ParseMode: telebot.ModeMarkdownV2,
+	}
+
+	if _, err := s.bot.Send(s.chat, req.Message, opts); err != nil {
+		return errors.InternalServer.Wrap(err)
 	}
 
 	return nil

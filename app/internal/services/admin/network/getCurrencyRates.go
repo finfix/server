@@ -1,24 +1,17 @@
-package service
+package network
 
 import (
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"server/pkg/errors"
-	"server/pkg/logging"
 	"time"
 
 	"server/app/internal/config"
+	"server/pkg/errors"
 )
 
-type Repository interface {
-	UpdCurrencies(ctx context.Context, rates map[string]float64) error
-}
-
-// UpdateCurrencies обновляет курсы валют
-func (s *Service) UpdateCurrencies(ctx context.Context) (map[string]float64, error) {
-
+func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 	var providerModel struct {
 		Meta struct {
 			LastUpdatedAt time.Time `json:"last_updated_at"`
@@ -43,7 +36,15 @@ func (s *Service) UpdateCurrencies(ctx context.Context) (map[string]float64, err
 	u.RawQuery = urlValues.Encode()
 
 	// Отправляем запрос
-	resp, err := http.Get(u.String())
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	if err != nil {
+		return nil, errors.InternalServer.Wrap(err)
+	}
+
+	req = req.WithContext(ctx)
+	client := http.DefaultClient
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, errors.BadGateway.Wrap(err)
 	}
@@ -68,18 +69,5 @@ func (s *Service) UpdateCurrencies(ctx context.Context) (map[string]float64, err
 		rates[currency] = rate.Rate
 	}
 
-	// Обновляем курсы валют в БД
-	return rates, s.repository.UpdCurrencies(ctx, rates)
-}
-
-type Service struct {
-	repository Repository
-	logger     *logging.Logger
-}
-
-func New(rep Repository, logger *logging.Logger) *Service {
-	return &Service{
-		repository: rep,
-		logger:     logger,
-	}
+	return rates, nil
 }
