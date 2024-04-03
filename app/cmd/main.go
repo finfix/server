@@ -80,10 +80,10 @@ func main() {
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	//tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
 
 	// Регистрируем сервисы
-	//tgBotService := tgBotService.New(tgBot, tgChat, logger)
+	tgBotService := tgBotService.New(tgBot, tgChat, logger)
 
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db, logger)
@@ -92,7 +92,7 @@ func main() {
 	}
 	accountRepository := accountRepository.New(db, logger)
 	transactionRepository := transactionRepository.New(db, logger)
-	crontabRepository := crontabRepository.New(db, logger)
+	adminRepository := adminRepository.New(db, logger)
 	userRepository := userRepository.New(db, logger)
 	authRepository := authRepository.New(db, logger)
 
@@ -112,8 +112,9 @@ func main() {
 		logger,
 	)
 
-	crontabService := crontabService.New(
-		crontabRepository,
+	adminService := adminService.New(
+		adminRepository,
+		tgBotService,
 		logger,
 	)
 
@@ -130,13 +131,19 @@ func main() {
 		logger,
 	)
 
+	scheduler := scheduler.NewScheduler(adminService, logger)
+	logger.Info("Start scheduler")
+	if err = scheduler.Start(); err != nil {
+		logger.Fatal(err)
+	}
+
 	mux := http.NewServeMux()
 	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
 	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
 	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
 	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
 	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
-	mux.Handle("/crontab/", crontabEndpoint.NewEndpoint(crontabService))
+	mux.Handle("/admin/", adminEndpoint.NewEndpoint(adminService))
 	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
 
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
