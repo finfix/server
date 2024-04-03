@@ -171,12 +171,6 @@ func (repo *Repository) Get(ctx context.Context, req model.GetReq) (accounts []m
 		return accounts, err
 	}
 
-	// Отсылаем ошибку, если счетов нет
-	if len(accounts) == 0 {
-		err = errors.NotFound.NewCtx("Accounts not found", "UserID: %v", req.UserID)
-		return accounts, errors.AddHumanText(err, "Счета не найдены")
-	}
-
 	return accounts, nil
 }
 

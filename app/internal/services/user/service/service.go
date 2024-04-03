@@ -3,11 +3,13 @@ package service
 import (
 	"context"
 
+	"server/app/enum/accountType"
 	accountModel "server/app/internal/services/account/model"
 	"server/app/internal/services/generalRepository"
 	"server/app/internal/services/user/model"
 	userRepository "server/app/internal/services/user/repository"
 	"server/pkg/logging"
+	"server/pkg/pointer"
 )
 
 var _ UserRepository = &userRepository.Repository{}
@@ -22,6 +24,7 @@ type UserRepository interface {
 
 type AccountRepository interface {
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
+	Create(ctx context.Context, req accountModel.CreateReq) (uint32, error)
 }
 
 type GeneralRepository interface {
@@ -56,7 +59,32 @@ func (s *Service) Create(ctx context.Context, user model.CreateReq) (id uint32, 
 		}
 
 		// Связываем юзера с группой юзеров
-		return s.user.LinkUserToAccountGroup(ctx, id, accountGroupID)
+		err = s.user.LinkUserToAccountGroup(ctx, id, accountGroupID)
+		if err != nil {
+			return err
+		}
+
+		// TODO: Перенести в функцию создания группы счетов
+		// Создаем балансировочный счет для группы счетов
+		_, err = s.account.Create(ctx, accountModel.CreateReq{
+			Name:           "Балансировочный",
+			IconID:         0,
+			Type:           accountType.Balancing,
+			Currency:       "RUB",
+			AccountGroupID: accountGroupID,
+			Accounting:     pointer.Pointer(true),
+			Remainder:      0,
+			Budget: accountModel.CreateBudgetReq{
+				Amount:         0,
+				FixedSum:       0,
+				DaysOffset:     0,
+				GradualFilling: pointer.Pointer(true),
+			},
+		})
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	if err != nil {
 		return 0, err
