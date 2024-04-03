@@ -3,16 +3,15 @@ package endpoint
 import (
 	"context"
 	"net/http/httptest"
-	"server/app/enum/accountType"
 	"strings"
 	"testing"
 
+	"server/app/enum/accountType"
+	"server/app/internal/services/account/model"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
 	"server/pkg/testingFunc"
-
-	"server/app/internal/services/account/model"
 )
 
 func TestDecodeAccountCreateReq(t *testing.T) {

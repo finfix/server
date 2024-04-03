@@ -7,11 +7,10 @@ import (
 	"net/url"
 	"testing"
 
+	"server/app/internal/services/transaction/model"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
-
-	"server/app/internal/services/transaction/model"
 )
 
 func TestDecodeDeleteReq(t *testing.T) {

@@ -1,15 +1,14 @@
 package endpoint
 
 import (
+	"net/http"
+
+	"github.com/gorilla/mux"
+
+	authService "server/app/internal/services/auth/service"
 	"server/pkg/logging"
 	"server/pkg/middleware"
 	"server/pkg/server"
-
-	"net/http"
-
-	authService "server/app/internal/services/auth/service"
-
-	"github.com/gorilla/mux"
 )
 
 var part = "/auth"

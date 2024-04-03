@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	"server/pkg/errors"
-
 	"github.com/dgrijalva/jwt-go"
+
+	"server/pkg/errors"
 )
 
 type MyCustomClaims struct {

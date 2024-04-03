@@ -5,15 +5,14 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"net/url"
-	"server/app/enum/accountType"
 	"testing"
 
+	"server/app/enum/accountType"
+	"server/app/internal/services/account/model"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
 	"server/pkg/testingFunc"
-
-	"server/app/internal/services/account/model"
 )
 
 func TestDecodeGetAccountsReq(t *testing.T) {

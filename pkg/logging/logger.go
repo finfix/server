@@ -5,10 +5,11 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"server/pkg/errors"
-	"server/pkg/logging/enum"
 	"strconv"
 	"time"
+
+	"server/pkg/errors"
+	"server/pkg/logging/enum"
 )
 
 type Log struct {

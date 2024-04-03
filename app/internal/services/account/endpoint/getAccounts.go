@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gorilla/schema"
+
 	"server/app/internal/services/account/model"
 	"server/pkg/errors"
 	"server/pkg/validation"
-
-	"github.com/gorilla/schema"
 )
 
 // @Summary Получение счетов по фильтрам

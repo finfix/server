@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
+
 	"server/pkg/auth"
 	"server/pkg/errors"
 	"server/pkg/pointer"
 	"server/pkg/testingFunc"
-
-	"github.com/dgrijalva/jwt-go"
 )
 
 func TestAuthorization(t *testing.T) {

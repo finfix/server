@@ -1,9 +1,9 @@
 package sql
 
 import (
-	"server/pkg/errors"
-
 	"github.com/jmoiron/sqlx"
+
+	"server/pkg/errors"
 )
 
 type Rows struct {

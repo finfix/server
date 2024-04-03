@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"server/app/internal/config"
 	"server/app/internal/services/auth/model"
 	authRepository "server/app/internal/services/auth/repository"
@@ -11,7 +13,6 @@ import (
 	"server/pkg/errors"
 	"server/pkg/hasher"
 	"server/pkg/logging"
-	"time"
 )
 
 var _ AuthRepository = &authRepository.Repository{}

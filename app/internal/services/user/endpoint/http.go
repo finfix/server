@@ -3,12 +3,12 @@ package endpoint
 import (
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	userService "server/app/internal/services/user/service"
 	"server/pkg/logging"
 	"server/pkg/middleware"
 	"server/pkg/server"
-
-	"github.com/gorilla/mux"
 )
 
 var part = "/user"

@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"server/app/internal/services/user/model"
 	"server/pkg/logging"
 	"server/pkg/sql"
-
-	"server/app/internal/services/user/model"
 )
 
 type Repository struct {

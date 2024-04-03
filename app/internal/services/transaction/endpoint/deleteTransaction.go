@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gorilla/schema"
+
 	"server/app/internal/services/transaction/model"
 	"server/pkg/errors"
 	"server/pkg/validation"
-
-	"github.com/gorilla/schema"
 )
 
 // @Summary Удаление транзакции
