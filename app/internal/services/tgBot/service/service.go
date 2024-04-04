@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"gopkg.in/telebot.v3"
 
@@ -16,6 +17,8 @@ func (s *Service) SendMessage(_ context.Context, req model.SendMessageReq) error
 	opts := &telebot.SendOptions{
 		ParseMode: telebot.ModeMarkdownV2,
 	}
+
+	req.Message = strings.ReplaceAll(req.Message, ".", "\\.")
 
 	if _, err := s.bot.Send(s.chat, req.Message, opts); err != nil {
 		return errors.InternalServer.Wrap(err)
