@@ -20,18 +20,18 @@ func TestAuthorization(t *testing.T) {
 		header  map[string]string
 		err     error
 	}{
-		//{"1.Обычный запрос",
-		//	map[string]string{"MySecretKey": "0"},
-		//	nil,
-		//},
+		/*{"1.Обычный запрос",
+			 map[string]string{"MySecretKey": "0"},
+			 nil,
+		 },*/
 		{"2.Неверный ключ",
 			map[string]string{"MySecretKey": "00"},
 			errors.Forbidden.New("incorrect"),
 		},
-		//{"3.Пустой ключ",
-		//	map[string]string{"MySecretKey": ""},
-		//	errors.Forbidden.New("incorrect"),
-		//},
+		/*{"3.Пустой ключ",
+			map[string]string{"MySecretKey": ""},
+			errors.Forbidden.New("incorrect"),
+		},*/
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 			r := httptest.NewRequest("", "/", strings.NewReader(""))
