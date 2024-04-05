@@ -59,7 +59,9 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 			return nil, errors.InternalServer.Wrap(err)
 		}
 	default:
-		return nil, errors.BadGateway.NewCtx("Error while getting currency rates", "HTTP code: %v", resp.StatusCode)
+		return nil, errors.BadGateway.New("Error while getting currency rates", errors.Options{
+			Params: map[string]any{"HTTP code": resp.StatusCode},
+		})
 	}
 
 	rates := make(map[string]float64, len(providerModel.Rates))

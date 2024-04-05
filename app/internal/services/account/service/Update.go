@@ -71,7 +71,9 @@ func (s *Service) Update(ctx context.Context, accountFields model.UpdateReq) err
 				return err
 			}
 			if len(balancingAccounts) == 0 {
-				return errors.NotFound.NewCtx("Не найден счет для балансировки для счета", "accountID: %v", account.ID)
+				return errors.NotFound.New("Не найден счет для балансировки для счета", errors.Options{
+					Params: map[string]any{"accountID": accountFields.ID},
+				})
 			}
 			balancingAccount := balancingAccounts[0]
 

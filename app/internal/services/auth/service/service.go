@@ -39,8 +39,9 @@ func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (access
 	}
 
 	if len(users) == 0 {
-		err = errors.NotFound.New("User not found")
-		return accessData, errors.AddHumanText(err, "Пользователь не найден")
+		return accessData, errors.NotFound.New("User not found", errors.Options{
+			HumanText: "Пользователь не найден",
+		})
 	}
 	user := users[0]
 
@@ -52,8 +53,9 @@ func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (access
 
 	// Сравниваем пароль пользователя с паролем из бд
 	if user.PasswordHash != passwordHash {
-		err = errors.BadRequest.New("Incorrect password or login")
-		return accessData, errors.AddHumanText(err, "Неверно введен логин или пароль")
+		return accessData, errors.BadRequest.New("Incorrect password or login", errors.Options{
+			HumanText: "Неверно введен логин или пароль",
+		})
 	}
 
 	// Создаем сессию
@@ -75,8 +77,12 @@ func (s *Service) SignUp(ctx context.Context, user model.SignUpReq) (accessData 
 	if _users, err := s.user.Get(ctx, userModel.GetReq{Emails: []string{user.Email}}); err != nil {
 		return accessData, err
 	} else if len(_users) != 0 {
-		err = errors.Forbidden.NewCtx("User with this email is already registered", "email: %v", user.Email)
-		return accessData, errors.AddHumanText(err, "Пользователь с таким email уже зарегистрирован")
+		return accessData, errors.Forbidden.New("User with this email is already registered", errors.Options{
+			HumanText: "Пользователь с таким email уже зарегистрирован",
+			Params: map[string]any{
+				"email": user.Email,
+			},
+		})
 	}
 
 	// Получаем хэш пароля пользователя

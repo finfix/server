@@ -10,11 +10,15 @@ import (
 func Mail(email string) error {
 	matched, err := regexp.MatchString(`^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$`, email)
 	if err != nil {
-		return errors.InternalServer.WrapCtx(err, "Email: %v", email)
+		return errors.InternalServer.Wrap(err, errors.Options{
+			Params: map[string]any{"email": email},
+		})
 	}
 	if !matched {
-		err = errors.BadRequest.NewCtx("Invalid email address provided", "Email: %v", email)
-		return errors.AddHumanText(err, "Неверно введен адрес электронной почты")
+		return errors.BadRequest.New("Invalid email address provided", errors.Options{
+			Params:    map[string]any{"email": email},
+			HumanText: "Неверно введен адрес электронной почты",
+		})
 	}
 	return nil
 }
@@ -22,7 +26,10 @@ func Mail(email string) error {
 func zeroValue(requestStruct any, tag string) error {
 
 	if reflect.ValueOf(requestStruct).Kind() != reflect.Struct {
-		return errors.InternalServer.NewPathCtx("Пришедший интерфейс не равен структуре", 2, "Тип структуры: %s", reflect.ValueOf(requestStruct).Kind().String())
+		return errors.InternalServer.New("Пришедший интерфейс не равен структуре", errors.Options{
+			Params:    map[string]any{"Тип структуры": reflect.ValueOf(requestStruct).Kind().String()},
+			PathDepth: errors.SecondPathDepth,
+		})
 	}
 
 	// Получаем тип данных структуры (ждем обязательно структуру)
@@ -58,7 +65,10 @@ func zeroValue(requestStruct any, tag string) error {
 				tag += "."
 			}
 
-			return errors.BadRequest.NewPath("Required field \""+tag+jsTag+"\" is not filled", 2)
+			return errors.BadRequest.New("Required field is not filled", errors.Options{
+				PathDepth: depth,
+				Params:    map[string]any{"field": tag + jsTag},
+			})
 		}
 
 		// Если тип поля структура

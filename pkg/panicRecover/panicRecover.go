@@ -16,12 +16,11 @@ func getErrorFromPanic(r interface{}) error {
 	for i := 3; i < n; i++ {
 		_, file, line, _ := runtime.Caller(i)
 		if strings.StringsContains(file, []string{"coin", "Coin"}) {
-			err := errors.InternalServer.New(textErr).(errors.CustomError)
-			err.Path = fmt.Sprintf("%v:%v", file, line)
+			err := errors.InternalServer.New(textErr, errors.Options{PathDepth: errors.SecondPathDepth + i})
 			return err
 		}
 	}
-	return errors.InternalServer.NewCtx(textErr, "Не удалось получить путь из стека")
+	return errors.InternalServer.New(textErr, errors.Options{ErrMessage: "Не удалось получить путь из стека"})
 }
 
 func PanicRecover(handling func(err error)) {

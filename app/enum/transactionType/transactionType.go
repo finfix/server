@@ -23,8 +23,10 @@ func (t *Type) Validate() error {
 	switch *t {
 	case Transfer, Consumption, Balancing, Income:
 	default:
-		err := errors.BadRequest.NewPathCtx("Unknown transaction type", stackDepth, "type: %v", *t)
-		return errors.AddHumanText(err, "Неизвестный тип транзакции")
+		return errors.BadRequest.New("Unknown transaction type", errors.Options{
+			Params:    map[string]any{"type": *t},
+			HumanText: "Неизвестный тип транзакции",
+		})
 	}
 	return nil
 }

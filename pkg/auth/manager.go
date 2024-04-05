@@ -44,7 +44,9 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 
 	token, err := jwt.ParseWithClaims(accessToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.InternalServer.NewCtx("Unexpected signing method", "%v", token.Header["alg"])
+			return nil, errors.InternalServer.New("Unexpected signing method", errors.Options{
+				Params: map[string]any{"token": token.Header["alg"]},
+			})
 		}
 
 		return []byte(signingKey), nil
@@ -61,7 +63,9 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 	idStr := claims.Subject
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, "", errors.Unauthorized.WrapCtx(err, "ID: %v", idStr)
+		return 0, "", errors.Unauthorized.Wrap(err, errors.Options{
+			Params: map[string]any{"ID": idStr},
+		})
 	}
 
 	return uint32(id), claims.DeviceID, nil

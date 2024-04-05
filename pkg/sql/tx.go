@@ -17,14 +17,14 @@ type Tx struct {
 
 func (s *Tx) Commit() error {
 	if err := s.Tx.Commit(); err != nil {
-		return errors.InternalServer.WrapPath(err, pathDepth)
+		return errors.InternalServer.Wrap(err, secondPathDepthOption)
 	}
 	return nil
 }
 
 func (s *Tx) Rollback() error {
 	if err := s.Tx.Rollback(); err != nil {
-		return errors.InternalServer.WrapPath(err, pathDepth)
+		return errors.InternalServer.Wrap(err, secondPathDepthOption)
 	}
 	return nil
 }

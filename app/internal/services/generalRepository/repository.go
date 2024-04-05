@@ -98,7 +98,13 @@ func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.Check
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 
 	if len(accessedAccountGroupIDs) == 0 {
-		return errors.NotFound.NewCtx("Нет доступных объектов", "UserID: %v, IDs: %v, type: %v", userID, ids, checkType)
+		return errors.NotFound.New("Нет доступных объектов", errors.Options{
+			Params: map[string]any{
+				"UserID": userID,
+				"IDs":    ids,
+				"Type":   checkType,
+			},
+		})
 	}
 
 	var (
@@ -143,7 +149,14 @@ func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.Check
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
 			if _, ok := repo.accesses[userID][accountGroupID]; !ok {
-				return errors.Forbidden.NewCtx("Access denied", "UserID: %v, IDs: %v, type: %v", userID, ids, checkType)
+				return errors.Forbidden.New("Access denied", errors.Options{
+					Params: map[string]any{
+						"UserID": userID,
+						"IDs":    ids,
+						"Type":   checkType,
+					},
+					HumanText: fmt.Sprintf("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
+				})
 			}
 		}
 		return nil
@@ -177,8 +190,14 @@ func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.Check
 
 	// Если количество записей не равно количеству проверяемых идентификаторов, то возвращаем ошибку
 	if countAccess != uint32(len(ids)) {
-		err := errors.Forbidden.NewCtx("Access denied", "UserID: %v, IDs: %v, type: %v", userID, ids, checkType)
-		return errors.AddHumanText(err, fmt.Sprintf("Вы не имеете доступа к %s", errString))
+		return errors.Forbidden.New("Access denied", errors.Options{
+			Params: map[string]any{
+				"UserID": userID,
+				"IDs":    ids,
+				"Type":   checkType,
+			},
+			HumanText: fmt.Sprintf("Вы не имеете доступа к %s", errString),
+		})
 	}
 
 	return nil

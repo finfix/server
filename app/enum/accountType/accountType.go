@@ -24,8 +24,10 @@ func (t *Type) Validate() error {
 	switch *t {
 	case Earnings, Expense, Debt, Regular, Balancing:
 	default:
-		err := errors.BadRequest.NewPathCtx("Unknown account type", stackDepth, "type: %v", *t)
-		return errors.AddHumanText(err, "Неизвестный тип счета")
+		return errors.BadRequest.New("Unknown account type", errors.Options{
+			Params:    map[string]any{"type": *t},
+			HumanText: "Неизвестный тип счета",
+		})
 	}
 	return nil
 }
