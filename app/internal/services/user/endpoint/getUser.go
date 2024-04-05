@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"server/app/internal/services/user/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/validation"
 )
@@ -43,7 +44,7 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 func decodeGetUserReq(ctx context.Context, _ *http.Request) (req model.GetReq, err error) {
 
 	// Заполняем поля из контекста
-	req.ID, _ = ctx.Value("UserID").(uint32)
+	req.ID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)

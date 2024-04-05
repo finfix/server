@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -54,7 +55,7 @@ func TestDecodeDeleteAccountReq(t *testing.T) {
 		},
 		{"4.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

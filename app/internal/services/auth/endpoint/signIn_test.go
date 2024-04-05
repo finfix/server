@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/auth/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -69,7 +70,7 @@ func TestDecodeAuthReq(t *testing.T) {
 		},
 		{"7.Запрос с пустым полем DeviceID в контексте",
 			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

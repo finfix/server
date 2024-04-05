@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/validation"
 )
 
@@ -31,8 +32,8 @@ func (s *endpoint) getAccountGroups(ctx context.Context, r *http.Request) (any, 
 func decodeGetAccountGroupsReq(ctx context.Context, _ *http.Request) (req model.GetAccountGroupsReq, err error) {
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value("UserID").(uint32)
-	req.DeviceID, _ = ctx.Value("DeviceID").(string)
+	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
+	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)

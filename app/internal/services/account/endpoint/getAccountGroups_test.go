@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -32,12 +33,12 @@ func TestDecodeGetAccountGroupsReq(t *testing.T) {
 			nil,
 		},
 		{"2.Отсутствующее поле UserID в контексте",
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"3.Отсутствующее поле DeviceID в контексте",
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

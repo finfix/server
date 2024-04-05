@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/schema"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/validation"
 )
@@ -39,8 +40,8 @@ func decodeGetReq(ctx context.Context, r *http.Request) (req model.GetReq, err e
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value("UserID").(uint32)
-	req.DeviceID, _ = ctx.Value("DeviceID").(string)
+	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
+	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
 
 	// Валидируем поля
 	if err = req.Type.Validate(); err != nil {

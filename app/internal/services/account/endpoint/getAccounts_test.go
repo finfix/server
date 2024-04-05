@@ -9,6 +9,7 @@ import (
 
 	"server/app/enum/accountType"
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
@@ -75,7 +76,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		},
 		{"7.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

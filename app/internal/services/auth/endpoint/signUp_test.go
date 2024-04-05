@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/auth/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -79,7 +80,7 @@ func TestDecodeSignUp(t *testing.T) {
 		},
 		{"8.Отсутствующее поле DeviceID в контексте",
 			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

@@ -9,6 +9,7 @@ import (
 
 	"server/app/enum/transactionType"
 	"server/app/internal/services/transaction/model"
+	"server/pkg/contextKeys"
 	"server/pkg/datetime/date"
 	"server/pkg/errors"
 	"server/pkg/logging"
@@ -55,13 +56,13 @@ func TestDecodeGetReq(t *testing.T) {
 		},
 		{"2.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"3.Отсутствующее поле DeviceID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

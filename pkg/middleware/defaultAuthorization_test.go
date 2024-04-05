@@ -9,6 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"server/pkg/auth"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/pointer"
 	"server/pkg/testingFunc"
@@ -111,8 +112,14 @@ func TestAuthorization(t *testing.T) {
 				return
 			}
 
-			getUserID := ctx.Value("UserID").(uint32)
-			getDeviceID := ctx.Value("DeviceID")
+			getUserID, ok := ctx.Value(contextKeys.UserIDKey).(uint32)
+			if !ok {
+				t.Fatalf("\nUserID не найден в контексте")
+			}
+			getDeviceID := ctx.Value(contextKeys.DeviceIDKey)
+			if getDeviceID == nil {
+				t.Fatalf("\nDeviceID не найден в контексте")
+			}
 
 			if validParams.userID != getUserID {
 				t.Fatalf("\nUserID не совпадают: %v != %v", validParams.userID, getUserID)

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -72,7 +73,7 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 		},
 		{"7.Отсутствующее поле DeviceID в контексте",
 			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

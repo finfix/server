@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/transaction/model"
+	"server/pkg/contextKeys"
 	"server/pkg/datetime/date"
 	"server/pkg/errors"
 	"server/pkg/logging"
@@ -140,7 +141,7 @@ func TestDecodeCreateReq(t *testing.T) {
 		},
 		{"16.Отсутствующее поле UserID в контексте",
 			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New(""),
 		},
@@ -152,7 +153,7 @@ func TestDecodeCreateReq(t *testing.T) {
 		},
 		{"18.Отсутствующее поле DeviceID в контексте",
 			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New(""),
 		},

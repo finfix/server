@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/testingFunc"
 )
@@ -41,7 +42,10 @@ func TestGetDeviceID(t *testing.T) {
 				return
 			}
 
-			getDeviceID := ctx.Value("DeviceID").(string)
+			getDeviceID, ok := ctx.Value(contextKeys.DeviceIDKey).(string)
+			if !ok {
+				t.Fatalf("\nDeviceID не найден в контексте")
+			}
 
 			if tt.deviceID != getDeviceID {
 				t.Fatalf("\nDeviceID не совпадают: %v != %v", tt.deviceID, getDeviceID)
