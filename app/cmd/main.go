@@ -86,6 +86,9 @@ func main() {
 
 	// Инициализируем клиента телеграм
 	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	if err != nil {
+		logger.Fatal(errors.InternalServer.Wrap(err))
+	}
 
 	// Регистрируем сервисы
 	tgBotService := tgBotService.New(tgBot, tgChat, logger)

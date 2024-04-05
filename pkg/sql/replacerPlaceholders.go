@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+
+	"server/pkg/errors"
+	"server/pkg/logging"
 )
 
 func replacePlaceholders(sql string) string {
@@ -15,6 +18,9 @@ func replacePlaceholders(sql string) string {
 			i++
 			buffer.WriteString(sql[:positionQ])
 			_, err := fmt.Fprintf(&buffer, "$%d", i)
+			if err != nil {
+				logging.GetLogger().Error(errors.InternalServer.Wrap(err))
+			}
 			sql = sql[positionQ+1:]
 		} else {
 			buffer.WriteString(sql)

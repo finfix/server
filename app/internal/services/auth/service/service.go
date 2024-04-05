@@ -155,6 +155,9 @@ func (s *Service) RefreshTokens(ctx context.Context, refreshToken string) (newTo
 
 	// Создаем новую сессию и получаем новые токены
 	newTokens.AccessToken, newTokens.RefreshToken, err = s.createSession(ctx, id, deviceID)
+	if err != nil {
+		return newTokens, err
+	}
 
 	return newTokens, nil
 }

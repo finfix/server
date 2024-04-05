@@ -30,7 +30,7 @@ func (repo *Repository) WithinTransaction(ctx context.Context, callback func(ctx
 	err = callback(sql.InjectTx(ctx, tx))
 	if err != nil {
 		// Если произошла ошибка, откатываем изменения
-		tx.Rollback()
+		_ = tx.Rollback()
 		return err
 	}
 	// Если ошибок нет, подтверждаем изменения
