@@ -32,7 +32,7 @@ type Repository interface {
 	Delete(ctx context.Context, id, userID uint32) error
 	Get(context.Context, model.GetReq) (res []model.Transaction, err error)
 
-	CreateTags(ctx context.Context, tags []string, transactionId uint32) error
+	CreateTags(ctx context.Context, tags []string, transactionID uint32) error
 	GetTags(ctx context.Context, transactionID []uint32) ([]model.Tag, error)
 }
 

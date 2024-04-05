@@ -27,7 +27,7 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 	urlString := "https://api.currencyapi.com/v3/latest"
 
 	// Параметры запроса
-	urlValues.Add("apikey", config.GetConfig().ApiKeys.CurrencyProvider)
+	urlValues.Add("apikey", config.GetConfig().APIKeys.CurrencyProvider)
 
 	u, err := url.ParseRequestURI(urlString)
 	if err != nil {

@@ -16,13 +16,13 @@ type MyCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func NewJWT(userId uint32, signingKey string, deviceID string, ttl time.Duration) (string, error) {
+func NewJWT(userID uint32, signingKey string, deviceID string, ttl time.Duration) (string, error) {
 
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(ttl).Unix(),
-			Subject:   strconv.Itoa(int(userId)),
+			Subject:   strconv.Itoa(int(userID)),
 		},
 	}
 

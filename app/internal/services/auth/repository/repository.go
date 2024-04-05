@@ -55,7 +55,7 @@ func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id
 
 	var session struct {
 		ExpiresAt time.Time `db:"expires_at"`
-		Id        uint32    `db:"id"`
+		ID        uint32    `db:"id"`
 		DeviceID  string    `db:"device_id"`
 	}
 
@@ -82,7 +82,7 @@ func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id
 		})
 	}
 
-	return session.Id, session.DeviceID, nil
+	return session.ID, session.DeviceID, nil
 }
 
 type Repository struct {

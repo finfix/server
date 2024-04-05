@@ -17,7 +17,7 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 
 	logging.Off()
 
-	validJson := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"id_1": 1,
 		"id_2": 2
 	}`)
@@ -36,7 +36,7 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 		err           error
 	}{
 		{"1.Обычный запрос",
-			validJson.Get(),
+			validJSON.Get(),
 			testingFunc.GeneralCtx.Get(),
 			validWant,
 			nil,
@@ -60,31 +60,31 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 			errors.BadRequest.New("EOF"),
 		},
 		{"5.Отрицательное значение id_1",
-			validJson.Set("id_1", "-1").Get(),
+			validJSON.Set("id_1", "-1").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"6.Отрицательное значение id_2",
-			validJson.Set("id_2", "-1").Get(),
+			validJSON.Set("id_2", "-1").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"7.Отсутствующее поле DeviceID в контексте",
-			validJson.Get(),
+			validJSON.Get(),
 			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"8.Отсутствующее поле id_1",
-			validJson.Delete("id_1").Get(),
+			validJSON.Delete("id_1").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("id_1"),
 		},
 		{"9.Отсутствующее поле id_2",
-			validJson.Delete("id_2").Get(),
+			validJSON.Delete("id_2").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("id_2"),
