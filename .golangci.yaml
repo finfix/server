@@ -9,7 +9,6 @@ linters:
     - gomnd # magic number detector
     - gosec # security checker
     - unused # unused code
-    - contextcheck # context should be the first argument of a function
     - asasalint # check for common mistakes in Go code
     - asciicheck # check for non-ASCII characters
     - bidichk # check for bi-directional text in string literals
@@ -71,6 +70,7 @@ linters:
     - wastedassign # check for wasted assignments
   disable:
     - containedctx # context should be the first argument of a function
+    - contextcheck # context should be the first argument of a function
     - cyclop # cyclomatic complexity
     - depguard # check for missing build tags
     - errorlint # error variable name
