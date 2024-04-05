@@ -1,232 +1,108 @@
+run:
+  issues-exit-code: 2
+  tests: true
+  modules-download-mode: mod
+severity:
+  default-severity: error
 linters:
-  # Disable all linters.
-  # Default: false
-  disable-all: true
-  # Enable specific linter
-  # https://golangci-lint.run/usage/linters/#enabled-by-default
   enable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - containedctx
-    - contextcheck
-    - cyclop
-    - deadcode
-    - decorder
-    - depguard
-    - dogsled
-    - dupl
-    - dupword
-    - durationcheck
-    - errcheck
-    - errchkjson
-    - errname
-    - errorlint
-    - execinquery
-    - exhaustive
-    - exhaustivestruct
-    - exhaustruct
-    - exportloopref
-    - forbidigo
-    - forcetypeassert
-    - funlen
-    - gci
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - godox
-    - goerr113
-    - gofmt
-    - gofumpt
-    - goheader
-    - goimports
-    - golint
-    - gomnd
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - grouper
-    - ifshort
-    - importas
-    - ineffassign
-    - interfacebloat
-    - interfacer
-    - ireturn
-    - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - maligned
-    - misspell
-    - nakedret
-    - nestif
-    - nilerr
-    - nilnil
-    - nlreturn
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosnakecase
-    - nosprintfhostport
-    - paralleltest
-    - prealloc
-    - predeclared
-    - promlinter
-    - reassign
-    - revive
-    - rowserrcheck
-    - scopelint
-    - sqlclosecheck
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - tagliatelle
-    - tenv
-    - testableexamples
-    - testpackage
-    - thelper
-    - tparallel
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - usestdlibvars
-    - varcheck
-    - varnamelen
-    - wastedassign
-    - whitespace
-    - wrapcheck
-    - wsl
-  # Enable all available linters.
-  # Default: false
-  enable-all: true
-  # Disable specific linter
-  # https://golangci-lint.run/usage/linters/#disabled-by-default
+    - gomnd # magic number detector
+    - gosec # security checker
+    - unused # unused code
+    - contextcheck # context should be the first argument of a function
+    - asasalint # check for common mistakes in Go code
+    - asciicheck # check for non-ASCII characters
+    - bidichk # check for bi-directional text in string literals
+    - bodyclose # check for missing body close
+    - decorder # check for decoding errors
+    - dogsled # check for common mistakes in Go code
+    - dupl # check for duplicated code
+    - dupword # check for duplicated words
+    - durationcheck # check for common mistakes in Go code
+    - errcheck # check for unchecked errors
+    - errchkjson # check for unchecked errors
+    - errname # error variable name
+    - execinquery # check for exec in query
+    - exhaustive # exhaustivestruct
+    - exportloopref # check for loop variable captured by a closure
+    - forbidigo # check for forbidden imports
+    - forcetypeassert # check for forced type assertions
+    - gocognit # check for high cognitive complexity
+    - goconst # check for constants
+    - gocritic # check for common mistakes in Go code
+    - gocyclo # cyclomatic complexity
+    - goheader # check for common mistakes in Go code
+    - gomoddirectives # check for common mistakes in Go code
+    - gomodguard # check for missing build tags
+    - goprintffuncname # check for printf with function name
+    - gosimple # check for common mistakes in Go code
+    - govet # go vet
+    - grouper # check for common mistakes in Go code
+    - ifshort # check for if statement with a short body
+    - importas # check for aliasing imports
+    - ineffassign # check for unused assignments
+    - interfacer  # check for interface bloat
+    - ireturn # check for implicit returns
+    - loggercheck # check for common mistakes in Go code
+    - maintidx # check for common mistakes in Go code
+    - makezero # check for zeroing allocations
+    - misspell # check for common mistakes in Go code
+    - nakedret # check for naked returns
+    - nilerr # check for nil errors
+    - nilnil # check for nil nil comparisons
+    - noctx # context should be the first argument of a function
+    - nosprintfhostport # check for common mistakes in Go code
+    - prealloc # check for slice preallocation
+    - predeclared # check for predeclared variables
+    - promlinter # check for common mistakes in Go code
+    - reassign # check for reassignments
+    - rowserrcheck # check for rows.Err() errors
+    - sqlclosecheck # check for missing sql.Close
+    - staticcheck # check for static errors
+    - structcheck # check for struct tags
+    - tagliatelle # check for common mistakes in Go code
+    - tenv # check for common mistakes in Go code
+    - testableexamples # check for testable examples
+    - tparallel # check for parallel tests
+    - typecheck # check for common mistakes in Go code
+    - unconvert # check for redundant type conversions
+    - unparam # check for unused function parameters
+    - usestdlibvars # check for common mistakes in Go code
+    - varcheck # check for unused variables
+    - wastedassign # check for wasted assignments
   disable:
-    - asasalint
-    - asciicheck
-    - bidichk
-    - bodyclose
-    - containedctx
-    - contextcheck
-    - cyclop
-    - deadcode
-    - decorder
-    - depguard
-    - dogsled
-    - dupl
-    - dupword
-    - durationcheck
-    - errcheck
-    - errchkjson
-    - errname
-    - errorlint
-    - execinquery
-    - exhaustive
-    - exhaustivestruct
-    - exhaustruct
-    - exportloopref
-    - forbidigo
-    - forcetypeassert
-    - funlen
-    - gci
-    - gochecknoglobals
-    - gochecknoinits
-    - gocognit
-    - goconst
-    - gocritic
-    - gocyclo
-    - godot
-    - godox
-    - goerr113
-    - gofmt
-    - gofumpt
-    - goheader
-    - goimports
-    - golint
-    - gomnd
-    - gomoddirectives
-    - gomodguard
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - grouper
-    - ifshort
-    - importas
-    - ineffassign
-    - interfacebloat
-    - interfacer
-    - ireturn
-    - lll
-    - loggercheck
-    - maintidx
-    - makezero
-    - maligned
-    - misspell
-    - nakedret
-    - nestif
-    - nilerr
-    - nilnil
-    - nlreturn
-    - noctx
-    - nolintlint
-    - nonamedreturns
-    - nosnakecase
-    - nosprintfhostport
-    - paralleltest
-    - prealloc
-    - predeclared
-    - promlinter
-    - reassign
-    - revive
-    - rowserrcheck
-    - scopelint
-    - sqlclosecheck
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - tagliatelle
-    - tenv
-    - testableexamples
-    - testpackage
-    - thelper
-    - tparallel
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - usestdlibvars
-    - varcheck
-    - varnamelen
-    - wastedassign
-    - whitespace
-    - wrapcheck
-    - wsl
-  # Enable presets.
-  # https://golangci-lint.run/usage/linters
-  presets:
-    - bugs
-    - comment
-    - complexity
-    - error
-    - format
-    - import
-    - metalinter
-    - module
-    - performance
-    - sql
-    - style
-    - test
-    - unused
-  # Run only fast linters from enabled linters set (first run won't be fast)
-  # Default: false
-  fast: true
+    - containedctx # context should be the first argument of a function
+    - cyclop # cyclomatic complexity
+    - depguard # check for missing build tags
+    - errorlint # error variable name
+    - exhaustivestruct # check for missing fields in struct literals
+    - exhaustruct # check for missing fields in struct literals
+    - funlen # function length
+    - gci # check for common mistakes in Go code
+    - gochecknoglobals # check for global variables
+    - gochecknoinits # check for init functions
+    - godot # check for dot on end of comment
+    - godox # check for to do comments
+    - goerr113 # check for defining dynamic errors
+    - gofmt # gofmt
+    - gofumpt # gofmt
+    - goimports # goimports
+    - golint # check for common mistakes in Go code
+    - interfacebloat # check for interface bloat
+    - lll # line length
+    - maligned # check for un-optimised structs
+    - nestif # check for nested if statements
+    - nlreturn # check for naked returns
+    - nolintlint # check noliint comments
+    - nonamedreturns # check for unnamed return values
+    - nosnakecase # check for snake case
+    - paralleltest # check for parallel tests
+    - revive # check for common mistakes in Go code
+    - scopelint # check for common mistakes in Go code
+    - stylecheck # check for style errors
+    - testpackage # check for common mistakes in Go code
+    - thelper # check for common mistakes in Go code
+    - wsl # check for leading whitespace
+    - wrapcheck # check for common mistakes in Go code
+    - whitespace # check for leading whitespace
+    - varnamelen # check for long variable names

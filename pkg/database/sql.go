@@ -6,7 +6,7 @@ import (
 	"server/pkg/errors"
 	"server/pkg/sql"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/jackc/pgx/v5/stdlib" //nolint:golint
 )
 
 func NewClientSQL(repo RepoConfig, databaseName string) (*sql.DB, error) {
