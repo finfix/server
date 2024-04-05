@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
@@ -83,7 +84,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeGetReq(tt.ctx, httptest.NewRequest("GET", fmt.Sprintf("%s?%s", "/account", tt.params.Encode()), nil))
+			res, err := decodeGetReq(tt.ctx, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}

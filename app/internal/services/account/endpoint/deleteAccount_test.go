@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
@@ -68,7 +69,7 @@ func TestDecodeDeleteAccountReq(t *testing.T) {
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeDeleteAccountReq(tt.ctx, httptest.NewRequest("DELETE", fmt.Sprintf("%s?%s", "/account", tt.params.Encode()), nil))
+			res, err := decodeDeleteAccountReq(tt.ctx, httptest.NewRequest(http.MethodDelete, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
