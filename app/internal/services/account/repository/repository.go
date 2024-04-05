@@ -115,6 +115,7 @@ func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (ui
 		account.AccountGroupID,
 		account.Accounting,
 		account.Budget.GradualFilling,
+		false,
 		account.Budget.FixedSum,
 		account.Budget.DaysOffset,
 	)
