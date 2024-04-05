@@ -60,7 +60,6 @@ linters:
     - sqlclosecheck # check for missing sql.Close
     - staticcheck # check for static errors
     - structcheck # check for struct tags
-    - tagliatelle # check for common mistakes in Go code
     - tenv # check for common mistakes in Go code
     - testableexamples # check for testable examples
     - tparallel # check for parallel tests
@@ -100,6 +99,7 @@ linters:
     - revive # check for common mistakes in Go code
     - scopelint # check for common mistakes in Go code
     - stylecheck # check for style errors
+    - tagliatelle # check for common mistakes in Go code
     - testpackage # check for common mistakes in Go code
     - thelper # check for common mistakes in Go code
     - wsl # check for leading whitespace

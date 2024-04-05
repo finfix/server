@@ -11,6 +11,9 @@ env:
 
 jobs:
 
+  go-lint:
+    uses: ./.github/workflows/lint.yml
+
   go-test:
     uses: ./.github/workflows/go-test.yml
 
