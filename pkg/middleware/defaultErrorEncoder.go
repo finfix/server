@@ -8,7 +8,7 @@ import (
 	"server/pkg/logging"
 )
 
-func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, err error, loggingFunc func(error)) {
+func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, er error, loggingFunc func(error)) {
 
 	if er == nil {
 		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", errors.Options{
@@ -28,7 +28,7 @@ func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, err error, lo
 	if er != nil {
 		logging.GetLogger().Error(er)
 		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(e.Error()))
+		_, _ = w.Write([]byte(er.Error()))
 	}
 
 	_, _ = w.Write(byt)

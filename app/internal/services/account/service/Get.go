@@ -100,7 +100,7 @@ func (s *Service) calculateBalancing(ctx context.Context, filters model.GetReq) 
 	if err != nil {
 		return nil, err
 	}
-	accountGroupsMap := slice.SliceToMap(_accountGroups, func(ag model.AccountGroup) uint32 { return ag.ID })
+	accountGroupsMap := slice.ToMap(_accountGroups, func(ag model.AccountGroup) uint32 { return ag.ID })
 
 	// Получаем курсы валют
 	currencies, err := s.general.GetCurrencies(ctx)

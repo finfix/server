@@ -35,6 +35,9 @@ func TestEncodeResponse(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+
+			tt := tt
+
 			w := httptest.NewRecorder()
 
 			err := DefaultResponseEncoder(context.Background(), w, tt.res)

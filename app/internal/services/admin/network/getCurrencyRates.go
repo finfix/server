@@ -29,14 +29,14 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 	// Параметры запроса
 	urlValues.Add("apikey", config.GetConfig().APIKeys.CurrencyProvider)
 
-	u, err := url.ParseRequestURI(urlString)
+	uri, err := url.ParseRequestURI(urlString)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
-	u.RawQuery = urlValues.Encode()
+	uri.RawQuery = urlValues.Encode()
 
 	// Отправляем запрос
-	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}

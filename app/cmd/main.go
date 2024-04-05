@@ -172,7 +172,7 @@ func main() {
 	logger.Fatal(<-errs)
 }
 
-func CORS(h http.Handler) http.Handler {
+func CORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		w.Header().Set("Access-Control-Allow-Origin", origin)

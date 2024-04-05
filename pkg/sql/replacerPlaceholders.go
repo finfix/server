@@ -10,12 +10,12 @@ func replacePlaceholders(sql string) string {
 	buffer := bytes.Buffer{}
 	var i int
 	for {
-		p := strings.Index(sql, "?")
-		if p > 0 {
+		positionQ := strings.Index(sql, "?")
+		if positionQ > 0 {
 			i++
-			buffer.WriteString(sql[:p])
-			fmt.Fprintf(&buffer, "$%d", i)
-			sql = sql[p+1:]
+			buffer.WriteString(sql[:positionQ])
+			_, err := fmt.Fprintf(&buffer, "$%d", i)
+			sql = sql[positionQ+1:]
 		} else {
 			buffer.WriteString(sql)
 			break

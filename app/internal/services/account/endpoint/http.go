@@ -19,26 +19,26 @@ type endpoint struct {
 
 func NewEndpoint(service *accountService.Service) http.Handler {
 
-	s := &endpoint{
+	e := &endpoint{
 		service: service,
 	}
 
-	options := []server.ServerOption{
-		server.ServerLoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.ServerBefore(middleware.DefaultAuthorization),
-		server.ServerResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ServerErrorEncoder(middleware.DefaultErrorEncoder),
-		server.ServerErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+	options := []server.Option{
+		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
+		server.Before(middleware.DefaultAuthorization),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
-	r.Methods("POST").Path(part).Handler(server.NewChain(s.createAccount, options...))
-	r.Methods("GET").Path(part).Handler(server.NewChain(s.get, options...))
-	r.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateAccount, options...))
-	r.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteAccount, options...))
-	r.Methods("PATCH").Path(part + "/switch").Handler(server.NewChain(s.switchAccounts, options...))
-	r.Methods("GET").Path(part + "/accountGroups").Handler(server.NewChain(s.getAccountGroups, options...))
+	router.Methods("POST").Path(part).Handler(server.NewChain(e.createAccount, options...))
+	router.Methods("GET").Path(part).Handler(server.NewChain(e.get, options...))
+	router.Methods("PATCH").Path(part).Handler(server.NewChain(e.updateAccount, options...))
+	router.Methods("DELETE").Path(part).Handler(server.NewChain(e.deleteAccount, options...))
+	router.Methods("PATCH").Path(part + "/switch").Handler(server.NewChain(e.switchAccounts, options...))
+	router.Methods("GET").Path(part + "/accountGroups").Handler(server.NewChain(e.getAccountGroups, options...))
 
-	return r
+	return router
 }

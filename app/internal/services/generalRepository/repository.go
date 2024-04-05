@@ -144,7 +144,7 @@ func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.Check
 		)
 		args = append(args, argsAGs...)
 		args = append(args, argsIDs...)
-		errString = "аккаунтам"
+		errString = "счетам"
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {

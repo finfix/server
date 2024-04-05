@@ -6,7 +6,7 @@ import (
 )
 
 type Chain struct {
-	loggingRequest LoggingRequest
+	loggingRequest LoggingRequestFunc
 	before         []BeforeFunc
 	send           SendFunc
 	after          []AfterFunc
@@ -15,43 +15,43 @@ type Chain struct {
 	loggingFunc    LoggingFunc
 }
 
-func NewChain(send SendFunc, opts ...ServerOption) *Chain {
-	s := &Chain{
+func NewChain(send SendFunc, opts ...Option) *Chain {
+	chain := &Chain{
 		send: send,
 	}
 	for _, option := range opts {
-		option(s)
+		option(chain)
 	}
-	return s
+	return chain
 }
 
-type ServerOption func(*Chain)
+type Option func(*Chain)
 
-func ServerResponseEncoder(e EncodeResponseFunc) ServerOption {
+func ResponseEncoder(e EncodeResponseFunc) Option {
 	return func(s *Chain) { s.encode = e }
 }
 
-func ServerErrorEncoder(ee EncodeErrorFunc) ServerOption {
+func ErrorEncoder(ee EncodeErrorFunc) Option {
 	return func(s *Chain) { s.errorEncode = ee }
 }
 
-func ServerLoggingRequest(l LoggingRequest) ServerOption {
+func LoggingRequest(l LoggingRequestFunc) Option {
 	return func(s *Chain) { s.loggingRequest = l }
 }
 
-func ServerBefore(before ...BeforeFunc) ServerOption {
+func Before(before ...BeforeFunc) Option {
 	return func(s *Chain) { s.before = append(s.before, before...) }
 }
 
-func ServerAfter(after ...AfterFunc) ServerOption {
+func After(after ...AfterFunc) Option {
 	return func(s *Chain) { s.after = append(s.after, after...) }
 }
 
-func ServerErrorLoggingFunc(loggingFunc func(error)) ServerOption {
+func ErrorLoggingFunc(loggingFunc func(error)) Option {
 	return func(s *Chain) { s.loggingFunc = loggingFunc }
 }
 
-type LoggingRequest func(*http.Request)
+type LoggingRequestFunc func(*http.Request)
 type BeforeFunc func(context.Context, *http.Request) (context.Context, error)
 type SendFunc func(context.Context, *http.Request) (any, error)
 type AfterFunc func(context.Context, http.ResponseWriter) context.Context

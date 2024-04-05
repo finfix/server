@@ -9,10 +9,6 @@ import (
 	"server/pkg/logging"
 )
 
-var (
-	updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %.2f₽\nBTC: %.0f$"
-)
-
 type Repository interface {
 	UpdCurrencies(ctx context.Context, rates map[string]float64) error
 }
@@ -23,6 +19,8 @@ type TgBotService interface {
 
 // UpdateCurrencies обновляет курсы валют
 func (s *Service) UpdateCurrencies(ctx context.Context) error {
+
+	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %.2f₽\nBTC: %.0f$"
 
 	var tgMessage tgBotModel.SendMessageReq
 
