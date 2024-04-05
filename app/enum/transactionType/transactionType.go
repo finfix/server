@@ -4,8 +4,6 @@ import (
 	"server/pkg/errors"
 )
 
-const stackDepth = 2
-
 type Type string
 
 // enum:"consumption,income,transfer"
@@ -24,6 +22,7 @@ func (t *Type) Validate() error {
 	case Transfer, Consumption, Balancing, Income:
 	default:
 		return errors.BadRequest.New("Unknown transaction type", errors.Options{
+			PathDepth: errors.SecondPathDepth,
 			Params:    map[string]any{"type": *t},
 			HumanText: "Неизвестный тип транзакции",
 		})

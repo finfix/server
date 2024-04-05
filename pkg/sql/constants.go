@@ -1,7 +1,11 @@
 package sql
 
-import "database/sql"
+import (
+	"database/sql"
 
-const pathDepth = 2
+	"server/pkg/errors"
+)
 
 var ErrNoRows = sql.ErrNoRows
+
+var secondPathDepthOption = errors.Options{PathDepth: errors.SecondPathDepth}

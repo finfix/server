@@ -77,10 +77,12 @@ func (s *Service) Update(ctx context.Context, accountFields model.UpdateReq) err
 			}
 			balancingAccount := balancingAccounts[0]
 
+			const rounding = 0.0000001
+
 			// Создаем транзакцию балансировки
 			if _, err = s.transaction.Create(ctx, transactionModel.CreateReq{
 				Type:            transactionType.Balancing,
-				AmountTo:        math.Round((*accountFields.Remainder-remainder)*10000000) / 10000000,
+				AmountTo:        math.Round((*accountFields.Remainder-remainder)/rounding) * rounding,
 				AccountToID:     accountFields.ID,
 				AccountFromID:   balancingAccount.ID,
 				DateTransaction: date.Now(),

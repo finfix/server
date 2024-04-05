@@ -10,7 +10,7 @@ import (
 
 func getErrorFromPanic(r interface{}) error {
 	var pcs [32]uintptr
-	n := runtime.Callers(3, pcs[:])
+	n := runtime.Callers(errors.ThirdPathDepth, pcs[:])
 	textErr := fmt.Sprintf("%v", r)
 
 	for i := 3; i < n; i++ {

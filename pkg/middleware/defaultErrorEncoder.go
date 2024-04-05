@@ -2,16 +2,17 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"server/pkg/errors"
+	"server/pkg/logging"
 )
 
 func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, err error, loggingFunc func(error)) {
 
 	if er == nil {
 		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", errors.Options{
+			PathDepth: errors.SecondPathDepth,
 		})
 	}
 

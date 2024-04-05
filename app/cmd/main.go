@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 
@@ -54,6 +55,10 @@ import (
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
 //go:generate go mod download
 //go:generate swag init -o ../docs --parseDependency --parseInternal
+
+const (
+	readHeaderTimeout = 10 * time.Second
+)
 
 func main() {
 
@@ -157,8 +162,9 @@ func main() {
 
 	go func() {
 		server := &http.Server{
-			Addr:    cfg.HTTP,
-			Handler: CORS(mux),
+			Addr:              cfg.HTTP,
+			Handler:           CORS(mux),
+			ReadHeaderTimeout: readHeaderTimeout,
 		}
 		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
 	}()
