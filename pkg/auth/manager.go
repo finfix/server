@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"fmt"
-	"math/rand"
+	"crypto/rand"
+	"encoding/base32"
 	"strconv"
 	"time"
 
@@ -12,7 +12,7 @@ import (
 )
 
 type MyCustomClaims struct {
-	DeviceID string `json:"deviceID"`
+	DeviceID string `json:"deviceId"`
 	jwt.StandardClaims
 }
 
@@ -73,14 +73,13 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 }
 
 func NewRefreshToken() (string, error) {
-	b := make([]byte, 32)
-
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s)
-
-	if _, err := r.Read(b); err != nil {
+	const (
+		refreshTokenLength = 64
+		countBytes         = 64
+	)
+	randomBytes := make([]byte, countBytes)
+	if _, err := rand.Read(randomBytes); err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
-
-	return fmt.Sprintf("%x", b), nil
+	return base32.StdEncoding.EncodeToString(randomBytes)[:refreshTokenLength], nil
 }
