@@ -12,7 +12,7 @@ import (
 )
 
 type MyCustomClaims struct {
-	DeviceID string `json:"deviceId"`
+	DeviceID string `json:"deviceID"`
 	jwt.StandardClaims
 }
 

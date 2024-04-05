@@ -11,7 +11,7 @@ import (
 type StmtInterface interface {
 	Select(ctx context.Context, dest any, args ...any) error
 	Get(ctx context.Context, dest any, args ...any) error
-	ExecWithLastInsertId(ctx context.Context, args ...any) (uint32, error)
+	ExecWithLastInsertID(ctx context.Context, args ...any) (uint32, error)
 	ExecWithAffectedRows(ctx context.Context, args ...any) (uint32, error)
 	QueryRow(ctx context.Context, args ...any) RowInterface
 	Query(ctx context.Context, args ...any) (RowsInterface, error)
