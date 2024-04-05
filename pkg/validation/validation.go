@@ -23,7 +23,7 @@ func Mail(email string) error {
 	return nil
 }
 
-func zeroValue(requestStruct any, tag string) error {
+func zeroValue(requestStruct any, tag string, depth int) error {
 
 	if reflect.ValueOf(requestStruct).Kind() != reflect.Struct {
 		return errors.InternalServer.New("Пришедший интерфейс не равен структуре", errors.Options{
@@ -33,16 +33,16 @@ func zeroValue(requestStruct any, tag string) error {
 	}
 
 	// Получаем тип данных структуры (ждем обязательно структуру)
-	t := reflect.TypeOf(requestStruct)
+	reflectType := reflect.TypeOf(requestStruct)
 
 	// Получаем значение структуры
-	v := reflect.ValueOf(requestStruct)
+	reflectValue := reflect.ValueOf(requestStruct)
 
 	// Проходимся по каждому полю структуры
-	for i := 0; i < t.NumField(); i++ {
+	for i := 0; i < reflectType.NumField(); i++ {
 
 		// Получаем поле
-		typeField := t.Field(i)
+		typeField := reflectType.Field(i)
 
 		switch typeField.Name {
 		case "state", "sizeCache", "unknownFields":
@@ -50,7 +50,7 @@ func zeroValue(requestStruct any, tag string) error {
 		}
 
 		// Получаем значение поля
-		valField := v.Field(i)
+		valField := reflectValue.Field(i)
 
 		// Получаем то, что в теге validate
 		reqTag := typeField.Tag.Get("validate")
@@ -79,15 +79,15 @@ func zeroValue(requestStruct any, tag string) error {
 
 			// Добавляем вложенность
 			if len(tag) != 0 && i == 0 {
-				tag = tag + "."
+				tag += "."
 			}
 
 			// Рекурсивно вызываем функцию для вложенной функции
-			err := zeroValue(tt, tag+jsTag)
+			err := zeroValue(tt, tag+jsTag, depth+1)
 
 			// Если внутри структуры плохо
 			if err != nil {
-				return errors.BadRequest.NewCtx("Required field is not filled", "Поле: %v", tag+jsTag)
+				return err
 			}
 		}
 	}
@@ -97,5 +97,5 @@ func zeroValue(requestStruct any, tag string) error {
 }
 
 func ZeroValue(requestStruct any) error {
-	return zeroValue(requestStruct, "")
+	return zeroValue(requestStruct, "", errors.ThirdPathDepth)
 }
