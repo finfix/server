@@ -49,10 +49,7 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 	}
 
 	sort.Slice(accounts, func(i, j int) bool {
-		if accounts[i].IsParent {
-			return true
-		}
-		return false
+		return accounts[i].IsParent
 	})
 
 	return accounts, nil

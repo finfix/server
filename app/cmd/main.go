@@ -184,15 +184,14 @@ func CORS(handler http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "*")
 			return
-		} else {
-
-			// Обрабатываем панику, если она случилась
-			defer panicRecover.PanicRecover(func(err error) {
-				logging.GetLogger().Panic(err)
-				middleware.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
-			})
-
-			h.ServeHTTP(w, r)
 		}
+
+		// Обрабатываем панику, если она случилась
+		defer panicRecover.PanicRecover(func(err error) {
+			logging.GetLogger().Panic(err)
+			middleware.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
+		})
+
+		handler.ServeHTTP(w, r)
 	})
 }
