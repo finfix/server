@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"net/http"
+	"time"
 
 	httpSwagger "github.com/swaggo/http-swagger"
 
@@ -55,6 +56,10 @@ import (
 //go:generate go mod download
 //go:generate swag init -o ../docs --parseDependency --parseInternal
 
+const (
+	readHeaderTimeout = 10 * time.Second
+)
+
 func main() {
 
 	// Перехватываем панику
@@ -81,6 +86,9 @@ func main() {
 
 	// Инициализируем клиента телеграм
 	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	if err != nil {
+		logger.Fatal(errors.InternalServer.Wrap(err))
+	}
 
 	// Регистрируем сервисы
 	tgBotService := tgBotService.New(tgBot, tgChat, logger)
@@ -157,8 +165,9 @@ func main() {
 
 	go func() {
 		server := &http.Server{
-			Addr:    cfg.HTTP,
-			Handler: CORS(mux),
+			Addr:              cfg.HTTP,
+			Handler:           CORS(mux),
+			ReadHeaderTimeout: readHeaderTimeout,
 		}
 		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
 	}()
@@ -166,24 +175,23 @@ func main() {
 	logger.Fatal(<-errs)
 }
 
-func CORS(h http.Handler) http.Handler {
+func CORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
 		w.Header().Set("Access-Control-Allow-Origin", origin)
-		if r.Method == "OPTIONS" {
+		if r.Method == http.MethodOptions {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Methods", "GET,POST")
+			w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "*")
 			return
-		} else {
-
-			// Обрабатываем панику, если она случилась
-			defer panicRecover.PanicRecover(func(err error) {
-				logging.GetLogger().Panic(err)
-				middleware.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
-			})
-
-			h.ServeHTTP(w, r)
 		}
+
+		// Обрабатываем панику, если она случилась
+		defer panicRecover.PanicRecover(func(err error) {
+			logging.GetLogger().Panic(err)
+			middleware.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
+		})
+
+		handler.ServeHTTP(w, r)
 	})
 }

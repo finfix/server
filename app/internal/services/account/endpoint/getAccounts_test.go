@@ -3,12 +3,14 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"server/app/enum/accountType"
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
@@ -75,14 +77,14 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		},
 		{"7.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeGetReq(tt.ctx, httptest.NewRequest("GET", fmt.Sprintf("%s?%s", "/account", tt.params.Encode()), nil))
+			res, err := decodeGetReq(tt.ctx, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}

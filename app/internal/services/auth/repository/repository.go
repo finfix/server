@@ -55,7 +55,7 @@ func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id
 
 	var session struct {
 		ExpiresAt time.Time `db:"expires_at"`
-		Id        uint32    `db:"id"`
+		ID        uint32    `db:"id"`
 		DeviceID  string    `db:"device_id"`
 	}
 
@@ -69,18 +69,20 @@ func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id
 	)
 	if err != nil {
 		if errors.As(err, sql.ErrNoRows) {
-			err = errors.Unauthorized.New("Session not found")
-			return 0, "", errors.AddHumanText(err, "Необходимо пройти процедуру авторизации")
+			return 0, "", errors.Unauthorized.New("Session not found", errors.Options{
+				HumanText: "Необходимо пройти процедуру авторизации",
+			})
 		}
 	}
 
 	// Проверяем, не истекла ли сессия
 	if session.ExpiresAt.Before(time.Now()) {
-		err = errors.Unauthorized.New("Session ended")
-		return 0, "", errors.AddHumanText(err, "Истек строк действия токена авторизации, необходимо авторизоваться снова")
+		return 0, "", errors.Unauthorized.New("Session ended", errors.Options{
+			HumanText: "Истек строк действия токена авторизации, необходимо авторизоваться снова",
+		})
 	}
 
-	return session.Id, session.DeviceID, nil
+	return session.ID, session.DeviceID, nil
 }
 
 type Repository struct {

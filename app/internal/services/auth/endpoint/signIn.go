@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"server/app/internal/services/auth/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/validation"
 )
@@ -39,7 +40,7 @@ func decodeSignInReq(ctx context.Context, r *http.Request) (req model.SignInReq,
 	}
 
 	// Заполняем поля из контекста
-	req.DeviceID, _ = ctx.Value("DeviceID").(string)
+	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
 
 	// Валидируем поля
 	if err = validation.Mail(req.Email); err != nil {

@@ -49,10 +49,7 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 	}
 
 	sort.Slice(accounts, func(i, j int) bool {
-		if accounts[i].IsParent {
-			return true
-		}
-		return false
+		return accounts[i].IsParent
 	})
 
 	return accounts, nil
@@ -100,7 +97,7 @@ func (s *Service) calculateBalancing(ctx context.Context, filters model.GetReq) 
 	if err != nil {
 		return nil, err
 	}
-	accountGroupsMap := slice.SliceToMap(_accountGroups, func(ag model.AccountGroup) uint32 { return ag.ID })
+	accountGroupsMap := slice.ToMap(_accountGroups, func(ag model.AccountGroup) uint32 { return ag.ID })
 
 	// Получаем курсы валют
 	currencies, err := s.general.GetCurrencies(ctx)

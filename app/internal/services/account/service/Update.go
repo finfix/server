@@ -71,14 +71,18 @@ func (s *Service) Update(ctx context.Context, accountFields model.UpdateReq) err
 				return err
 			}
 			if len(balancingAccounts) == 0 {
-				return errors.NotFound.NewCtx("Не найден счет для балансировки для счета", "accountID: %v", account.ID)
+				return errors.NotFound.New("Не найден счет для балансировки для счета", errors.Options{
+					Params: map[string]any{"accountID": accountFields.ID},
+				})
 			}
 			balancingAccount := balancingAccounts[0]
+
+			const rounding = 0.0000001
 
 			// Создаем транзакцию балансировки
 			if _, err = s.transaction.Create(ctx, transactionModel.CreateReq{
 				Type:            transactionType.Balancing,
-				AmountTo:        math.Round((*accountFields.Remainder-remainder)*10000000) / 10000000,
+				AmountTo:        math.Round((*accountFields.Remainder-remainder)/rounding) * rounding,
 				AccountToID:     accountFields.ID,
 				AccountFromID:   balancingAccount.ID,
 				DateTransaction: date.Now(),

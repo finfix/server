@@ -4,8 +4,6 @@ import (
 	"server/pkg/errors"
 )
 
-const stackDepth = 2
-
 type ActionType string
 
 const (
@@ -23,8 +21,11 @@ func (a *ActionType) Validate() error {
 	switch *a {
 	case CreateTransaction, UpdateTransaction, DeleteTransaction, CreateAccount, UpdateAccount, DeleteAccount, CreateUser, UpdateUser:
 	default:
-		err := errors.BadRequest.NewPathCtx("Unknown action type", stackDepth, "type: %v", *a)
-		return errors.AddHumanText(err, "Неизвестный тип действия")
+		return errors.BadRequest.New("Unknown action type", errors.Options{
+			PathDepth: errors.SecondPathDepth,
+			Params:    map[string]any{"type": *a},
+			HumanText: "Неизвестный тип действия",
+		})
 	}
 	return nil
 }

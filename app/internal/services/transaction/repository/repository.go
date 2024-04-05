@@ -141,7 +141,12 @@ func (repo *TransactionRepository) Delete(ctx context.Context, id, userID uint32
 
 	// Проверяем, что в базе данных что-то изменилось
 	if rows == 0 {
-		return errors.NotFound.NewCtx("No such model found for model", "UserID: %v, TransactionID: %v", userID, id)
+		return errors.NotFound.New("No such model found for model", errors.Options{
+			Params: map[string]any{
+				"UserID":        userID,
+				"TransactionID": id,
+			},
+		})
 	}
 
 	return nil
@@ -208,14 +213,6 @@ func (repo *TransactionRepository) Get(ctx context.Context, req model.GetReq) (t
 			return nil, errors.ClientReject.New("HTTP connection terminated")
 		}
 		return nil, err
-	}
-
-	// Проверяем на предмет получения пустого списка
-	if len(transactions) == 0 {
-		return transactions, errors.AddHumanText(
-			errors.NotFound.NewCtx("Transactions not found", "UserID: %v", req.UserID),
-			"Транзакции не найдены",
-		)
 	}
 
 	return transactions, nil

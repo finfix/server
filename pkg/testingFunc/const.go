@@ -1,11 +1,15 @@
 package testingFunc
 
+import (
+	"server/pkg/contextKeys"
+)
+
 const (
 	InvalidJSON = "{invalid}"
 )
 
 var (
-	GeneralCtx = NewCtxBuilder(make(map[string]any)).
-		Set("DeviceID", "DeviceID").
-		Set("UserID", uint32(1))
+	GeneralCtx = NewCtxBuilder().
+		Set(contextKeys.DeviceIDKey, "DeviceID").
+		Set(contextKeys.UserIDKey, uint32(1))
 )

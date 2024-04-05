@@ -8,7 +8,7 @@ func MapToSlice[K comparable, V any](mapa map[K]V) []V {
 	return slice
 }
 
-func SliceToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
+func ToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
 	mapBySlise := make(map[K]V, len(slice))
 	for _, v := range slice {
 		mapBySlise[field(v)] = v
@@ -17,5 +17,5 @@ func SliceToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
 }
 
 func GetUniqueByField[K comparable, V any](slice []V, field func(V) K) []V {
-	return MapToSlice(SliceToMap(slice, field))
+	return MapToSlice(ToMap(slice, field))
 }

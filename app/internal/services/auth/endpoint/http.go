@@ -15,7 +15,6 @@ var part = "/auth"
 
 type endpoint struct {
 	service *authService.Service
-	logger  *logging.Logger
 }
 
 func NewEndpoint(service *authService.Service) http.Handler {
@@ -24,12 +23,12 @@ func NewEndpoint(service *authService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.ServerOption{
-		server.ServerLoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.ServerBefore(middleware.DefaultDeviceIDValidator),
-		server.ServerResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ServerErrorEncoder(middleware.DefaultErrorEncoder),
-		server.ServerErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+	options := []server.Option{
+		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
+		server.Before(middleware.DefaultDeviceIDValidator),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 
 	r := mux.NewRouter()

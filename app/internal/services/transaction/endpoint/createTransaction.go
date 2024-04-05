@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"server/app/internal/services/transaction/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/validation"
 )
@@ -45,8 +46,8 @@ func decodeCreateTransactionReq(ctx context.Context, r *http.Request) (req model
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value("UserID").(uint32)
-	req.DeviceID, _ = ctx.Value("DeviceID").(string)
+	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
+	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
 
 	// Валидируем поля
 	if err = req.Type.Validate(); err != nil {

@@ -1,8 +1,8 @@
 package auth
 
 import (
-	"fmt"
-	"math/rand"
+	"crypto/rand"
+	"encoding/base32"
 	"strconv"
 	"time"
 
@@ -16,13 +16,13 @@ type MyCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func NewJWT(userId uint32, signingKey string, deviceID string, ttl time.Duration) (string, error) {
+func NewJWT(userID uint32, signingKey string, deviceID string, ttl time.Duration) (string, error) {
 
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(ttl).Unix(),
-			Subject:   strconv.Itoa(int(userId)),
+			Subject:   strconv.Itoa(int(userID)),
 		},
 	}
 
@@ -44,7 +44,9 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 
 	token, err := jwt.ParseWithClaims(accessToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.InternalServer.NewCtx("Unexpected signing method", "%v", token.Header["alg"])
+			return nil, errors.InternalServer.New("Unexpected signing method", errors.Options{
+				Params: map[string]any{"token": token.Header["alg"]},
+			})
 		}
 
 		return []byte(signingKey), nil
@@ -61,7 +63,9 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 	idStr := claims.Subject
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, "", errors.Unauthorized.WrapCtx(err, "ID: %v", idStr)
+		return 0, "", errors.Unauthorized.Wrap(err, errors.Options{
+			Params: map[string]any{"ID": idStr},
+		})
 	}
 
 	return uint32(id), claims.DeviceID, nil
@@ -69,14 +73,13 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 }
 
 func NewRefreshToken() (string, error) {
-	b := make([]byte, 32)
-
-	s := rand.NewSource(time.Now().Unix())
-	r := rand.New(s)
-
-	if _, err := r.Read(b); err != nil {
+	const (
+		refreshTokenLength = 64
+		countBytes         = 64
+	)
+	randomBytes := make([]byte, countBytes)
+	if _, err := rand.Read(randomBytes); err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
-
-	return fmt.Sprintf("%x", b), nil
+	return base32.StdEncoding.EncodeToString(randomBytes)[:refreshTokenLength], nil
 }

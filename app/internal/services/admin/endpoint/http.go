@@ -23,7 +23,11 @@ type endpoint struct {
 func authorization(ctx context.Context, r *http.Request) (context.Context, error) {
 
 	if r.Header.Get("MySecretKey") != config.GetConfig().SecretKey {
-		return nil, errors.Forbidden.NewCtx("MySecretKey is incorrect", "IP address: %v", r.Header.Get("X-Real-IP"))
+		return nil, errors.Forbidden.New("MySecretKey is incorrect", errors.Options{
+			Params: map[string]any{
+				"IP address": r.Header.Get("X-Real-IP"),
+			},
+		})
 	}
 
 	return ctx, nil
@@ -31,20 +35,20 @@ func authorization(ctx context.Context, r *http.Request) (context.Context, error
 
 func NewEndpoint(service *adminService.Service) http.Handler {
 
-	s := &endpoint{
+	e := &endpoint{
 		service: service,
 	}
 
-	options := []server.ServerOption{
-		server.ServerLoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.ServerBefore(authorization),
-		server.ServerResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ServerErrorEncoder(middleware.DefaultErrorEncoder),
-		server.ServerErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+	options := []server.Option{
+		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
+		server.Before(authorization),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 
 	r := mux.NewRouter()
 
-	r.Methods("POST").Path(part + "/updCurrencies").Handler(server.NewChain(s.updateCurrencies, options...))
+	r.Methods("POST").Path(part + "/updCurrencies").Handler(server.NewChain(e.updateCurrencies, options...))
 	return r
 }

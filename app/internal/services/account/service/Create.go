@@ -38,7 +38,9 @@ func (s *Service) Create(ctx context.Context, account model.CreateReq) (id uint3
 			return err
 		}
 		if len(balancingAccounts) == 0 {
-			return errors.NotFound.NewCtx("Не найден счет для балансировки для счета", "accountID: %v", id)
+			return errors.NotFound.New("Не найден счет для балансировки для счета", errors.Options{
+				Params: map[string]any{"accountID": id},
+			})
 		}
 		balancingAccount := balancingAccounts[0]
 

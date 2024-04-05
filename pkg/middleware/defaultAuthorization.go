@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"server/pkg/auth"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 )
 
@@ -31,7 +32,7 @@ func DefaultAuthorization(ctx context.Context, r *http.Request) (context.Context
 	if userID == 0 {
 		return ctx, errors.Unauthorized.New("UserID is empty")
 	}
-	ctx = context.WithValue(ctx, "DeviceID", deviceID)
-	ctx = context.WithValue(ctx, "UserID", userID)
+	ctx = context.WithValue(ctx, contextKeys.DeviceIDKey, deviceID)
+	ctx = context.WithValue(ctx, contextKeys.UserIDKey, userID)
 	return ctx, nil
 }

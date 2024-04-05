@@ -31,10 +31,10 @@ type CreateReq struct {
 }
 
 type CreateBudgetReq struct {
-	Amount         float64 `json:"amount"`         // Сумма
-	FixedSum       float64 `json:"fixedSum"`       // Фиксированная сумма
-	DaysOffset     uint32  `json:"daysOffset"`     // Смещение в днях
-	GradualFilling *bool   `json:"gradualFilling"` // Постепенное пополнение
+	Amount         float64 `json:"amount"`                             // Сумма
+	FixedSum       float64 `json:"fixedSum"`                           // Фиксированная сумма
+	DaysOffset     uint32  `json:"daysOffset"`                         // Смещение в днях
+	GradualFilling *bool   `json:"gradualFilling" validate:"required"` // Постепенное пополнение
 }
 
 type UpdateReq struct {
@@ -63,10 +63,10 @@ type DeleteReq struct {
 }
 
 type SwitchReq struct {
-	ID1      uint32 `json:"id_1" validate:"required" minimum:"1"` // Идентификатор первого счета
-	ID2      uint32 `json:"id_2" validate:"required" minimum:"1"` // Идентификатор второго счета
-	UserID   uint32 `json:"-" validate:"required"`                // Идентификатор пользователя
-	DeviceID string `json:"-" validate:"required"`                // Идентификатор устройства
+	ID1      uint32 `json:"id1" validate:"required" minimum:"1"` // Идентификатор первого счета
+	ID2      uint32 `json:"id2" validate:"required" minimum:"1"` // Идентификатор второго счета
+	UserID   uint32 `json:"-" validate:"required"`               // Идентификатор пользователя
+	DeviceID string `json:"-" validate:"required"`               // Идентификатор устройства
 }
 
 type GetAccountGroupsReq struct {

@@ -27,16 +27,16 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 	urlString := "https://api.currencyapi.com/v3/latest"
 
 	// Параметры запроса
-	urlValues.Add("apikey", config.GetConfig().ApiKeys.CurrencyProvider)
+	urlValues.Add("apikey", config.GetConfig().APIKeys.CurrencyProvider)
 
-	u, err := url.ParseRequestURI(urlString)
+	uri, err := url.ParseRequestURI(urlString)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
-	u.RawQuery = urlValues.Encode()
+	uri.RawQuery = urlValues.Encode()
 
 	// Отправляем запрос
-	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	req, err := http.NewRequest(http.MethodGet, uri.String(), nil)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
@@ -59,7 +59,9 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 			return nil, errors.InternalServer.Wrap(err)
 		}
 	default:
-		return nil, errors.BadGateway.NewCtx("Error while getting currency rates", "HTTP code: %v", resp.StatusCode)
+		return nil, errors.BadGateway.New("Error while getting currency rates", errors.Options{
+			Params: map[string]any{"HTTP code": resp.StatusCode},
+		})
 	}
 
 	rates := make(map[string]float64, len(providerModel.Rates))

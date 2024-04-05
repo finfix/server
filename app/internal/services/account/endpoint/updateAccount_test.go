@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/pointer"
@@ -17,7 +18,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 
 	logging.Off()
 
-	validJson := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"id": 1,	
 		"remainder": 1.1,
 		"name": "name",	
@@ -57,7 +58,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		err           error
 	}{
 		{"1.Обычный запрос",
-			validJson.Get(),
+			validJSON.Get(),
 			testingFunc.GeneralCtx.Get(),
 			validWant,
 			nil,
@@ -69,8 +70,8 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 			errors.BadRequest.New("invalid"),
 		},
 		{"3.Отсутствующее поле UserID в контексте",
-			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			validJSON.Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -87,7 +88,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 			nil,
 		},
 		{"5.Отрицательное значение iconID",
-			validJson.Set("iconID", "-1").Get(),
+			validJSON.Set("iconID", "-1").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
@@ -99,14 +100,14 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 			errors.BadRequest.New("EOF"),
 		},
 		{"7.Отрицательное значение id",
-			validJson.Set("id", "-1").Get(),
+			validJSON.Set("id", "-1").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"8.Отсутствующее поле DeviceID в контексте",
-			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			validJSON.Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

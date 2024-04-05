@@ -3,12 +3,14 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"server/app/enum/transactionType"
 	"server/app/internal/services/transaction/model"
+	"server/pkg/contextKeys"
 	"server/pkg/datetime/date"
 	"server/pkg/errors"
 	"server/pkg/logging"
@@ -55,13 +57,13 @@ func TestDecodeGetReq(t *testing.T) {
 		},
 		{"2.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"3.Отсутствующее поле DeviceID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -119,7 +121,7 @@ func TestDecodeGetReq(t *testing.T) {
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeGetTransactionsReq(tt.ctx, httptest.NewRequest("GET", fmt.Sprintf("%s?%s", "/transaction", tt.params.Encode()), nil))
+			res, err := decodeGetTransactionsReq(tt.ctx, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}

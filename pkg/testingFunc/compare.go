@@ -9,23 +9,24 @@ import (
 	"server/pkg/errors"
 )
 
-func CheckError(t *testing.T, wantErr error, getErr error) bool {
-	if getErr != nil || wantErr != nil {
+func CheckError(t *testing.T, wantErr error, gotErr error) bool {
+	if gotErr != nil || wantErr != nil {
 
-		wantType := errors.GetType(wantErr)
+		wantCustomErr := errors.CastError(wantErr)
+		gotCustomErr := errors.CastError(gotErr)
 
 		switch {
-		case getErr == nil && wantErr != nil:
+		case gotErr == nil && wantErr != nil:
 			t.Fatalf("\n\nДолжна быть ошибка: %v\n\n", wantErr)
-		case wantType == errors.NoType:
-			customErr := castError(t, getErr)
-			t.Fatalf("\n\nОшибки быть не должно. Ошибка: %v\n%v\n\n", getErr, customErr.Path)
-		case wantType != errors.GetType(getErr):
-			customErr := castError(t, getErr)
-			t.Fatalf("\n\nДолжен быть другой тип ошибки: %v вместо %v. Ошибка: %v\n%v\n\n", errors.GetType(wantErr), errors.GetType(getErr), getErr, customErr.Path)
-		case !errors.As(getErr, wantErr):
-			customErr := castError(t, getErr)
-			t.Fatalf("\n\nДолжен быть другой текст ошибки: %v. Ошибка: %v\n%v\n\n", wantErr, getErr, customErr.Path)
+		case wantCustomErr.ErrorType == 0:
+			customErr := castError(t, gotErr)
+			t.Fatalf("\n\nОшибки быть не должно. Ошибка: %v\n%v\n\n", gotErr, customErr.Path)
+		case wantCustomErr.ErrorType != gotCustomErr.ErrorType:
+			customErr := castError(t, gotErr)
+			t.Fatalf("\n\nДолжен быть другой тип ошибки: %v вместо %v. Ошибка: %v\n%v\n\n", wantCustomErr.ErrorType, gotCustomErr.ErrorType, gotErr, customErr.Path)
+		case !errors.As(gotErr, wantErr):
+			customErr := castError(t, gotErr)
+			t.Fatalf("\n\nДолжен быть другой текст ошибки: %v. Ошибка: %v\n%v\n\n", wantErr, gotErr, customErr.Path)
 		}
 
 		return true

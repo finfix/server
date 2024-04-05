@@ -14,7 +14,7 @@ func (repo *Repository) UpdCurrencies(ctx context.Context, rates map[string]floa
 	var (
 		pattern  = "(?, ?, ?, ?)"
 		tmpQuery = make([]string, 0, len(rates))
-		args     = make([]interface{}, 0, len(rates)*2)
+		args     = make([]interface{}, 0, len(rates)*2) //nolint:gomnd // 2 - количество аргументов на одну запись (signatura и rate)
 	)
 
 	// Формируем аргументы для запроса

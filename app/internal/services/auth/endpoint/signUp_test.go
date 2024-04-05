@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"server/app/internal/services/auth/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -16,7 +17,7 @@ func TestDecodeSignUp(t *testing.T) {
 
 	logging.Off()
 
-	validJson := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"email": "qwerty@berubox.com",
 		"password": "password",
 		"name": "name"
@@ -36,7 +37,7 @@ func TestDecodeSignUp(t *testing.T) {
 		err           error
 	}{
 		{"1.Обычный запрос",
-			validJson.Get(),
+			validJSON.Get(),
 			testingFunc.GeneralCtx.Get(),
 			validWant,
 			nil,
@@ -48,19 +49,19 @@ func TestDecodeSignUp(t *testing.T) {
 			errors.BadRequest.New("invalid"),
 		},
 		{"3.Невалидный email",
-			validJson.Set("email", "invalid").Get(),
+			validJSON.Set("email", "invalid").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("email"),
 		},
 		{"4.Отсутствующее поле email",
-			validJson.Delete("email").Get(),
+			validJSON.Delete("email").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("email"),
 		},
 		{"5.Отсутствующее поле password",
-			validJson.Delete("password").Get(),
+			validJSON.Delete("password").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("password"),
@@ -72,14 +73,14 @@ func TestDecodeSignUp(t *testing.T) {
 			errors.BadRequest.New("EOF"),
 		},
 		{"7.Отсутствующее поле name",
-			validJson.Delete("name").Get(),
+			validJSON.Delete("name").Get(),
 			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("name"),
 		},
 		{"8.Отсутствующее поле DeviceID в контексте",
-			validJson.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			validJSON.Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},

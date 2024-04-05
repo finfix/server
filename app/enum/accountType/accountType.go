@@ -4,8 +4,6 @@ import (
 	"server/pkg/errors"
 )
 
-const stackDepth = 2
-
 type Type string
 
 // enums:"regular,expense,debt,income,balancing"
@@ -24,8 +22,11 @@ func (t *Type) Validate() error {
 	switch *t {
 	case Earnings, Expense, Debt, Regular, Balancing:
 	default:
-		err := errors.BadRequest.NewPathCtx("Unknown account type", stackDepth, "type: %v", *t)
-		return errors.AddHumanText(err, "Неизвестный тип счета")
+		return errors.BadRequest.New("Unknown account type", errors.Options{
+			PathDepth: errors.SecondPathDepth,
+			Params:    map[string]any{"type": *t},
+			HumanText: "Неизвестный тип счета",
+		})
 	}
 	return nil
 }

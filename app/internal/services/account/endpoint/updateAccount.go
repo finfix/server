@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/validation"
 )
@@ -40,8 +41,8 @@ func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.Upd
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value("UserID").(uint32)
-	req.DeviceID, _ = ctx.Value("DeviceID").(string)
+	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
+	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)

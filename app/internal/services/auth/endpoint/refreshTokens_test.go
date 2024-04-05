@@ -16,7 +16,7 @@ func TestDecodeRefreshTokens(t *testing.T) {
 
 	logging.Off()
 
-	validJson := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"token": "token"
 	}`)
 
@@ -26,7 +26,7 @@ func TestDecodeRefreshTokens(t *testing.T) {
 		err           error
 	}{
 		{"1.Обычный запрос",
-			validJson.Get(),
+			validJSON.Get(),
 			&model.RefreshTokensReq{
 				Token: "token",
 			},

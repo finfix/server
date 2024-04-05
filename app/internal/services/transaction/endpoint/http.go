@@ -23,19 +23,19 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.ServerOption{
-		server.ServerLoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.ServerBefore(middleware.DefaultAuthorization),
-		server.ServerResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ServerErrorEncoder(middleware.DefaultErrorEncoder),
-		server.ServerErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+	options := []server.Option{
+		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
+		server.Before(middleware.DefaultAuthorization),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
-	r.Methods("POST").Path(part).Handler(server.NewChain(s.createTransaction, options...))
-	r.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateTransaction, options...))
-	r.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteTransaction, options...))
-	r.Methods("GET").Path(part).Handler(server.NewChain(s.getTransactions, options...))
-	return r
+	router.Methods("POST").Path(part).Handler(server.NewChain(s.createTransaction, options...))
+	router.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateTransaction, options...))
+	router.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteTransaction, options...))
+	router.Methods("GET").Path(part).Handler(server.NewChain(s.getTransactions, options...))
+	return router
 }

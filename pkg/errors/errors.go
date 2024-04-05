@@ -4,13 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"maps"
 	"net/http"
 	"runtime"
 )
 
-// Определяем типы ошибок
 const (
-	NoType         = ErrorType(2)
 	LogicError     = ErrorType(1)
 	BadRequest     = ErrorType(http.StatusBadRequest)
 	NotFound       = ErrorType(http.StatusNotFound)
@@ -22,157 +21,197 @@ const (
 	BadGateway     = ErrorType(http.StatusBadGateway)
 )
 
+const (
+	defaultPathDepth = 1
+	SecondPathDepth  = 2
+	ThirdPathDepth   = 3
+)
+
 type ErrorType uint32
 
 type CustomError struct {
-	ErrorType   `json:"-"`
-	HumanText   string  `json:"humanTextError"`
-	DevelopText string  `json:"developerTextError"`
-	Err         error   `json:"-"`
-	Path        string  `json:"path"`
-	Context     *string `json:"context,omitempty" validate:"required"`
+	ErrorType    `json:"-"`
+	HumanText    string         `json:"humanTextError"`
+	DevelopText  string         `json:"developerTextError"`
+	InitialError error          `json:"-"`
+	Path         string         `json:"path"`
+	Params       map[string]any `json:"params,omitempty" validate:"required"`
+	LogAs        LogOption      `json:"-"`
 }
 
-func (error CustomError) Error() string {
-	return error.Err.Error()
+func (err CustomError) Error() string {
+	return err.InitialError.Error()
 }
 
-// Создаем новую ошибку
-func (typ ErrorType) New(msg string) error {
-	return typ.NewPathCtx(msg, 2, "")
+type LogOption int
+
+const (
+	LogAsError LogOption = iota
+	LogAsWarning
+)
+
+type Options struct {
+	// Дополнительные данные для ошибки
+	Params map[string]any
+	// Параметры
+	PathDepth int
+	// Тип логирования
+	LogAs *LogOption
+	// Текст для пользователя
+	HumanText string
+
+	// Затирать путь
+	ErasePath bool
+	// Дополнительный текст к исходной ошибке
+	ErrMessage string
 }
 
-// Создаем новую ошибку с контекстом
-func (typ ErrorType) NewCtx(msg, context string, args ...any) error {
-	return typ.NewPathCtx(msg, 2, context, args...)
+var TypeToLogOption = map[ErrorType]LogOption{
+	LogicError:     LogAsError,
+	BadRequest:     LogAsWarning,
+	NotFound:       LogAsWarning,
+	Teapot:         LogAsWarning,
+	InternalServer: LogAsError,
+	Forbidden:      LogAsWarning,
+	Unauthorized:   LogAsWarning,
+	ClientReject:   LogAsWarning,
+	BadGateway:     LogAsWarning,
 }
 
-// Создаем новую ошибку с выбором глубины пути (от 1)
-func (typ ErrorType) NewPath(msg string, skip int) error {
-	return typ.NewPathCtx(msg, skip+1, "")
-}
+// New создает новую ошибку
+func (typ ErrorType) New(msg string, opts ...Options) error {
 
-// Создаем новую ошибку с выбором глубины пути (от 1) и контекстом
-func (typ ErrorType) NewPathCtx(msg string, skip int, context string, args ...any) error {
-	_, file, line, _ := runtime.Caller(skip)
-
-	customErr := CustomError{
-		ErrorType: typ,
-		Err:       errors.New(msg),
-		Path:      fmt.Sprintf("%v:%v", file, line),
+	var options Options
+	if len(opts) > 0 {
+		options = opts[0]
 	}
-	if context != "" {
-		context := fmt.Sprintf(context, args...)
-		customErr.Context = &context
+
+	skip := defaultPathDepth
+
+	// Если передана глубина пути, то используем ее
+	if options.PathDepth != 0 {
+		skip = options.PathDepth
+	}
+
+	// Создаем новую ошибку
+	customErr := CustomError{
+		ErrorType:    typ,
+		InitialError: errors.New(msg),
+		Path:         getPath(skip),
+		Params:       options.Params,
+		HumanText:    options.HumanText,
+		LogAs:        TypeToLogOption[typ],
+	}
+
+	// Если передан тип логирования, то добавляем его
+	if options.LogAs != nil {
+		customErr.LogAs = *options.LogAs
+	}
+
+	return customErr
+}
+
+// Wrap оборачивает ошибку
+func (typ ErrorType) Wrap(err error, opts ...Options) error {
+
+	var options Options
+	if len(opts) > 0 {
+		options = opts[0]
+	}
+
+	skip := defaultPathDepth
+
+	var (
+		customErr CustomError
+		ok        bool
+	)
+
+	if customErr, ok = err.(CustomError); ok { // Если это уже обернутая ошибка
+
+		// Если передан текст для пользователя, то затираем его
+		if options.HumanText != "" {
+			customErr.HumanText = options.HumanText
+		}
+
+		// Затираем путь, если передано в опциях
+		if options.ErasePath {
+			// Если передана глубина пути, то используем ее
+			if options.PathDepth != 0 {
+				skip = options.PathDepth
+			}
+			customErr.Path = getPath(skip)
+		}
+
+		// Если передан текст ошибки, то добавляем его к исходной ошибке
+		if options.ErrMessage != "" {
+			customErr.InitialError = fmt.Errorf("%v: %v", options.ErrMessage, customErr.InitialError)
+		}
+
+		customErr.ErrorType = typ
+
+	} else { // Если это не обернутая ошибка
+
+		// Если передана глубина пути, то используем ее
+		if options.PathDepth != 0 {
+			skip = options.PathDepth
+		}
+
+		// Если это не обернутая ошибка, то создаем новую
+		customErr = CustomError{
+			ErrorType:    typ,
+			InitialError: err,
+			Path:         getPath(skip),
+			Params:       options.Params,
+			HumanText:    options.HumanText,
+			LogAs:        TypeToLogOption[typ],
+		}
+
+		if options.ErrMessage != "" {
+			customErr.InitialError = fmt.Errorf("%v: %v", options.ErrMessage, err)
+		} else {
+			customErr.InitialError = err
+		}
+	}
+
+	// Добавляем параметры
+	maps.Copy(customErr.Params, options.Params)
+
+	if options.LogAs != nil {
+		customErr.LogAs = *options.LogAs
+	}
+
+	return customErr
+}
+
+func CastError(err error) CustomError {
+
+	customErr, ok := err.(CustomError)
+	if !ok {
+		err = InternalServer.Wrap(err, Options{
+			ErrMessage: "Ошибка не обернута, путь неверный",
+			PathDepth:  SecondPathDepth,
+		})
+		customErr, _ = err.(CustomError)
 	}
 	return customErr
 }
 
-// Оборачиваем дефолтную ошибку в кастомный тип
-// Если в функцию передается кастомная ошибка, то она просто возвращается
-func (typ ErrorType) Wrap(err error) error {
-	return typ.WrapPathCtx(err, 2, "")
+func getPath(skip int) string {
+	_, file, line, _ := runtime.Caller(skip + 1)
+	return fmt.Sprintf("%v:%v", file, line)
 }
 
-// Оборачиваем дефолтную ошибку в кастомный тип и задаем ей контекст
-// Если в функцию передается кастомная ошибка, то она просто возвращается с добавлением контекста
-func (typ ErrorType) WrapCtx(err error, context string, agrs ...any) error {
-	return typ.WrapPathCtx(err, 2, context, agrs...)
-}
+// JSON преобразует ошибку в json
+func JSON(err CustomError) ([]byte, error) {
 
-// Оборачиваем дефолтную ошибку в кастомный тип с выбором глубины пути (от 1)
-// Если в функцию передается кастомная ошибка, то она просто возвращается
-func (typ ErrorType) WrapPath(err error, skip int) error {
-	return typ.WrapPathCtx(err, skip+1, "")
-}
+	err.DevelopText = err.Error()
 
-// Оборачиваем дефолтную ошибку в кастомный тип с выбором глубины пути (от 1) и контекстом.
-// Если в функцию передается кастомная ошибка, то она просто возвращается с добавлением контекста
-func (typ ErrorType) WrapPathCtx(err error, skip int, context string, args ...any) error {
-
-	if err == nil {
-		return nil
+	byt, e := json.Marshal(err)
+	if e != nil {
+		return nil, InternalServer.Wrap(e)
 	}
 
-	// Если это уже обернутая ошибка, добавляем контекст, меняем тип и возвращаем
-	if customErr, ok := err.(CustomError); ok {
-		//customErr.ErrorType = typ
-		if customErr.Context != nil && context != "" {
-			newContext := fmt.Sprintf("%s. %s", context, *customErr.Context)
-			customErr.Context = &newContext
-		}
-		return customErr
-	}
-
-	// Если это новая ошибка, то оборачиваем ее в нашу кастомную
-	_, file, line, _ := runtime.Caller(skip)
-
-	customError := CustomError{
-		ErrorType: typ,
-		Err:       err,
-		Path:      fmt.Sprintf("%v:%v", file, line),
-	}
-	if context != "" {
-		context := fmt.Sprintf(context, args...)
-		customError.Context = &context
-	}
-	return customError
-}
-
-// Добавляем в ошибку текст, который можно отдать пользователю
-func AddHumanText(err error, message string) error {
-
-	if customErr, ok := err.(CustomError); ok {
-
-		if customErr.HumanText != "" {
-			return err
-		}
-
-		return CustomError{
-			ErrorType: customErr.ErrorType,
-			Err:       customErr.Err,
-			HumanText: message,
-			Path:      customErr.Path,
-			Context:   customErr.Context,
-		}
-	}
-
-	_, file, line, _ := runtime.Caller(1)
-
-	return CustomError{
-		ErrorType: NoType,
-		Err:       err,
-		HumanText: message,
-		Path:      fmt.Sprintf("%v:%v", file, line),
-	}
-}
-
-// Получаем тип ошибки
-func GetType(err error) ErrorType {
-
-	if customErr, ok := err.(CustomError); ok {
-		return customErr.ErrorType
-	}
-
-	return NoType
-}
-
-// Переводим ошибку в JSON
-func Json(err error) ([]byte, error) {
-
-	if customErr, ok := err.(CustomError); ok {
-
-		customErr.DevelopText = customErr.Err.Error()
-
-		byt, e := json.Marshal(customErr)
-		if e != nil {
-			return nil, InternalServer.Wrap(e)
-		}
-
-		return byt, nil
-	}
-
-	return nil, InternalServer.NewCtx("Дефолтная ошибка не обернута. Ошибка: %v", err.Error())
+	return byt, nil
 }
 
 func As(get error, target any) bool {

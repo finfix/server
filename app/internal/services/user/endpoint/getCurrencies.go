@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	_ "server/app/internal/services/user/model"
+	_ "server/app/internal/services/user/model" //nolint:golint
 )
 
 // @Summary Получение списка валют

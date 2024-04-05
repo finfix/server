@@ -19,21 +19,21 @@ type endpoint struct {
 
 func NewEndpoint(service *userService.Service) http.Handler {
 
-	s := &endpoint{
+	e := &endpoint{
 		service: service,
 	}
 
-	options := []server.ServerOption{
-		server.ServerLoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.ServerBefore(middleware.DefaultAuthorization),
-		server.ServerResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ServerErrorEncoder(middleware.DefaultErrorEncoder),
-		server.ServerErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+	options := []server.Option{
+		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
+		server.Before(middleware.DefaultAuthorization),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 
 	r := mux.NewRouter()
 
-	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(s.getCurrencies, options...))
-	r.Methods("GET").Path(part + "/").Handler(server.NewChain(s.getUser, options...))
+	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, options...))
+	r.Methods("GET").Path(part + "/").Handler(server.NewChain(e.getUser, options...))
 	return r
 }

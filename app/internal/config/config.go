@@ -31,7 +31,7 @@ type Config struct {
 	SHASalt string `env:"SHA_SALT"`
 
 	// Ключи для работы с внешним API
-	ApiKeys struct {
+	APIKeys struct {
 		CurrencyProvider string `env:"API_KEY_CURRENCY_PROVIDER"`
 	}
 

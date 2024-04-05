@@ -115,6 +115,7 @@ func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (ui
 		account.AccountGroupID,
 		account.Accounting,
 		account.Budget.GradualFilling,
+		false,
 		account.Budget.FixedSum,
 		account.Budget.DaysOffset,
 	)
@@ -251,11 +252,11 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, accountG
 	queryFields = append(queryFields, _query)
 	args = append(args, _args...)
 
-	// TODO: Обыграть по-другому, иначе транзакции в будущем времени не учитываются 
-	//if dateTo != nil {
-	//	queryFields = append(queryFields, `t.date_transaction < ?`)
-	//	args = append(args, dateTo)
-	//}
+	// TODO: Обыграть по-другому, иначе транзакции в будущем времени не учитываются
+	/*if dateTo != nil {
+		queryFields = append(queryFields, `t.date_transaction < ?`)
+		args = append(args, dateTo)
+	}*/
 
 	query := fmt.Sprintf(`
 			SELECT t.account_to_id AS id, COALESCE(SUM(t.amount_to), 0) AS remainder

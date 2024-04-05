@@ -3,11 +3,13 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"server/app/internal/services/transaction/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -54,20 +56,20 @@ func TestDecodeDeleteReq(t *testing.T) {
 		},
 		{"4.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"5.Отсутствующее поле DeviceID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeDeleteTransactionReq(tt.ctx, httptest.NewRequest("DELETE", fmt.Sprintf("%s?%s", "/transaction", tt.params.Encode()), nil))
+			res, err := decodeDeleteTransactionReq(tt.ctx, httptest.NewRequest(http.MethodDelete, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}

@@ -38,7 +38,8 @@ func TestEncodeErrorResponse(t *testing.T) {
 			w := httptest.NewRecorder()
 			DefaultErrorEncoder(context.Background(), w, tt.err, func(error) {})
 
-			wantCode := int(errors.GetType(tt.wantError))
+			wantCustomError := errors.CastError(tt.wantError)
+			wantCode := int(wantCustomError.ErrorType)
 
 			if w.Code != wantCode {
 				t.Fatalf("Полученный httpCode: %v, ожидаемый: %v. Ошибка:%v", w.Code, wantCode, w.Body.String())
@@ -49,7 +50,7 @@ func TestEncodeErrorResponse(t *testing.T) {
 				t.Fatalf("Ошибка декодирования: %v", err)
 			}
 
-			getCustomErr.Err = defErrors.New(getCustomErr.DevelopText)
+			getCustomErr.InitialError = defErrors.New(getCustomErr.DevelopText)
 
 			if !errors.As(getCustomErr, tt.wantError) {
 				t.Fatalf("Полученная ошибка: %v, ожидаемая: %v", getCustomErr, tt.wantError)

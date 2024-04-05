@@ -3,11 +3,13 @@ package endpoint
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"testing"
 
 	"server/app/internal/services/account/model"
+	"server/pkg/contextKeys"
 	"server/pkg/errors"
 	"server/pkg/logging"
 	"server/pkg/testingFunc"
@@ -54,7 +56,7 @@ func TestDecodeDeleteAccountReq(t *testing.T) {
 		},
 		{"4.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete("UserID").Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -67,7 +69,7 @@ func TestDecodeDeleteAccountReq(t *testing.T) {
 	} {
 		t.Run(tt.message, func(t *testing.T) {
 
-			res, err := decodeDeleteAccountReq(tt.ctx, httptest.NewRequest("DELETE", fmt.Sprintf("%s?%s", "/account", tt.params.Encode()), nil))
+			res, err := decodeDeleteAccountReq(tt.ctx, httptest.NewRequest(http.MethodDelete, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
