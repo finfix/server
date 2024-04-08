@@ -21,15 +21,15 @@ func TestAuthorization(t *testing.T) {
 		err     error
 	}{
 		/*{"1.Обычный запрос",
-			 map[string]string{"MySecretKey": "0"},
+			 map[string]string{"AdminSecretKey": "0"},
 			 nil,
 		 },*/
 		{"2.Неверный ключ",
-			map[string]string{"MySecretKey": "00"},
+			map[string]string{"AdminSecretKey": "00"},
 			errors.Forbidden.New("incorrect"),
 		},
 		/*{"3.Пустой ключ",
-			map[string]string{"MySecretKey": ""},
+			map[string]string{"AdminSecretKey": ""},
 			errors.Forbidden.New("incorrect"),
 		},*/
 	} {

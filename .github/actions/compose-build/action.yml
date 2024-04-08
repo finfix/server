@@ -13,6 +13,9 @@ inputs:
   network_mode_host:
     required: false
     description: "Adding --network host to dockerfile"
+  test_suffix:
+    required: false
+    description: "Suffix for .env file"
 runs:
   using: composite
   steps:
@@ -25,6 +28,7 @@ runs:
           -e "s|@{service_port}|${{ inputs.service_port }}|" \
           -e "s|@{image_name}|${{ inputs.image_name }}|" \
           -e "s|@{network_mode}|${{ inputs.network_mode_host }}|" \
+          -e "s|@{test_suffix}|${{ inputs.test_suffix }}|" \
           < "./.github/actions/compose-build/docker-compose-template.yml" \
           > "./docker-compose.yml"
 

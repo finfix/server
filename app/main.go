@@ -57,6 +57,9 @@ import (
 //go:generate go mod download
 //go:generate swag init -o ../docs --parseDependency --parseInternal
 
+const version = "1.0.0"
+const build = "1"
+
 const (
 	readHeaderTimeout = 10 * time.Second
 )
@@ -167,6 +170,7 @@ func main() {
 	mux.Handle("/admin/", adminEndpoint.NewEndpoint(adminService))
 	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
 
+	mux.HandleFunc("/version", getVersionHandleFunc(version, build))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
@@ -208,4 +212,18 @@ func CORS(handler http.Handler) http.Handler {
 
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func getVersionHandleFunc(version, build string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		versionResponse := struct {
+			Version string `json:"version"`
+			Build   string `json:"build"`
+		}{
+			Version: version,
+			Build:   build,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_ = middleware.DefaultResponseEncoder(context.Background(), w, versionResponse)
+	}
 }

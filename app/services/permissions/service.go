@@ -95,7 +95,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 
 	rows, err := s.db.Query(ctx, `
 		SELECT * 
-		FROM account_permissions`)
+		FROM coin.account_permissions`)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -110,14 +110,30 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 		if err := rows.Scan(&_accountType, &actionType, &access); err != nil {
 			return nil, nil, err
 		}
-		permission := Permissions{
-			UpdateBudget:        actionType == "updateBudget" && access,
-			UpdateRemainder:     actionType == "updateRemainder" && access,
-			UpdateCurrency:      actionType == "updateCurrency" && access,
-			DeleteAccount:       actionType == "deleteAccount" && access,
-			CreateTransaction:   actionType == "createTransaction" && access,
-			LinkToParentAccount: actionType == "linkToParentAccount" && access,
+
+		var permission Permissions
+		switch _accountType {
+		case "regular", "debt", "earnings", "expense":
+			permission = typeToPermissions[accountType.Type(_accountType)]
+		case "parent", "general":
+			permission = isParentToPermissions[_accountType == "parent"] //nolint:goconst
 		}
+
+		switch actionType {
+		case "updateBudget":
+			permission.UpdateBudget = access
+		case "updateRemainder":
+			permission.UpdateRemainder = access
+		case "updateCurrency":
+			permission.UpdateCurrency = access
+		case "deleteAccount":
+			permission.DeleteAccount = access
+		case "createTransaction":
+			permission.CreateTransaction = access
+		case "linkToParentAccount":
+			permission.LinkToParentAccount = access
+		}
+
 		switch _accountType {
 		case "regular", "debt", "earnings", "expense":
 			typeToPermissions[accountType.Type(_accountType)] = permission
@@ -144,7 +160,9 @@ func New(
 	if err != nil {
 		return nil, err
 	}
-	go service.refreshAccountPermissions(false)
+	go func() {
+		_ = service.refreshAccountPermissions(false)
+	}()
 
 	return service, nil
 }

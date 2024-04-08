@@ -250,7 +250,9 @@ func New(dbx *sql.DB, logger *logging.Logger) (_ *Repository, err error) {
 	if err != nil {
 		return nil, err
 	}
-	go repository.refreshAccesses(false)
+	go func() {
+		_ = repository.refreshAccesses(false)
+	}()
 
 	return repository, nil
 }

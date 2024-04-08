@@ -1,0 +1,36 @@
+name: deploy server
+
+on:
+  push:
+    branches:
+    - release
+
+env:
+  service_name: server-test
+  service_port: 8081
+
+jobs:
+
+  go-lint:
+    uses: ./.github/workflows/lint.yml
+
+  go-test:
+    uses: ./.github/workflows/go-test.yml
+
+  build-configs:
+    uses: ./.github/workflows/prepare.yml
+    with:
+      service_port: 8081
+      service_name: server-test
+      test_suffix: -test
+
+  deploy:
+    needs:
+      - build-configs
+      - go-test
+    uses: ./.github/workflows/deploy.yml
+    with:
+      service_name: server-test
+      service_port: 8081
+
+    secrets: inherit

@@ -9,6 +9,9 @@ on:
       service_port:
         required: true
         type: number
+      test_suffix:
+        required: false
+        type: string
 
 env:
   REGISTRY: ghcr.io
@@ -42,6 +45,7 @@ jobs:
         with:
           project_name: ${{ inputs.service_name }}
           service_port: ${{ inputs.service_port }}
+          test_suffix: ${{ inputs.test_suffix }}
           image_name: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ inputs.service_name }}:${{ github.run_id }}
 
       - name: Upload docker-compose.yml
