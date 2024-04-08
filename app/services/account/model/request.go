@@ -46,6 +46,7 @@ type UpdateReq struct {
 	IconID     *uint32         `json:"iconID" minimum:"1"`                 // Идентификатор иконки
 	Visible    *bool           `json:"visible"`                            // Видимость счета
 	Accounting *bool           `json:"accounting"`                         // Будет ли счет учитываться в статистике
+	Currency   *string         `json:"currencyCode"`                       // Валюта счета
 	DeviceID   string          `json:"-" validate:"required"`              // Идентификатор устройства
 	Budget     UpdateBudgetReq `json:"budget"`                             // Месячный бюджет
 }

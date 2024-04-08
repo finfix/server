@@ -15,6 +15,7 @@ env:
 
 jobs:
 
+  # Собираем и пушим Docker-образ
   docker-build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +26,7 @@ jobs:
           echo $GITHUB_REPOSITORY_OWNER
           echo $GITHUB_RUN_ID
 
+        # Логинимся в Container registry
       - name: Login to the Container registry
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
         with:
@@ -32,12 +34,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+        # Получаем Dockerfile из артефактов
       - name: Download Dockerfile
         uses: actions/download-artifact@v2
         with:
           name: Dockerfile
           path: .
 
+        # Собираем и пушим Docker-образ
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
@@ -45,12 +49,14 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ inputs.service_name }}:${{ github.run_id }}
 
+  # Разворачиваем на сервере
   deploy:
     runs-on: ubuntu-latest
     needs: docker-build-and-push
     steps:
       - uses: actions/checkout@v3
 
+        # Логинимся на сервере
       - name: SSH Setup
         uses: kielabokkie/ssh-key-and-known-hosts-action@v1
         with:
@@ -58,20 +64,25 @@ jobs:
           ssh-host: ${{ secrets.HOST }}
           ssh-port: ${{ secrets.PORT }}
 
+        # Получаем docker-compose.yml из артефактов
       - name: Download docker-compose.yml
         uses: actions/download-artifact@v2
         with:
           name: docker-compose.yml
           path: .
 
+        # Копируем docker-compose.yml на сервер
       - name: Copy docker-compose.yml to server
         run: scp -P ${{ secrets.PORT }} -p docker-compose.yml  ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/coin/${{ inputs.service_name }}/docker-compose.yml
 
+        # Логинимся в Container registry на сервере
       - name: Login to the Container registry on server
         run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "docker login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}"
 
+        # Подтягиваем образ из Container registry
       - name: Pull docker image
         run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && docker compose pull coin-${{ inputs.service_name }}"
 
+        # Перезапускаем сервис
       - name: Restart service
         run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && if docker inspect coin-${{ inputs.service_name }} >/dev/null 2>&1; then docker compose stop coin-${{ inputs.service_name }} && docker rm coin-${{ inputs.service_name }}; fi && docker compose up coin-${{ inputs.service_name }} -d"

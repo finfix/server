@@ -11,18 +11,22 @@ env:
 
 jobs:
 
+  # Проверяем код линтером
   go-lint:
     uses: ./.github/workflows/lint.yml
 
+  # Тестируем код
   go-test:
     uses: ./.github/workflows/go-test.yml
 
+  # Генерируем Dockerfile и docker-compose.yml
   build-configs:
     uses: ./.github/workflows/prepare.yml
     with:
       service_port: 8080
       service_name: server
 
+  # Собираем и пушим Docker-образ, разворачиваем на сервере
   deploy:
     needs:
       - build-configs
