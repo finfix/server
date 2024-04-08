@@ -16,14 +16,18 @@ func (s *Service) Delete(ctx context.Context, id model.DeleteReq) error {
 		return err
 	}
 
-	// Получаем разрешения счета
-	permissions, err := s.GetPermissions(ctx, id.ID)
+	// Получаем счет
+	accounts, err := s.account.Get(ctx, model.GetReq{IDs: []uint32{id.ID}})
 	if err != nil {
 		return err
 	}
+	if len(accounts) == 0 {
+		return errors.NotFound.New("Счет не найден")
+	}
+	account := accounts[0]
 
 	// Проверяем, что счет можно удалять
-	if !permissions.DeleteAccount {
+	if !s.permissionsService.GetPermissions(account).DeleteAccount {
 		return errors.BadRequest.New("Нельзя удалять счет")
 	}
 

@@ -7,14 +7,20 @@ import (
 	accountRepository "server/app/internal/services/account/repository"
 	"server/app/internal/services/generalRepository"
 	"server/app/internal/services/generalRepository/checker"
+	"server/app/internal/services/permissions"
 	transactionModel "server/app/internal/services/transaction/model"
+	transactionRepository "server/app/internal/services/transaction/repository"
 	userModel "server/app/internal/services/user/model"
+	userRepository "server/app/internal/services/user/repository"
 	"server/pkg/datetime/date"
 	"server/pkg/logging"
 )
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ AccountRepository = &accountRepository.Repository{}
+var _ PermissionsService = &permissions.Service{}
+var _ UserRepository = &userRepository.Repository{}
+var _ TransactionRepository = &transactionRepository.TransactionRepository{}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -47,12 +53,18 @@ type UserRepository interface {
 	Get(context.Context, userModel.GetReq) ([]userModel.User, error)
 }
 
+type PermissionsService interface {
+	GetPermissions(account model.Account) permissions.Permissions
+	CheckPermissions(req model.UpdateReq, permissions permissions.Permissions) error
+}
+
 type Service struct {
-	account     AccountRepository
-	general     GeneralRepository
-	transaction TransactionRepository
-	user        UserRepository
-	logger      *logging.Logger
+	account            AccountRepository
+	general            GeneralRepository
+	transaction        TransactionRepository
+	user               UserRepository
+	permissionsService PermissionsService
+	logger             *logging.Logger
 }
 
 func New(
@@ -60,13 +72,15 @@ func New(
 	general GeneralRepository,
 	transaction TransactionRepository,
 	user UserRepository,
+	permissionsService PermissionsService,
 	logger *logging.Logger,
 ) *Service {
 	return &Service{
-		account:     account,
-		general:     general,
-		transaction: transaction,
-		user:        user,
-		logger:      logger,
+		account:            account,
+		general:            general,
+		transaction:        transaction,
+		user:               user,
+		permissionsService: permissionsService,
+		logger:             logger,
 	}
 }

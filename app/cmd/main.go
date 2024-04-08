@@ -105,11 +105,20 @@ func main() {
 	authRepository := authRepository.New(db, logger)
 
 	// Регистрируем сервисы
+	accountPermisssionsService, err := accountPermisssionsService.New(
+		db,
+		logger,
+	)
+	if err != nil {
+		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+	}
+
 	accountService := accountService.New(
 		accountRepository,
 		generalRepository,
 		transactionRepository,
 		userRepository,
+		accountPermisssionsService,
 		logger,
 	)
 
@@ -117,6 +126,7 @@ func main() {
 		transactionRepository,
 		accountService,
 		generalRepository,
+		accountPermisssionsService,
 		logger,
 	)
 

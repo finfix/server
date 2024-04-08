@@ -3,22 +3,28 @@ package service
 import (
 	"context"
 
-	accountService "server/app/internal/services/account/service"
+	accountModel "server/app/internal/services/account/model"
 	"server/app/internal/services/generalRepository"
 	"server/app/internal/services/generalRepository/checker"
+	"server/app/internal/services/permissions"
 	"server/app/internal/services/transaction/model"
 	transactionRepository "server/app/internal/services/transaction/repository"
 	"server/pkg/errors"
 	"server/pkg/logging"
+	"server/pkg/slice"
 )
+
+type Service struct {
+	transaction Repository
+	account     AccountRepository
+	general     GeneralRepository
+	permissions PermissionsService
+	logger      *logging.Logger
+}
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ Repository = &transactionRepository.TransactionRepository{}
-var _ AccountService = &accountService.Service{}
-
-type AccountService interface {
-	GetPermissions(ctx context.Context, id uint32) (accountService.Permissions, error)
-}
+var _ PermissionsService = &permissions.Service{}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -36,6 +42,14 @@ type Repository interface {
 	GetTags(ctx context.Context, transactionID []uint32) ([]model.Tag, error)
 }
 
+type PermissionsService interface {
+	GetPermissions(account accountModel.Account) permissions.Permissions
+}
+
+type AccountRepository interface {
+	Get(context.Context, accountModel.GetReq) ([]accountModel.Account, error)
+}
+
 // Create создает новую транзакцию
 func (s *Service) Create(ctx context.Context, transaction model.CreateReq) (id uint32, err error) {
 
@@ -44,19 +58,27 @@ func (s *Service) Create(ctx context.Context, transaction model.CreateReq) (id u
 		return id, err
 	}
 
+	// Получаем счета
+	_accounts, err := s.account.Get(ctx, accountModel.GetReq{
+		IDs: []uint32{transaction.AccountFromID, transaction.AccountToID},
+	})
+	if err != nil {
+		return id, err
+	}
+	accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
+
 	// Получаем разрешения счетов
-	permissions1, err := s.account.GetPermissions(ctx, transaction.AccountFromID)
-	if err != nil {
-		return id, err
-	}
-	permissions2, err := s.account.GetPermissions(ctx, transaction.AccountToID)
-	if err != nil {
-		return id, err
-	}
+	permissionsAccountFrom := s.permissions.GetPermissions(accountsMap[transaction.AccountFromID])
+	permissionsAccountTo := s.permissions.GetPermissions(accountsMap[transaction.AccountToID])
 
 	// Проверяем, что счета можно использовать
-	if !permissions1.CreateTransaction || !permissions2.CreateTransaction {
-		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов")
+	if !permissionsAccountFrom.CreateTransaction || !permissionsAccountTo.CreateTransaction {
+		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов", errors.Options{
+			Params: map[string]any{
+				"AccountFromID": transaction.AccountFromID,
+				"AccountToID":   transaction.AccountToID,
+			},
+		})
 	}
 
 	// Создаем транзакцию
@@ -127,23 +149,18 @@ func (s *Service) Delete(ctx context.Context, id model.DeleteReq) error {
 	return s.transaction.Delete(ctx, id.ID, id.UserID)
 }
 
-type Service struct {
-	transaction Repository
-	account     AccountService
-	general     GeneralRepository
-	logger      *logging.Logger
-}
-
 func New(
 	transactionRepository Repository,
-	accountService AccountService,
+	accountRepository AccountRepository,
 	generalRepository GeneralRepository,
+	permissions PermissionsService,
 	logger *logging.Logger,
 ) *Service {
 	return &Service{
 		transaction: transactionRepository,
-		account:     accountService,
+		account:     accountRepository,
 		general:     generalRepository,
+		permissions: permissions,
 		logger:      logger,
 	}
 }
