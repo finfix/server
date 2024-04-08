@@ -14,9 +14,9 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="PACKAGE" />
-    <package value="server/app/cmd" />
+    <package value="server/app" />
     <directory value="$PROJECT_DIR$" />
-    <filePath value="$PROJECT_DIR$/app/cmd/main.go" />
+    <filePath value="$PROJECT_DIR$/app/main.go" />
     <method v="2" />
   </configuration>
 </component>
