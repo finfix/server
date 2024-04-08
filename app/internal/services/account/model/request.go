@@ -28,6 +28,7 @@ type CreateReq struct {
 	DeviceID       string           `json:"-" validate:"required"`                                                             // Идентификатор устройства
 	Remainder      float64          `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget         CreateBudgetReq  `json:"budget"`                                                                            // Бюджет
+	IsParent       *bool            `json:"isParent"`                                                                          // Является ли счет родительским
 }
 
 type CreateBudgetReq struct {
