@@ -369,6 +369,10 @@ func (repo *Repository) Update(ctx context.Context, fields model2.UpdateReq) err
 		queryFields = append(queryFields, "budget_gradual_filling = ?")
 		args = append(args, fields.Budget.GradualFilling)
 	}
+	if fields.Currency != nil {
+		queryFields = append(queryFields, "currency_signatura = ?")
+		args = append(args, fields.Currency)
+	}
 
 	if len(queryFields) == 0 {
 		if fields.Remainder == nil {
