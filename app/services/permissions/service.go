@@ -49,6 +49,10 @@ func (s *Service) CheckPermissions(req model2.UpdateReq, permissions Permissions
 		return errors.BadRequest.New("Нельзя менять бюджет")
 	}
 
+	if req.Currency != nil && !permissions.UpdateCurrency {
+		return errors.BadRequest.New("Нельзя менять валюту")
+	}
+
 	if req.Remainder != nil && !permissions.UpdateRemainder {
 		return errors.BadRequest.New("Нельзя менять остаток")
 	}
