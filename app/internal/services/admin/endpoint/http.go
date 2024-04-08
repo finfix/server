@@ -22,7 +22,7 @@ type endpoint struct {
 
 func authorization(ctx context.Context, r *http.Request) (context.Context, error) {
 
-	if r.Header.Get("MySecretKey") != config.GetConfig().SecretKey {
+	if r.Header.Get("AdminSecretKey") != config.GetConfig().AdminSecretKey {
 		return nil, errors.Forbidden.New("MySecretKey is incorrect", errors.Options{
 			Params: map[string]any{
 				"IP address": r.Header.Get("X-Real-IP"),

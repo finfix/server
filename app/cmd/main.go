@@ -19,6 +19,7 @@ import (
 	authRepository "server/app/internal/services/auth/repository"
 	authService "server/app/internal/services/auth/service"
 	"server/app/internal/services/generalRepository"
+	accountPermisssionsService "server/app/internal/services/permissions"
 	"server/app/internal/services/scheduler"
 	tgBotService "server/app/internal/services/tgBot/service"
 	transactionEndpoint "server/app/internal/services/transaction/endpoint"
@@ -49,7 +50,7 @@ import (
 
 // @securityDefinitions.apikey SecretKey
 // @in header
-// @name MySecretKey
+// @name AdminSecretKey
 // @description Ключ для доступа к админ-методам
 
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
@@ -59,6 +60,8 @@ import (
 const (
 	readHeaderTimeout = 10 * time.Second
 )
+
+var erasePathOption = errors.Options{ErasePath: true}
 
 func main() {
 
@@ -80,14 +83,15 @@ func main() {
 	logger.Info("Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err))
+		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
 	}
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
+	logger.Info("Инициализируем телеграм клиента")
 	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err))
+		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
 	}
 
 	// Регистрируем сервисы
@@ -96,7 +100,7 @@ func main() {
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db, logger)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err))
+		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
 	}
 	accountRepository := accountRepository.New(db, logger)
 	transactionRepository := transactionRepository.New(db, logger)
@@ -149,10 +153,9 @@ func main() {
 		logger,
 	)
 
-	scheduler := scheduler.NewScheduler(adminService, logger)
-	logger.Info("Start scheduler")
-	if err = scheduler.Start(); err != nil {
-		logger.Fatal(err)
+	logger.Info("Запускаем планировщик")
+	if err = scheduler.NewScheduler(adminService, logger).Start(); err != nil {
+		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
 	}
 
 	mux := http.NewServeMux()
@@ -168,6 +171,7 @@ func main() {
 
 	errs := make(chan error)
 
+	logger.Info("Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
 		logger.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
 	}

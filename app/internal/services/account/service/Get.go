@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"sort"
 
 	"server/app/enum/accountType"
 	"server/app/internal/services/account/model"
@@ -36,6 +35,7 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 	}
 
 	// Заполняем остатки счетов
+	// TODO: Переписать с учетом балансировочных счетов для каждой группы счета
 	for i, account := range accounts {
 		accounts[i].Remainder = calculatedRemainders[account.ID]
 	}
@@ -47,10 +47,6 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 		}
 		accounts = append(accounts, balancingAccounts...)
 	}
-
-	sort.Slice(accounts, func(i, j int) bool {
-		return accounts[i].IsParent
-	})
 
 	return accounts, nil
 }

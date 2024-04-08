@@ -203,7 +203,7 @@ func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.Check
 	return nil
 }
 
-func (repo *Repository) getAccesses() (_ map[uint32]map[uint32]struct{}, err error) {
+func (repo *Repository) getAccesses(ctx context.Context) (_ map[uint32]map[uint32]struct{}, err error) {
 
 	usersToAccountsGroups := make(map[uint32]map[uint32]struct{})
 
@@ -212,7 +212,7 @@ func (repo *Repository) getAccesses() (_ map[uint32]map[uint32]struct{}, err err
 		AccountGroupID uint32 `db:"account_group_id"`
 	}
 
-	if err = repo.db.Select(context.TODO(), &result, `
+	if err = repo.db.Select(ctx, &result, `
 			SELECT u.id AS user_id, ag.id AS account_group_id
 			FROM coin.account_groups ag
 			JOIN coin.users_to_account_groups utag ON utag.account_group_id = ag.id 
@@ -245,17 +245,23 @@ func New(dbx *sql.DB, logger *logging.Logger) (_ *Repository, err error) {
 		logger: logger,
 	}
 
-	go repository.refreshAccesses()
+	logger.Info("Получаем доступы пользователей к объектам")
+	err = repository.refreshAccesses(true)
+	if err != nil {
+		return nil, err
+	}
+	go repository.refreshAccesses(false)
 
 	return repository, nil
 }
 
-func (repo *Repository) refreshAccesses() {
-
-	var err error
-
+func (repo *Repository) refreshAccesses(doOnce bool) error {
 	for {
-		repo.accesses, err = repo.getAccesses()
+		var err error
+		repo.accesses, err = repo.getAccesses(context.Background())
+		if doOnce {
+			return err
+		}
 		if err != nil {
 			repo.logger.Error(err)
 		}

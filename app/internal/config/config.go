@@ -10,11 +10,14 @@ import (
 	"server/pkg/logging"
 )
 
-// Общая структура конфига
-
+// Config - общая структура конфига
 type Config struct {
-	HTTP      string `env:"LISTEN_HTTP"`
-	SecretKey string `env:"SECRET_KEY"`
+
+	// Адрес для http-сервера
+	HTTP string `env:"LISTEN_HTTP"`
+
+	// Ключ для админских методов
+	AdminSecretKey string `env:"SECRET_KEY"`
 
 	// Данные базы данных
 	Repository database.RepoConfig
@@ -35,6 +38,7 @@ type Config struct {
 		CurrencyProvider string `env:"API_KEY_CURRENCY_PROVIDER"`
 	}
 
+	// Доступы к телеграм-боту
 	Telegram struct {
 		Token  string `env:"TG_BOT_TOKEN"`
 		ChatID int64  `env:"TG_CHAT_ID"`
