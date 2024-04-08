@@ -14,18 +14,18 @@ import (
 )
 
 // Create создает новый счет
-func (s *Service) Create(ctx context.Context, account model.CreateReq) (id uint32, err error) {
+func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (res model.CreateRes, err error) {
 
 	// Проверяем доступ пользователя к группе счетов
-	if err = s.general.CheckAccess(ctx, checker.AccountGroups, account.UserID, []uint32{account.AccountGroupID}); err != nil {
-		return id, err
+	if err = s.general.CheckAccess(ctx, checker.AccountGroups, accountToCreate.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
+		return res, err
 	}
 
 	// Создаем SQL-транзакцию
 	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Создаем счет
-		if id, err = s.account.Create(ctx, account); err != nil {
+		if res.ID, res.SerialNumber, err = s.account.Create(ctx, accountToCreate); err != nil {
 			return err
 		}
 
@@ -61,8 +61,8 @@ func (s *Service) Create(ctx context.Context, account model.CreateReq) (id uint3
 		return nil
 	})
 	if err != nil {
-		return id, err
+		return res, err
 	}
 
-	return id, nil
+	return res, nil
 }

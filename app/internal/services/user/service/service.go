@@ -24,7 +24,7 @@ type UserRepository interface {
 
 type AccountRepository interface {
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
-	Create(ctx context.Context, req accountModel.CreateReq) (uint32, error)
+	Create(ctx context.Context, req accountModel.CreateReq) (uint32, uint32, error)
 }
 
 type GeneralRepository interface {
@@ -66,7 +66,7 @@ func (s *Service) Create(ctx context.Context, user model.CreateReq) (id uint32, 
 
 		// TODO: Перенести в функцию создания группы счетов
 		// Создаем балансировочный счет для группы счетов
-		_, err = s.account.Create(ctx, accountModel.CreateReq{
+		_, _, err = s.account.Create(ctx, accountModel.CreateReq{
 			Name:           "Балансировочный",
 			IconID:         0,
 			Type:           accountType.Balancing,

@@ -86,10 +86,10 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 }
 
 // Create создает новый счет
-func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (uint32, error) {
+func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (id uint32, serialNumber uint32, err error) {
 
 	// Создаем счет
-	return repo.db.ExecWithLastInsertID(ctx, `
+	id, err = repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.accounts (
 			  budget_amount,
 			  name,
@@ -119,6 +119,17 @@ func (repo *Repository) Create(ctx context.Context, account model.CreateReq) (ui
 		account.Budget.FixedSum,
 		account.Budget.DaysOffset,
 	)
+	if err != nil {
+		return id, serialNumber, err
+	}
+	if err := repo.db.QueryRow(ctx, `
+		SELECT serial_number 
+		FROM coin.accounts 
+		WHERE id = ?`, id).
+		Scan(&serialNumber); err != nil {
+		return id, serialNumber, err
+	}
+	return id, serialNumber, nil
 }
 
 // Get возвращает все счета, удовлетворяющие фильтрам

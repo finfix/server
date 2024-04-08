@@ -5,7 +5,8 @@ type GetRes struct {
 }
 
 type CreateRes struct {
-	ID uint32 `json:"id"` // Идентификатор созданного счета
+	ID           uint32 `json:"id"`           // Идентификатор созданного счета
+	SerialNumber uint32 `json:"serialNumber"` // Порядковый номер счета
 }
 
 type GetAccountGroupsRes struct {

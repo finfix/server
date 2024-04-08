@@ -24,7 +24,7 @@ type GeneralRepository interface {
 }
 
 type AccountRepository interface {
-	Create(context.Context, model.CreateReq) (uint32, error)
+	Create(context.Context, model.CreateReq) (uint32, uint32, error)
 	Get(context.Context, model.GetReq) ([]model.Account, error)
 	Update(context.Context, model.UpdateReq) error
 	Delete(ctx context.Context, id uint32) error
