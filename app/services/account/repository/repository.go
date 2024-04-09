@@ -373,6 +373,14 @@ func (repo *Repository) Update(ctx context.Context, fields model2.UpdateReq) err
 		queryFields = append(queryFields, "currency_signatura = ?")
 		args = append(args, fields.Currency)
 	}
+	if fields.ParentAccountID != nil {
+		if *fields.ParentAccountID == 0 {
+			queryFields = append(queryFields, "parent_account_id = NULL")
+		} else {
+			queryFields = append(queryFields, "parent_account_id = ?")
+			args = append(args, fields.ParentAccountID)
+		}
+	}
 
 	if len(queryFields) == 0 {
 		if fields.Remainder == nil {

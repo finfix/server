@@ -16,5 +16,5 @@ func (s *Service) Switch(ctx context.Context, req model.SwitchReq) error {
 	}
 
 	// Меняем местами счета
-	return s.account.Switch(ctx, req.ID1, req.ID2)
+	return s.accountRepository.Switch(ctx, req.ID1, req.ID2)
 }

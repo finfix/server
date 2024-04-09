@@ -58,7 +58,7 @@ import (
 //go:generate swag init -o ../docs --parseDependency --parseInternal
 
 const version = "1.0.0"
-const build = "2"
+const build = "3"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -131,7 +131,7 @@ func main() {
 
 	transactionService := transactionService.New(
 		transactionRepository,
-		accountService,
+		accountRepository,
 		generalRepository,
 		accountPermisssionsService,
 		logger,
