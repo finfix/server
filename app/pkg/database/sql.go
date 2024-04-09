@@ -8,7 +8,7 @@ import (
 	"server/app/pkg/sql"
 )
 
-func NewClientSQL(repo RepoConfig, databaseName string) (sql.SQL, error) {
+func NewClientSQL(repo RepoConfig, databaseName string) (*sql.DB, error) {
 	db, err := sql.Open("pgx", fmt.Sprintf("postgres://%v:%v@%v/%v", repo.User, repo.Password, repo.Host, databaseName))
 	if err != nil {
 		return nil, err
