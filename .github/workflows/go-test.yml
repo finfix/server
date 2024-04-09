@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+
         # Настраиваем Go
       - name: Set up Go
         uses: actions/setup-go@v4
