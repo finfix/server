@@ -2,6 +2,9 @@ name: go-test
 
 on:
   workflow_call:
+  pull_request:
+    branches:
+      - dev
 
 jobs:
   testing:
@@ -15,6 +18,10 @@ jobs:
         with:
           go-version: '1.21'
           cache-dependency-path: go.sum
+
+        # Устанавливаем mockery
+      - name: Install mockery
+        run: go install github.com/vektra/mockery/v2@latest
 
         # Генерируем моки
       - name: Generate mocks
