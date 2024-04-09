@@ -23,7 +23,7 @@ func (s *Service) Get(ctx context.Context, filters model2.GetReq) (accounts []mo
 	}
 
 	// Получаем все счета
-	accounts, err = s.account.Get(ctx, filters)
+	accounts, err = s.accountRepository.Get(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (s *Service) Get(ctx context.Context, filters model2.GetReq) (accounts []mo
 func (s *Service) calculateRemainders(ctx context.Context, filters model2.GetReq) (map[uint32]float64, error) {
 
 	// Считаем балансы всех счетов
-	calculatedRemainders, err := s.account.CalculateRemainderAccounts(ctx, filters.AccountGroupIDs, filters.DateTo)
+	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, filters.AccountGroupIDs, filters.DateTo)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (s *Service) calculateRemainders(ctx context.Context, filters model2.GetReq
 		}
 
 		// Считаем расходы и доходы за указанный период или даты
-		earnAndExp, err := s.account.CalculateExpensesAndEarnings(ctx, filters.AccountGroupIDs, *filters.DateFrom, *filters.DateTo)
+		earnAndExp, err := s.accountRepository.CalculateExpensesAndEarnings(ctx, filters.AccountGroupIDs, *filters.DateFrom, *filters.DateTo)
 		if err != nil {
 			return nil, err
 		}
@@ -83,13 +83,13 @@ func (s *Service) calculateRemainders(ctx context.Context, filters model2.GetReq
 func (s *Service) calculateBalancing(ctx context.Context, filters model2.GetReq) ([]model2.Account, error) {
 
 	// Получаем суммы транзакций, разбитые по группам счетов и валютам
-	balancingAmount, err := s.account.CalculateBalancingAmount(ctx, filters.AccountGroupIDs, *filters.DateFrom, *filters.DateTo)
+	balancingAmount, err := s.accountRepository.CalculateBalancingAmount(ctx, filters.AccountGroupIDs, *filters.DateFrom, *filters.DateTo)
 	if err != nil {
 		return nil, err
 	}
 
 	// Получаем дефолтные валюты для групп счетов
-	_accountGroups, err := s.account.GetAccountGroups(ctx, model2.GetAccountGroupsReq{AccountGroupIDs: filters.AccountGroupIDs})
+	_accountGroups, err := s.accountRepository.GetAccountGroups(ctx, model2.GetAccountGroupsReq{AccountGroupIDs: filters.AccountGroupIDs})
 	if err != nil {
 		return nil, err
 	}

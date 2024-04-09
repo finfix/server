@@ -39,16 +39,17 @@ type CreateBudgetReq struct {
 }
 
 type UpdateReq struct {
-	UserID     uint32          `json:"-" validate:"required" minimum:"1"`  // Идентификатор пользователя
-	ID         uint32          `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
-	Remainder  *float64        `json:"remainder"`                          // Остаток средств на счету
-	Name       *string         `json:"name"`                               // Название счета
-	IconID     *uint32         `json:"iconID" minimum:"1"`                 // Идентификатор иконки
-	Visible    *bool           `json:"visible"`                            // Видимость счета
-	Accounting *bool           `json:"accounting"`                         // Будет ли счет учитываться в статистике
-	Currency   *string         `json:"currencyCode"`                       // Валюта счета
-	DeviceID   string          `json:"-" validate:"required"`              // Идентификатор устройства
-	Budget     UpdateBudgetReq `json:"budget"`                             // Месячный бюджет
+	UserID          uint32          `json:"-" validate:"required" minimum:"1"`  // Идентификатор пользователя
+	ID              uint32          `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
+	Remainder       *float64        `json:"remainder"`                          // Остаток средств на счету
+	Name            *string         `json:"name"`                               // Название счета
+	IconID          *uint32         `json:"iconID" minimum:"1"`                 // Идентификатор иконки
+	Visible         *bool           `json:"visible"`                            // Видимость счета
+	Accounting      *bool           `json:"accounting"`                         // Будет ли счет учитываться в статистике
+	Currency        *string         `json:"currencyCode"`                       // Валюта счета
+	ParentAccountID *uint32         `json:"parentAccountID"`                    // Идентификатор родительского счета
+	DeviceID        string          `json:"-" validate:"required"`              // Идентификатор устройства
+	Budget          UpdateBudgetReq `json:"budget"`                             // Месячный бюджет
 }
 
 type UpdateBudgetReq struct {
