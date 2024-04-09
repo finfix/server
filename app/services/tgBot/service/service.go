@@ -6,9 +6,9 @@ import (
 
 	"gopkg.in/telebot.v3"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
 	"server/app/services/tgBot/model"
-	"server/pkg/errors"
-	"server/pkg/logging"
 )
 
 // SendMessage отправляет сообщение пользователю в телеграм

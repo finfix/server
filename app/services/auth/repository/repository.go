@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"server/app/config"
-	"server/pkg/auth"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/sql"
+	"server/app/pkg/auth"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 )
 
 // CreateSession Создает новую сессию для пользователя и добавляет ее в БД
@@ -86,12 +86,12 @@ func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id
 }
 
 type Repository struct {
-	db     *sql.DB
+	db     sql.SQL
 	logger *logging.Logger
 }
 
 func New(
-	db *sql.DB,
+	db sql.SQL,
 	logger *logging.Logger,
 ) *Repository {
 	return &Repository{

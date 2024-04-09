@@ -3,8 +3,8 @@ package model
 import (
 	"time"
 
+	"server/app/pkg/datetime/date"
 	"server/app/services/transaction/model/transactionType"
-	"server/pkg/datetime/date"
 )
 
 type Transaction struct {

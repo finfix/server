@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/validation"
 	"server/app/services/auth/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/validation"
 )
 
 // @Summary Авторизация пользователя по логину и паролю

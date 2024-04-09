@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/validation"
 	"server/app/services/auth/model"
-	"server/pkg/errors"
-	"server/pkg/validation"
 )
 
 // @Summary Обновление токенов

@@ -8,18 +8,18 @@ import (
 	"net/url"
 	"testing"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	testingFunc2 "server/app/pkg/testingFunc"
 	"server/app/services/transaction/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/testingFunc"
 )
 
 func TestDecodeDeleteReq(t *testing.T) {
 
 	logging.Off()
 
-	validParams := testingFunc.NewParamUpdater(map[string]string{
+	validParams := testingFunc2.NewParamUpdater(map[string]string{
 		"id": "1",
 	})
 
@@ -38,31 +38,31 @@ func TestDecodeDeleteReq(t *testing.T) {
 	}{
 		{"1.Обычный запрос",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			validWant,
 			nil,
 		},
 		{"2.Пустой запрос",
-			testingFunc.NewParamUpdater(map[string]string{}).Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.NewParamUpdater(map[string]string{}).Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("EOF"),
 		},
 		{"3.Отрицательное значение id",
 			validParams.Set("id", "-1").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"4.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"5.Отсутствующее поле DeviceID в контексте",
 			validParams.Get(),
-			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -70,11 +70,11 @@ func TestDecodeDeleteReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeDeleteTransactionReq(tt.ctx, httptest.NewRequest(http.MethodDelete, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testingFunc2.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc.CheckStruct(t, *tt.want, res, nil)
+			testingFunc2.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

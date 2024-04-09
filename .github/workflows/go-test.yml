@@ -16,7 +16,10 @@ jobs:
           go-version: '1.21'
           cache-dependency-path: go.sum
 
+        # Генерируем моки
+      - name: Generate mocks
+        run: mockery
+
         # Тестируем код
       - name: Go test
-        run: |
-          go test -v ./...
+        run: go test -v ./...

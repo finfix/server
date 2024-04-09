@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 	model2 "server/app/services/user/model"
-	"server/pkg/logging"
-	"server/pkg/sql"
 )
 
 type Repository struct {
-	db     *sql.DB
+	db     sql.SQL
 	logger *logging.Logger
 }
 
@@ -86,7 +86,7 @@ func (repo *Repository) GetCurrencies(ctx context.Context) (currencies []model2.
 		FROM coin.currencies`)
 }
 
-func New(db *sql.DB, logger *logging.Logger) *Repository {
+func New(db sql.SQL, logger *logging.Logger) *Repository {
 	return &Repository{
 		db:     db,
 		logger: logger,
