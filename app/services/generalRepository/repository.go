@@ -5,15 +5,15 @@ import (
 	"fmt"
 	"time"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	sql2 "server/app/pkg/sql"
 	"server/app/services/action/model/enum"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/sql"
 )
 
 type Repository struct {
-	db       *sql.DB
+	db       sql2.SQL
 	logger   *logging.Logger
 	accesses map[uint32]map[uint32]struct{}
 }
@@ -27,7 +27,7 @@ func (repo *Repository) WithinTransaction(ctx context.Context, callback func(ctx
 	}
 
 	// Запускаем коллбэк
-	err = callback(sql.InjectTx(ctx, tx))
+	err = callback(sql2.InjectTx(ctx, tx))
 	if err != nil {
 		// Если произошла ошибка, откатываем изменения
 		_ = tx.Rollback()
@@ -238,10 +238,10 @@ func (repo *Repository) GetAvailableAccountGroups(userID uint32) []uint32 {
 	return availableAccountGroupIDs
 }
 
-func New(dbx *sql.DB, logger *logging.Logger) (_ *Repository, err error) {
+func New(db sql2.SQL, logger *logging.Logger) (_ *Repository, err error) {
 
 	repository := &Repository{
-		db:     dbx,
+		db:     db,
 		logger: logger,
 	}
 

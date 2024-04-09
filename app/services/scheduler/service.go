@@ -6,9 +6,9 @@ import (
 
 	"github.com/robfig/cron/v3"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
 	adminService "server/app/services/admin/service"
-	"server/pkg/errors"
-	"server/pkg/logging"
 )
 
 type Scheduler struct {

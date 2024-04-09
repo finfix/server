@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 	model2 "server/app/services/transaction/model"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/sql"
 )
 
 // Create создает новую транзакцию
@@ -238,11 +238,11 @@ func (repo *TransactionRepository) GetTags(ctx context.Context, ids []uint32) (t
 }
 
 type TransactionRepository struct {
-	db     *sql.DB
+	db     sql.SQL
 	logger *logging.Logger
 }
 
-func New(db *sql.DB, logger *logging.Logger) *TransactionRepository {
+func New(db sql.SQL, logger *logging.Logger) *TransactionRepository {
 	return &TransactionRepository{
 		db:     db,
 		logger: logger,

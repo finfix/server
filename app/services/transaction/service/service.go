@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/slice"
 	model3 "server/app/services/account/model"
 	"server/app/services/generalRepository"
 	"server/app/services/generalRepository/checker"
 	"server/app/services/permissions"
 	model2 "server/app/services/transaction/model"
 	transactionRepository "server/app/services/transaction/repository"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/slice"
 )
 
 type Service struct {
@@ -74,6 +74,18 @@ func (s *Service) Create(ctx context.Context, transaction model2.CreateReq) (id 
 	// Проверяем, что счета можно использовать
 	if !permissionsAccountFrom.CreateTransaction || !permissionsAccountTo.CreateTransaction {
 		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов", errors.Options{
+			Params: map[string]any{
+				"AccountFromID":      transaction.AccountFromID,
+				"AccountGroupFromID": accountsMap[transaction.AccountFromID].AccountGroupID,
+				"AccountToID":        transaction.AccountToID,
+				"AccountGroupToID":   accountsMap[transaction.AccountToID].AccountGroupID,
+			},
+		})
+	}
+
+	// Проверяем, что счета находятся в одной группе
+	if accountsMap[transaction.AccountFromID].AccountGroupID != accountsMap[transaction.AccountToID].AccountGroupID {
+		return id, errors.BadRequest.New("Счета находятся в разных группах", errors.Options{
 			Params: map[string]any{
 				"AccountFromID": transaction.AccountFromID,
 				"AccountToID":   transaction.AccountToID,

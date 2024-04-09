@@ -1,7 +1,7 @@
 package enum
 
 import (
-	"server/pkg/errors"
+	"server/app/pkg/errors"
 )
 
 type ActionType string

@@ -4,10 +4,10 @@ import (
 	"context"
 	"net/http"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/validation"
 	"server/app/services/user/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/validation"
 )
 
 // @Summary Получение данных пользователя

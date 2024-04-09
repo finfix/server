@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
 	model2 "server/app/services/account/model"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
 )
 
 // Create создает новый счет
@@ -20,7 +20,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model2.CreateReq) 
 	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Создаем счет
-		if res.ID, res.SerialNumber, err = s.account.Create(ctx, accountToCreate); err != nil {
+		if res.ID, res.SerialNumber, err = s.accountRepository.Create(ctx, accountToCreate); err != nil {
 			return err
 		}
 
@@ -28,7 +28,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model2.CreateReq) 
 		if accountToCreate.Remainder != 0 {
 
 			// Получаем счет
-			accounts, err := s.account.Get(ctx, model2.GetReq{IDs: []uint32{res.ID}})
+			accounts, err := s.accountRepository.Get(ctx, model2.GetReq{IDs: []uint32{res.ID}})
 			if err != nil {
 				return err
 			}
@@ -38,7 +38,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model2.CreateReq) 
 			account := accounts[0]
 
 			// Создаем меняем остаток счета созданием транзакции
-			if err := s.changeRemainder(ctxTx, account, account.Remainder); err != nil {
+			if err := s.accountService.ChangeRemainder(ctxTx, account, account.Remainder); err != nil {
 				return err
 			}
 		}

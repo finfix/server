@@ -1,7 +1,7 @@
 package accountType
 
 import (
-	"server/pkg/errors"
+	"server/app/pkg/errors"
 )
 
 type Type string

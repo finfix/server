@@ -5,10 +5,10 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"server/app/pkg/logging"
+	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/server"
 	authService "server/app/services/auth/service"
-	"server/pkg/logging"
-	"server/pkg/middleware"
-	"server/pkg/server"
 )
 
 var part = "/auth"
@@ -25,9 +25,9 @@ func NewEndpoint(service *authService.Service) http.Handler {
 
 	options := []server.Option{
 		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.Before(middleware.DefaultDeviceIDValidator),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.Before(middleware2.DefaultDeviceIDValidator),
+		server.ResponseEncoder(middleware2.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware2.DefaultErrorEncoder),
 		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 

@@ -5,11 +5,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	testingFunc2 "server/app/pkg/testingFunc"
 	"server/app/services/account/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/testingFunc"
 )
 
 func TestDecodeGetAccountGroupsReq(t *testing.T) {
@@ -28,17 +28,17 @@ func TestDecodeGetAccountGroupsReq(t *testing.T) {
 		err     error
 	}{
 		{"1.Обычный запрос",
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			validWant,
 			nil,
 		},
 		{"2.Отсутствующее поле UserID в контексте",
-			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"3.Отсутствующее поле DeviceID в контексте",
-			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -46,11 +46,11 @@ func TestDecodeGetAccountGroupsReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeGetAccountGroupsReq(tt.ctx, httptest.NewRequest("", "/", nil))
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testingFunc2.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc.CheckStruct(t, *tt.want, res, nil)
+			testingFunc2.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

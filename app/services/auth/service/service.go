@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"server/app/config"
+	"server/app/pkg/auth"
+	"server/app/pkg/errors"
+	"server/app/pkg/hasher"
+	"server/app/pkg/logging"
 	model3 "server/app/services/auth/model"
 	authRepository "server/app/services/auth/repository"
 	model2 "server/app/services/user/model"
 	userService "server/app/services/user/service"
-	"server/pkg/auth"
-	"server/pkg/errors"
-	"server/pkg/hasher"
-	"server/pkg/logging"
 )
 
 var _ AuthRepository = &authRepository.Repository{}

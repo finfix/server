@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/testingFunc"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/testingFunc"
 )
 
 func TestAuthorization(t *testing.T) {

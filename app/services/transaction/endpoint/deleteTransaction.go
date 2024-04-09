@@ -6,10 +6,10 @@ import (
 
 	"github.com/gorilla/schema"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/validation"
 	"server/app/services/transaction/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/validation"
 )
 
 // @Summary Удаление транзакции

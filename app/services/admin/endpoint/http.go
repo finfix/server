@@ -7,11 +7,11 @@ import (
 	"github.com/gorilla/mux"
 
 	"server/app/config"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/server"
 	adminService "server/app/services/admin/service"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/middleware"
-	"server/pkg/server"
 )
 
 var part = "/admin"
@@ -42,8 +42,8 @@ func NewEndpoint(service *adminService.Service) http.Handler {
 	options := []server.Option{
 		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
 		server.Before(authorization),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.ResponseEncoder(middleware2.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware2.DefaultErrorEncoder),
 		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 

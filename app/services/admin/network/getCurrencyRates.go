@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"server/app/config"
-	"server/pkg/errors"
+	"server/app/pkg/errors"
 )
 
 func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {

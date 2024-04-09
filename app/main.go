@@ -9,6 +9,12 @@ import (
 
 	"server/app/config"
 	_ "server/app/docs"
+	"server/app/pkg/database"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/panicRecover"
+	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
 	accountService "server/app/services/account/service"
@@ -28,12 +34,6 @@ import (
 	userEndpoint "server/app/services/user/endpoint"
 	userRepository "server/app/services/user/repository"
 	userService "server/app/services/user/service"
-	"server/pkg/database"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/middleware"
-	"server/pkg/panicRecover"
-	"server/pkg/tgBot"
 )
 
 // @title COIN Server Documentation
@@ -55,10 +55,10 @@ import (
 
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
 //go:generate go mod download
-//go:generate swag init -o ../docs --parseDependency --parseInternal
+//go:generate swag init -o docs --parseDependency --parseInternal
 
 const version = "1.0.0"
-const build = "2"
+const build = "3"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -80,7 +80,7 @@ func main() {
 	cfg := config.GetConfig()
 
 	// Передаем в middleware авторизации ключ
-	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
+	middleware2.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
 	logger.Info("Подключаемся к БД")
@@ -131,7 +131,7 @@ func main() {
 
 	transactionService := transactionService.New(
 		transactionRepository,
-		accountService,
+		accountRepository,
 		generalRepository,
 		accountPermisssionsService,
 		logger,
@@ -207,7 +207,7 @@ func CORS(handler http.Handler) http.Handler {
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
 			logging.GetLogger().Panic(err)
-			middleware.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
+			middleware2.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
 		})
 
 		handler.ServeHTTP(w, r)
@@ -224,6 +224,6 @@ func getVersionHandleFunc(version, build string) http.HandlerFunc {
 			Build:   build,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_ = middleware.DefaultResponseEncoder(context.Background(), w, versionResponse)
+		_ = middleware2.DefaultResponseEncoder(context.Background(), w, versionResponse)
 	}
 }

@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"strings"
 
+	"server/app/pkg/datetime/date"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 	model2 "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	"server/app/services/transaction/model/transactionType"
-	"server/pkg/datetime/date"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/sql"
 )
 
 type Repository struct {
-	db     *sql.DB
+	db     sql.SQL
 	logger *logging.Logger
 }
 
@@ -373,6 +373,14 @@ func (repo *Repository) Update(ctx context.Context, fields model2.UpdateReq) err
 		queryFields = append(queryFields, "currency_signatura = ?")
 		args = append(args, fields.Currency)
 	}
+	if fields.ParentAccountID != nil {
+		if *fields.ParentAccountID == 0 {
+			queryFields = append(queryFields, "parent_account_id = NULL")
+		} else {
+			queryFields = append(queryFields, "parent_account_id = ?")
+			args = append(args, fields.ParentAccountID)
+		}
+	}
 
 	if len(queryFields) == 0 {
 		if fields.Remainder == nil {
@@ -434,7 +442,7 @@ func (repo *Repository) Switch(ctx context.Context, id1, id2 uint32) error {
 	)
 }
 
-func New(db *sql.DB, logger *logging.Logger) *Repository {
+func New(db sql.SQL, logger *logging.Logger) *Repository {
 	return &Repository{
 		db:     db,
 		logger: logger,

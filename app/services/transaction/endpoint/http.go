@@ -5,10 +5,10 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"server/app/pkg/logging"
+	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/server"
 	transactionService "server/app/services/transaction/service"
-	"server/pkg/logging"
-	"server/pkg/middleware"
-	"server/pkg/server"
 )
 
 var part = "/transaction"
@@ -25,9 +25,9 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 
 	options := []server.Option{
 		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.Before(middleware.DefaultAuthorization),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.Before(middleware2.DefaultAuthorization),
+		server.ResponseEncoder(middleware2.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware2.DefaultErrorEncoder),
 		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
 	}
 

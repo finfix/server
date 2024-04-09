@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/validation"
 	"server/app/services/account/model"
-	"server/pkg/contextKeys"
-	"server/pkg/validation"
 )
 
 // @Summary Получение списка групп счетов

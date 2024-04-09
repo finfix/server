@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/validation"
 	"server/app/services/account/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/validation"
 )
 
 // @Summary Изменение порядковых мест двух счетов
