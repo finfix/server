@@ -12,15 +12,12 @@ import (
 )
 
 type Permissions struct {
-	UpdateBudget    bool
-	UpdateRemainder bool
-	UpdateCurrency  bool
-
-	DeleteAccount bool
+	UpdateBudget          bool
+	UpdateRemainder       bool
+	UpdateCurrency        bool
+	UpdateParentAccountID bool
 
 	CreateTransaction bool
-
-	LinkToParentAccount bool
 }
 
 type Service struct {
@@ -31,12 +28,12 @@ type Service struct {
 }
 
 var generalPermissions = Permissions{
-	UpdateBudget:        true,
-	UpdateRemainder:     true,
-	UpdateCurrency:      true,
-	DeleteAccount:       true,
-	CreateTransaction:   true,
-	LinkToParentAccount: true,
+	UpdateBudget:          true,
+	UpdateRemainder:       true,
+	UpdateCurrency:        true,
+	UpdateParentAccountID: true,
+
+	CreateTransaction: true,
 }
 
 func (s *Service) GetPermissions(account model2.Account) Permissions {
@@ -66,12 +63,9 @@ func joinPermissions(permissions ...Permissions) (joinedPermissions Permissions)
 		joinedPermissions.UpdateBudget = joinedPermissions.UpdateBudget && permission.UpdateBudget
 		joinedPermissions.UpdateRemainder = joinedPermissions.UpdateRemainder && permission.UpdateRemainder
 		joinedPermissions.UpdateCurrency = joinedPermissions.UpdateCurrency && permission.UpdateCurrency
-
-		joinedPermissions.DeleteAccount = joinedPermissions.DeleteAccount && permission.DeleteAccount
+		joinedPermissions.UpdateParentAccountID = joinedPermissions.UpdateParentAccountID && permission.UpdateParentAccountID
 
 		joinedPermissions.CreateTransaction = joinedPermissions.CreateTransaction && permission.CreateTransaction
-
-		joinedPermissions.LinkToParentAccount = joinedPermissions.LinkToParentAccount && permission.LinkToParentAccount
 	}
 	return joinedPermissions
 }
@@ -99,7 +93,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 
 	rows, err := s.db.Query(ctx, `
 		SELECT * 
-		FROM coin.account_permissions`)
+		FROM permissions.account_permissions`)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -124,18 +118,16 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 		}
 
 		switch actionType {
-		case "updateBudget":
+		case "update_budget":
 			permission.UpdateBudget = access
-		case "updateRemainder":
+		case "update_remainder":
 			permission.UpdateRemainder = access
-		case "updateCurrency":
+		case "update_currency":
 			permission.UpdateCurrency = access
-		case "deleteAccount":
-			permission.DeleteAccount = access
-		case "createTransaction":
+		case "update_parent_account_id":
+			permission.UpdateParentAccountID = access
+		case "create_transaction":
 			permission.CreateTransaction = access
-		case "linkToParentAccount":
-			permission.LinkToParentAccount = access
 		}
 
 		switch _accountType {

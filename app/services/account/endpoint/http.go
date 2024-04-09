@@ -37,7 +37,7 @@ func NewEndpoint(service *accountService.Service) http.Handler {
 	router.Methods("GET").Path(part).Handler(server.NewChain(e.get, options...))
 	router.Methods("PATCH").Path(part).Handler(server.NewChain(e.updateAccount, options...))
 	router.Methods("DELETE").Path(part).Handler(server.NewChain(e.deleteAccount, options...))
-	router.Methods("PATCH").Path(part + "/switch").Handler(server.NewChain(e.switchAccounts, options...))
+	router.Methods("POST").Path(part + "/switch").Handler(server.NewChain(e.switchAccounts, options...))
 	router.Methods("GET").Path(part + "/accountGroups").Handler(server.NewChain(e.getAccountGroups, options...))
 
 	return router
