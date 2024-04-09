@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/slice"
 	model2 "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
-	"server/pkg/slice"
 )
 
 // Get возвращает все счета, удовлетворяющие фильтрам

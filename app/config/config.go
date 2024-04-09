@@ -5,9 +5,9 @@ import (
 
 	"github.com/caarlos0/env/v7"
 
-	"server/pkg/database"
-	"server/pkg/errors"
-	"server/pkg/logging"
+	"server/app/pkg/database"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
 )
 
 // Config - общая структура конфига

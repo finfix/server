@@ -4,13 +4,13 @@ import (
 	"context"
 	"testing"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/pointer"
+	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
-	"server/app/services/account/service/mocks"
 	"server/app/services/permissions"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/pointer"
-	"server/pkg/testingFunc"
+	mocks "server/mocks/server/app/services/account/service"
 )
 
 func TestService_update(t *testing.T) {
@@ -18,12 +18,12 @@ func TestService_update(t *testing.T) {
 	logging.Off()
 
 	type interfaces struct {
-		accountRepository     *mocks.AccountRepository
-		transactionRepository *mocks.TransactionRepository
-		generalRepository     *mocks.GeneralRepository
-		userRepository        *mocks.UserRepository
-		permissionsService    *mocks.PermissionsService
-		accountService        *mocks.AccountService
+		accountRepository     *mocks.MockAccountRepository
+		transactionRepository *mocks.MockTransactionRepository
+		generalRepository     *mocks.MockGeneralRepository
+		userRepository        *mocks.MockUserRepository
+		permissionsService    *mocks.MockPermissionsService
+		accountService        *mocks.MockAccountService
 	}
 
 	var (
@@ -199,12 +199,12 @@ func TestService_update(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			accountRepository := mocks.NewAccountRepository(t)
-			generalRepository := mocks.NewGeneralRepository(t)
-			transactionRepository := mocks.NewTransactionRepository(t)
-			userRepository := mocks.NewUserRepository(t)
-			permissionService := mocks.NewPermissionsService(t)
-			accountService := mocks.NewAccountService(t)
+			accountRepository := mocks.NewMockAccountRepository(t)
+			generalRepository := mocks.NewMockGeneralRepository(t)
+			transactionRepository := mocks.NewMockTransactionRepository(t)
+			userRepository := mocks.NewMockUserRepository(t)
+			permissionService := mocks.NewMockPermissionsService(t)
+			accountService := mocks.NewMockAccountService(t)
 
 			s := &Service{
 				accountRepository:  accountRepository,

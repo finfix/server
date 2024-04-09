@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/slice"
 	model3 "server/app/services/account/model"
 	"server/app/services/generalRepository"
 	"server/app/services/generalRepository/checker"
 	"server/app/services/permissions"
 	model2 "server/app/services/transaction/model"
 	transactionRepository "server/app/services/transaction/repository"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/slice"
 )
 
 type Service struct {

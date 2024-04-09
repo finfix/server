@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
 	"server/app/services/account/model"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
 )
 
 func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
 	"server/app/services/account/model"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
 )
 
 // Update обновляет счета по конкретным полям

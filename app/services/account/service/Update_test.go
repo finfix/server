@@ -5,12 +5,13 @@ import (
 	"github.com/stretchr/testify/mock"
 	"testing"
 
-	"server/app/services/account/model"
 	"server/app/services/account/service/mocks"
+
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/testingFunc"
+	"server/app/services/account/model"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/testingFunc"
 )
 
 func TestService_Update(t *testing.T) {

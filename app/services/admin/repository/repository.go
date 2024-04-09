@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"server/pkg/logging"
-	"server/pkg/sql"
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 )
 
 // UpdCurrencies обновляет курсы валют в базе данных
@@ -37,11 +37,11 @@ func (repo *Repository) UpdCurrencies(ctx context.Context, rates map[string]floa
 }
 
 type Repository struct {
-	db     *sql.DB
+	db     sql.SQL
 	logger *logging.Logger
 }
 
-func New(db *sql.DB, logger *logging.Logger) *Repository {
+func New(db sql.SQL, logger *logging.Logger) *Repository {
 	return &Repository{
 		db:     db,
 		logger: logger,

@@ -6,19 +6,19 @@ import (
 	"strings"
 	"testing"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/pointer"
+	testingFunc2 "server/app/pkg/testingFunc"
 	"server/app/services/account/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/pointer"
-	"server/pkg/testingFunc"
 )
 
 func TestDecodeUpdateAccountReq(t *testing.T) {
 
 	logging.Off()
 
-	validJSON := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc2.NewJSONUpdater(t, `{
 		"id": 1,	
 		"remainder": 1.1,
 		"name": "name",	
@@ -59,19 +59,19 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	}{
 		{"1.Обычный запрос",
 			validJSON.Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			validWant,
 			nil,
 		},
 		{"2.Невалидный json",
-			testingFunc.InvalidJSON,
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.InvalidJSON,
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("invalid"),
 		},
 		{"3.Отсутствующее поле UserID в контексте",
 			validJSON.Get(),
-			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -79,7 +79,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 				"id": 1,
 				"accountGroupID": 1
 			}`,
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			&model.UpdateReq{
 				ID:       1,
 				UserID:   1,
@@ -89,25 +89,25 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		},
 		{"5.Отрицательное значение iconID",
 			validJSON.Set("iconID", "-1").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"6.Пустой запрос",
 			"",
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("EOF"),
 		},
 		{"7.Отрицательное значение id",
 			validJSON.Set("id", "-1").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"8.Отсутствующее поле DeviceID в контексте",
 			validJSON.Get(),
-			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -115,11 +115,11 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeUpdateAccountReq(tt.ctx, httptest.NewRequest("", "/", strings.NewReader(tt.body)))
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testingFunc2.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc.CheckStruct(t, *tt.want, res, nil)
+			testingFunc2.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/errors"
 	model2 "server/app/services/account/model"
 	"server/app/services/generalRepository/checker"
-	"server/pkg/errors"
 )
 
 // Create создает новый счет

@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	"server/app/pkg/sql"
 	model2 "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/sql"
 )
 
 type Permissions struct {
@@ -21,7 +21,7 @@ type Permissions struct {
 }
 
 type Service struct {
-	db                    *sql.DB
+	db                    sql.SQL
 	logger                *logging.Logger
 	typeToPermissions     map[accountType.Type]Permissions
 	isParentToPermissions map[bool]Permissions
@@ -113,7 +113,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 		switch _accountType {
 		case "regular", "debt", "earnings", "expense":
 			permission = typeToPermissions[accountType.Type(_accountType)]
-		case "parent", "general":
+		case "parent", "general": //nolint:goconst
 			permission = isParentToPermissions[_accountType == "parent"] //nolint:goconst
 		}
 
@@ -142,7 +142,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 }
 
 func New(
-	db *sql.DB,
+	db sql.SQL,
 	logger *logging.Logger,
 ) (*Service, error) {
 

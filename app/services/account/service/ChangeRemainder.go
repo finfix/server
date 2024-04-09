@@ -4,13 +4,13 @@ import (
 	"context"
 	"math"
 
+	"server/app/pkg/datetime/date"
+	"server/app/pkg/errors"
+	"server/app/pkg/pointer"
 	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	transactionModel "server/app/services/transaction/model"
 	"server/app/services/transaction/model/transactionType"
-	"server/pkg/datetime/date"
-	"server/pkg/errors"
-	"server/pkg/pointer"
 )
 
 func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, remainderToUpdate float64) error {

@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 
+	"server/app/pkg/datetime/date"
+	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
 	accountRepository "server/app/services/account/repository"
 	"server/app/services/generalRepository"
@@ -12,8 +14,6 @@ import (
 	transactionRepository "server/app/services/transaction/repository"
 	userModel "server/app/services/user/model"
 	userRepository "server/app/services/user/repository"
-	"server/pkg/datetime/date"
-	"server/pkg/logging"
 )
 
 var _ GeneralRepository = &generalRepository.Repository{}
@@ -22,7 +22,6 @@ var _ PermissionsService = &permissions.Service{}
 var _ UserRepository = &userRepository.Repository{}
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
 
-//go:generate mockery --name GeneralRepository
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
 	GetCurrencies(context.Context) (map[string]float64, error)
@@ -30,7 +29,6 @@ type GeneralRepository interface {
 	GetAvailableAccountGroups(userID uint32) []uint32
 }
 
-//go:generate mockery --name AccountRepository
 type AccountRepository interface {
 	Create(context.Context, accountModel.CreateReq) (uint32, uint32, error)
 	Get(context.Context, accountModel.GetReq) ([]accountModel.Account, error)
@@ -47,23 +45,19 @@ type AccountRepository interface {
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
 }
 
-//go:generate mockery --name TransactionRepository
 type TransactionRepository interface {
 	Create(context.Context, transactionModel.CreateReq) (uint32, error)
 }
 
-//go:generate mockery --name UserRepository
 type UserRepository interface {
 	Get(context.Context, userModel.GetReq) ([]userModel.User, error)
 }
 
-//go:generate mockery --name PermissionsService
 type PermissionsService interface {
 	GetPermissions(account accountModel.Account) permissions.Permissions
 	CheckPermissions(req accountModel.UpdateReq, permissions permissions.Permissions) error
 }
 
-//go:generate mockery --name AccountService
 type AccountService interface {
 	ChangeRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate float64) error
 	ValidateUpdateParentAccountID(ctx context.Context, account accountModel.Account, parentAccountID, userID uint32) error

@@ -6,18 +6,18 @@ import (
 	"strings"
 	"testing"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	testingFunc2 "server/app/pkg/testingFunc"
 	"server/app/services/auth/model"
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/logging"
-	"server/pkg/testingFunc"
 )
 
 func TestDecodeAuthReq(t *testing.T) {
 
 	logging.Off()
 
-	validJSON := testingFunc.NewJSONUpdater(t, `{
+	validJSON := testingFunc2.NewJSONUpdater(t, `{
 		"email": "qwerty@berubox.com",
 		"password": "password"
 	}`)
@@ -30,7 +30,7 @@ func TestDecodeAuthReq(t *testing.T) {
 	}{
 		{"1.Обычный запрос",
 			validJSON.Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			&model.SignInReq{
 				Email:    "qwerty@berubox.com",
 				Password: "password",
@@ -39,38 +39,38 @@ func TestDecodeAuthReq(t *testing.T) {
 			nil,
 		},
 		{"2.Невалидный json",
-			testingFunc.InvalidJSON,
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.InvalidJSON,
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("invalid"),
 		},
 		{"3.Невалидный email",
 			validJSON.Set("email", "invalid").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("email"),
 		},
 		{"4.Отсутствующее поле email",
 			validJSON.Delete("email").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("email"),
 		},
 		{"5.Отсутствующее поле password",
 			validJSON.Delete("password").Get(),
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("password"),
 		},
 		{"6.Пустой запрос",
 			"",
-			testingFunc.GeneralCtx.Get(),
+			testingFunc2.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("EOF"),
 		},
 		{"7.Запрос с пустым полем DeviceID в контексте",
 			validJSON.Get(),
-			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -78,11 +78,11 @@ func TestDecodeAuthReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeSignInReq(tt.ctx, httptest.NewRequest("", "/", strings.NewReader(tt.body)))
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testingFunc2.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc.CheckStruct(t, *tt.want, res, nil)
+			testingFunc2.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }
