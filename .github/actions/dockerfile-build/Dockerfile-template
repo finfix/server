@@ -4,7 +4,7 @@ RUN apt install ca-certificates
 ADD . /project
 WORKDIR /project
 RUN go generate ./...
-RUN go build app/cmd/main.go
+RUN go build app/main.go
 
 FROM ubuntu:latest
 WORKDIR /@{project_name}

@@ -2,6 +2,9 @@ name: lint
 
 on:
   workflow_call:
+  pull_request:
+    branches:
+      - release
 
 permissions:
   contents: read
@@ -13,10 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+        # Настраиваем Go
       - uses: actions/setup-go@v4
         with:
           go-version: '1.21'
 
+        # Проверяем код линтером
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:

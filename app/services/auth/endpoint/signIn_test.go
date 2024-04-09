@@ -1,0 +1,88 @@
+package endpoint
+
+import (
+	"context"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/logging"
+	testingFunc2 "server/app/pkg/testingFunc"
+	"server/app/services/auth/model"
+)
+
+func TestDecodeAuthReq(t *testing.T) {
+
+	logging.Off()
+
+	validJSON := testingFunc2.NewJSONUpdater(t, `{
+		"email": "qwerty@berubox.com",
+		"password": "password"
+	}`)
+
+	for _, tt := range []struct {
+		message, body string
+		ctx           context.Context
+		want          *model.SignInReq
+		err           error
+	}{
+		{"1.Обычный запрос",
+			validJSON.Get(),
+			testingFunc2.GeneralCtx.Get(),
+			&model.SignInReq{
+				Email:    "qwerty@berubox.com",
+				Password: "password",
+				DeviceID: "DeviceID",
+			},
+			nil,
+		},
+		{"2.Невалидный json",
+			testingFunc2.InvalidJSON,
+			testingFunc2.GeneralCtx.Get(),
+			nil,
+			errors.BadRequest.New("invalid"),
+		},
+		{"3.Невалидный email",
+			validJSON.Set("email", "invalid").Get(),
+			testingFunc2.GeneralCtx.Get(),
+			nil,
+			errors.BadRequest.New("email"),
+		},
+		{"4.Отсутствующее поле email",
+			validJSON.Delete("email").Get(),
+			testingFunc2.GeneralCtx.Get(),
+			nil,
+			errors.BadRequest.New("email"),
+		},
+		{"5.Отсутствующее поле password",
+			validJSON.Delete("password").Get(),
+			testingFunc2.GeneralCtx.Get(),
+			nil,
+			errors.BadRequest.New("password"),
+		},
+		{"6.Пустой запрос",
+			"",
+			testingFunc2.GeneralCtx.Get(),
+			nil,
+			errors.BadRequest.New("EOF"),
+		},
+		{"7.Запрос с пустым полем DeviceID в контексте",
+			validJSON.Get(),
+			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			nil,
+			errors.BadRequest.New("-"),
+		},
+	} {
+		t.Run(tt.message, func(t *testing.T) {
+
+			res, err := decodeSignInReq(tt.ctx, httptest.NewRequest("", "/", strings.NewReader(tt.body)))
+			if testingFunc2.CheckError(t, tt.err, err) {
+				return
+			}
+
+			testingFunc2.CheckStruct(t, *tt.want, res, nil)
+		})
+	}
+}

@@ -1,5 +1,5 @@
 swagger:
-	swag init -g ./app/cmd/main.go -o ./app/docs --parseDependency --parseInternal
+	swag init -g ./app/main.go -o ./app/docs --parseDependency --parseInternal
 
 local_docker_build:
 	docker build -f Dockerfile -t coin-server .
