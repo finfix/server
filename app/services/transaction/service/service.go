@@ -6,7 +6,8 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/slice"
-	model3 "server/app/services/account/model"
+	accountModel "server/app/services/account/model"
+	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository"
 	"server/app/services/generalRepository/checker"
 	"server/app/services/permissions"
@@ -43,11 +44,11 @@ type Repository interface {
 }
 
 type PermissionsService interface {
-	GetPermissions(account model3.Account) permissions.Permissions
+	GetPermissions(account accountModel.Account) permissions.Permissions
 }
 
 type AccountRepository interface {
-	Get(context.Context, model3.GetReq) ([]model3.Account, error)
+	Get(context.Context, accountRepoModel.GetReq) ([]accountModel.Account, error)
 }
 
 // Create создает новую транзакцию
@@ -59,13 +60,13 @@ func (s *Service) Create(ctx context.Context, transaction model2.CreateReq) (id 
 	}
 
 	// Получаем счета
-	_accounts, err := s.account.Get(ctx, model3.GetReq{
+	_accounts, err := s.account.Get(ctx, accountRepoModel.GetReq{
 		IDs: []uint32{transaction.AccountFromID, transaction.AccountToID},
 	})
 	if err != nil {
 		return id, err
 	}
-	accountsMap := slice.ToMap(_accounts, func(account model3.Account) uint32 { return account.ID })
+	accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 	// Получаем разрешения счетов
 	permissionsAccountFrom := s.permissions.GetPermissions(accountsMap[transaction.AccountFromID])

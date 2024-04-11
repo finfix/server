@@ -23,21 +23,31 @@ func (_m *MockAccountService) EXPECT() *MockAccountService_Expecter {
 }
 
 // ChangeRemainder provides a mock function with given fields: ctx, account, remainderToUpdate
-func (_m *MockAccountService) ChangeRemainder(ctx context.Context, account model.Account, remainderToUpdate float64) error {
+func (_m *MockAccountService) ChangeRemainder(ctx context.Context, account model.Account, remainderToUpdate float64) (model.UpdateRes, error) {
 	ret := _m.Called(ctx, account, remainderToUpdate)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ChangeRemainder")
 	}
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64) error); ok {
+	var r0 model.UpdateRes
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64) (model.UpdateRes, error)); ok {
+		return rf(ctx, account, remainderToUpdate)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64) model.UpdateRes); ok {
 		r0 = rf(ctx, account, remainderToUpdate)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(model.UpdateRes)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, model.Account, float64) error); ok {
+		r1 = rf(ctx, account, remainderToUpdate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockAccountService_ChangeRemainder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeRemainder'
@@ -60,12 +70,12 @@ func (_c *MockAccountService_ChangeRemainder_Call) Run(run func(ctx context.Cont
 	return _c
 }
 
-func (_c *MockAccountService_ChangeRemainder_Call) Return(_a0 error) *MockAccountService_ChangeRemainder_Call {
-	_c.Call.Return(_a0)
+func (_c *MockAccountService_ChangeRemainder_Call) Return(_a0 model.UpdateRes, _a1 error) *MockAccountService_ChangeRemainder_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAccountService_ChangeRemainder_Call) RunAndReturn(run func(context.Context, model.Account, float64) error) *MockAccountService_ChangeRemainder_Call {
+func (_c *MockAccountService_ChangeRemainder_Call) RunAndReturn(run func(context.Context, model.Account, float64) (model.UpdateRes, error)) *MockAccountService_ChangeRemainder_Call {
 	_c.Call.Return(run)
 	return _c
 }
