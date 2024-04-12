@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"server/app/pkg/datetime/date"
 	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
 	accountRepository "server/app/services/account/repository"
+	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository"
 	"server/app/services/generalRepository/checker"
 	"server/app/services/permissions"
@@ -30,15 +30,12 @@ type GeneralRepository interface {
 }
 
 type AccountRepository interface {
-	Create(context.Context, accountModel.CreateReq) (uint32, uint32, error)
-	Get(context.Context, accountModel.GetReq) ([]accountModel.Account, error)
-	Update(context.Context, accountModel.UpdateReq) error
+	Create(context.Context, accountRepoModel.CreateReq) (uint32, uint32, error)
+	Get(context.Context, accountRepoModel.GetReq) ([]accountModel.Account, error)
+	Update(context.Context, map[uint32]accountRepoModel.UpdateReq) error
 	Delete(ctx context.Context, id uint32) error
 
-	GetRemainder(ctx context.Context, id uint32) (float64, error)
-	CalculateExpensesAndEarnings(ctx context.Context, accountGroupIDs []uint32, dateFrom, dateTo date.Date) (map[uint32]float64, error)
-	CalculateRemainderAccounts(ctx context.Context, accountGroupIDs []uint32, dateTo *date.Date) (map[uint32]float64, error)
-	CalculateBalancingAmount(ctx context.Context, accountGroupIDs []uint32, dateFrom, dateTo date.Date) ([]accountModel.BalancingAmount, error)
+	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]float64, error)
 	Switch(ctx context.Context, id1, id2 uint32) error
 
 	GetAccountGroups(context.Context, accountModel.GetAccountGroupsReq) ([]accountModel.AccountGroup, error)
@@ -59,7 +56,7 @@ type PermissionsService interface {
 }
 
 type AccountService interface {
-	ChangeRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate float64) error
+	ChangeRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate float64) (accountModel.UpdateRes, error)
 	ValidateUpdateParentAccountID(ctx context.Context, account accountModel.Account, parentAccountID, userID uint32) error
 }
 
