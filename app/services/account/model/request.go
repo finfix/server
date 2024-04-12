@@ -65,6 +65,7 @@ func (s *CreateReq) ConvertToRepoReq() repoModel.CreateReq {
 		Budget:         s.Budget.ConvertToCreateBudgetReqRepo(),
 		IsParent:       *s.IsParent,
 		Visible:        true,
+		UserID:         s.UserID,
 	}
 }
 

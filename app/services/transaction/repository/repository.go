@@ -10,11 +10,11 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
-	model2 "server/app/services/transaction/model"
+	"server/app/services/transaction/model"
 )
 
 // Create создает новую транзакцию
-func (repo *TransactionRepository) Create(ctx context.Context, req model2.CreateReq) (id uint32, err error) {
+func (repo *TransactionRepository) Create(ctx context.Context, req model.CreateReq) (id uint32, err error) {
 
 	// Создаем транзакцию
 	if id, err = repo.db.ExecWithLastInsertID(ctx, `
@@ -27,8 +27,9 @@ func (repo *TransactionRepository) Create(ctx context.Context, req model2.Create
               amount_to,  
               note,  
               is_executed,  
-              date_create
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              date_create,
+			  created_by_user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		req.Type,
 		req.DateTransaction,
 		req.AccountFromID,
@@ -38,6 +39,7 @@ func (repo *TransactionRepository) Create(ctx context.Context, req model2.Create
 		req.Note,
 		req.IsExecuted,
 		time.Now(),
+		req.UserID,
 	); err != nil {
 		return id, err
 	}
@@ -66,7 +68,7 @@ func (repo *TransactionRepository) CreateTags(ctx context.Context, tags []string
 }
 
 // Update редактирует транзакцию
-func (repo *TransactionRepository) Update(ctx context.Context, fields model2.UpdateReq) error {
+func (repo *TransactionRepository) Update(ctx context.Context, fields model.UpdateReq) error {
 
 	// Изменяем показатели транзакции
 	var (
@@ -153,7 +155,7 @@ func (repo *TransactionRepository) Delete(ctx context.Context, id, userID uint32
 }
 
 // Get возвращает все транзакции по фильтрам
-func (repo *TransactionRepository) Get(ctx context.Context, req model2.GetReq) (transactions []model2.Transaction, err error) {
+func (repo *TransactionRepository) Get(ctx context.Context, req model.GetReq) (transactions []model.Transaction, err error) {
 
 	var (
 		args        []any
@@ -220,7 +222,7 @@ func (repo *TransactionRepository) Get(ctx context.Context, req model2.GetReq) (
 
 // GetTags возвращает все теги по списку транзакций
 // TODO: Поменять на мапу
-func (repo *TransactionRepository) GetTags(ctx context.Context, ids []uint32) (tags []model2.Tag, err error) {
+func (repo *TransactionRepository) GetTags(ctx context.Context, ids []uint32) (tags []model.Tag, err error) {
 
 	// Конструируем запрос
 	query, args, err := repo.db.In(`

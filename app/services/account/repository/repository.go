@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
@@ -87,8 +88,10 @@ func (repo *Repository) Create(ctx context.Context, account accountRepoModel.Cre
 			  budget_fixed_sum,
 			  budget_days_offset,        
 			  parent_account_id,
+			  created_by_user_id,
+			  time_create,
 			  serial_number
-		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
+		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
 		  	  FROM coin.accounts`,
 		account.Budget.Amount,
 		account.Name,
@@ -103,6 +106,8 @@ func (repo *Repository) Create(ctx context.Context, account accountRepoModel.Cre
 		account.Budget.FixedSum,
 		account.Budget.DaysOffset,
 		account.ParentAccountID,
+		account.UserID,
+		time.Now(),
 	)
 	if err != nil {
 		return id, serialNumber, err

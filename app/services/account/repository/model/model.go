@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"server/app/pkg/datetime/date"
 	"server/app/services/account/model/accountType"
 )
@@ -16,6 +18,8 @@ type CreateReq struct {
 	Accounting      bool
 	IsParent        bool
 	ParentAccountID *uint32
+	UserID          uint32
+	TimeCreate      time.Time
 }
 
 type CreateReqBudget struct {
