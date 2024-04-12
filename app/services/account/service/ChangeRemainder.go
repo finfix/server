@@ -7,6 +7,7 @@ import (
 	"server/app/pkg/datetime/date"
 	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
+	"server/app/services"
 	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	accountRepoModel "server/app/services/account/repository/model"
@@ -52,6 +53,9 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 		AccountFromID:   balancingAccountID,
 		DateTransaction: date.Now(),
 		IsExecuted:      pointer.Pointer(true),
+		Necessary: services.NecessaryUserInformation{
+			//UserID: UserID, // TODO: Вынести отдельно структуру transactionModel.CreateReq и передавать в него UserID
+		},
 	})
 	if err != nil {
 		return res, err

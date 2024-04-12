@@ -11,7 +11,7 @@ import (
 func (s *Service) Delete(ctx context.Context, id model.DeleteReq) error {
 
 	// Проверяем доступ пользователя к счету
-	if err := s.general.CheckAccess(ctx, checker.Accounts, id.UserID, []uint32{id.ID}); err != nil {
+	if err := s.general.CheckAccess(ctx, checker.Accounts, id.Necessary.UserID, []uint32{id.ID}); err != nil {
 		return err
 	}
 

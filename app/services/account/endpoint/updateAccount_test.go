@@ -10,7 +10,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/pointer"
-	testingFunc2 "server/app/pkg/testingFunc"
+	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
 )
 
@@ -18,7 +18,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 
 	logging.Off()
 
-	validJSON := testingFunc2.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"id": 1,	
 		"remainder": 1.1,
 		"name": "name",	
@@ -41,14 +41,13 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		IconID:     pointer.Pointer(uint32(1)),
 		Visible:    pointer.Pointer(true),
 		Accounting: pointer.Pointer(true),
-		UserID:     1,
-		DeviceID:   "DeviceID",
 		Budget: model.UpdateBudgetReq{
 			Amount:         pointer.Pointer(1.1),
 			FixedSum:       pointer.Pointer(1.1),
 			DaysOffset:     pointer.Pointer(uint32(1)),
 			GradualFilling: pointer.Pointer(true),
 		},
+		Necessary: testingFunc.ValidNecessary,
 	}
 
 	for _, tt := range []struct {
@@ -59,19 +58,19 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	}{
 		{"1.Обычный запрос",
 			validJSON.Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			validWant,
 			nil,
 		},
 		{"2.Невалидный json",
-			testingFunc2.InvalidJSON,
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.InvalidJSON,
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("invalid"),
 		},
 		{"3.Отсутствующее поле UserID в контексте",
 			validJSON.Get(),
-			testingFunc2.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -79,35 +78,34 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 				"id": 1,
 				"accountGroupID": 1
 			}`,
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			&model.UpdateReq{
-				ID:       1,
-				UserID:   1,
-				DeviceID: "DeviceID",
+				ID:        1,
+				Necessary: testingFunc.ValidNecessary,
 			},
 			nil,
 		},
 		{"5.Отрицательное значение iconID",
 			validJSON.Set("iconID", "-1").Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"6.Пустой запрос",
 			"",
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("EOF"),
 		},
 		{"7.Отрицательное значение id",
 			validJSON.Set("id", "-1").Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("uint"),
 		},
 		{"8.Отсутствующее поле DeviceID в контексте",
 			validJSON.Get(),
-			testingFunc2.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.DeviceIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -115,11 +113,11 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeUpdateAccountReq(tt.ctx, httptest.NewRequest("", "/", strings.NewReader(tt.body)))
-			if testingFunc2.CheckError(t, tt.err, err) {
+			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc2.CheckStruct(t, *tt.want, res, nil)
+			testingFunc.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

@@ -13,7 +13,7 @@ import (
 func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (res model.CreateRes, err error) {
 
 	// Проверяем доступ пользователя к группе счетов
-	if err = s.general.CheckAccess(ctx, checker.AccountGroups, accountToCreate.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
+	if err = s.general.CheckAccess(ctx, checker.AccountGroups, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
 		return res, err
 	}
 

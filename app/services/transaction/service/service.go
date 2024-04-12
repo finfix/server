@@ -55,7 +55,7 @@ type AccountRepository interface {
 func (s *Service) Create(ctx context.Context, transaction model2.CreateReq) (id uint32, err error) {
 
 	// Проверяем доступ пользователя к счетам
-	if err = s.general.CheckAccess(ctx, checker.Accounts, transaction.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
+	if err = s.general.CheckAccess(ctx, checker.Accounts, transaction.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
 		return id, err
 	}
 
@@ -101,7 +101,7 @@ func (s *Service) Create(ctx context.Context, transaction model2.CreateReq) (id 
 func (s *Service) Get(ctx context.Context, filters model2.GetReq) (transactions []model2.Transaction, err error) {
 
 	// Проверяем доступ пользователя к группам счетов
-	filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.UserID)
+	filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.Necessary.UserID)
 
 	// Получаем все транзакции
 	if transactions, err = s.transaction.Get(ctx, filters); err != nil {
@@ -121,7 +121,7 @@ func (s *Service) Get(ctx context.Context, filters model2.GetReq) (transactions 
 func (s *Service) Update(ctx context.Context, fields model2.UpdateReq) error {
 
 	// Проверяем доступ пользователя к транзакции
-	if err := s.general.CheckAccess(ctx, checker.Transactions, fields.UserID, []uint32{fields.ID}); err != nil {
+	if err := s.general.CheckAccess(ctx, checker.Transactions, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {
 		return err
 	}
 
@@ -136,13 +136,13 @@ func (s *Service) Update(ctx context.Context, fields model2.UpdateReq) error {
 		}
 
 		// Проверяем доступ пользователя к счетам
-		if err := s.general.CheckAccess(ctx, checker.Accounts, fields.UserID, accountsIDs); err != nil {
+		if err := s.general.CheckAccess(ctx, checker.Accounts, fields.Necessary.UserID, accountsIDs); err != nil {
 			return err
 		}
 	}
 
 	// Проверяем доступ пользователя к транзакции
-	if err := s.general.CheckAccess(ctx, checker.Transactions, fields.UserID, []uint32{fields.ID}); err != nil {
+	if err := s.general.CheckAccess(ctx, checker.Transactions, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {
 		return err
 	}
 
@@ -154,12 +154,12 @@ func (s *Service) Update(ctx context.Context, fields model2.UpdateReq) error {
 func (s *Service) Delete(ctx context.Context, id model2.DeleteReq) error {
 
 	// Проверяем доступ пользователя к транзакции
-	if err := s.general.CheckAccess(ctx, checker.Transactions, id.UserID, []uint32{id.ID}); err != nil {
+	if err := s.general.CheckAccess(ctx, checker.Transactions, id.Necessary.UserID, []uint32{id.ID}); err != nil {
 		return err
 	}
 
 	// Удаляем транзакцию
-	return s.transaction.Delete(ctx, id.ID, id.UserID)
+	return s.transaction.Delete(ctx, id.ID, id.Necessary.UserID)
 }
 
 func New(

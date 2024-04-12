@@ -18,6 +18,7 @@ import (
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ AccountRepository = &accountRepository.Repository{}
+var _ AccountService = &Service{}
 var _ PermissionsService = &permissions.Service{}
 var _ UserRepository = &userRepository.Repository{}
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}

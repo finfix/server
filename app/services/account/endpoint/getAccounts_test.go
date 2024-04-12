@@ -12,7 +12,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/pointer"
-	testingFunc2 "server/app/pkg/testingFunc"
+	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 )
@@ -21,7 +21,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 
 	logging.Off()
 
-	validParams := testingFunc2.NewParamUpdater(map[string]string{
+	validParams := testingFunc.NewParamUpdater(map[string]string{
 		"type":            "expense",
 		"accountGroupIDs": "1,2",
 		"accounting":      "true",
@@ -31,8 +31,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		Type:            pointer.Pointer(accountType.Expense),
 		AccountGroupIDs: []uint32{1, 2},
 		Accounting:      pointer.Pointer(true),
-		UserID:          1,
-		DeviceID:        "DeviceID",
+		Necessary:       testingFunc.ValidNecessary,
 	}
 
 	for _, tt := range []struct {
@@ -44,40 +43,39 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 	}{
 		{"1.Обычный запрос",
 			validParams.Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			validWant,
 			nil,
 		},
 		{"2.Невалидное поле type",
 			validParams.Set("type", "invalid").Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("type"),
 		},
 		{"3.Отрицательное значение поля accountGroupID",
 			validParams.Set("accountGroupID", "-1").Get(),
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			nil,
 			errors.BadRequest.New("accountGroupID"),
 		},
 		{"4.Отсутствующее поле DeviceID в контексте",
 			validParams.Get(),
-			testingFunc2.GeneralCtx.Delete("DeviceID").Get(),
+			testingFunc.GeneralCtx.Delete("DeviceID").Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
 		{"6.Пустой запрос",
 			nil,
-			testingFunc2.GeneralCtx.Get(),
+			testingFunc.GeneralCtx.Get(),
 			&model.GetReq{
-				UserID:   1,
-				DeviceID: "DeviceID",
+				Necessary: testingFunc.ValidNecessary,
 			},
 			nil,
 		},
 		{"7.Отсутствующее поле UserID в контексте",
 			validParams.Get(),
-			testingFunc2.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
+			testingFunc.GeneralCtx.Delete(contextKeys.UserIDKey).Get(),
 			nil,
 			errors.BadRequest.New("-"),
 		},
@@ -85,11 +83,11 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeGetReq(tt.ctx, httptest.NewRequest(http.MethodGet, fmt.Sprintf("%s?%s", part, tt.params.Encode()), nil))
-			if testingFunc2.CheckError(t, tt.err, err) {
+			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc2.CheckStruct(t, *tt.want, res, nil)
+			testingFunc.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

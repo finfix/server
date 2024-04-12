@@ -15,11 +15,11 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 
 	// Проверяем доступ пользователя к группам счетов
 	if len(filters.AccountGroupIDs) != 0 {
-		if err = s.general.CheckAccess(ctx, checker.AccountGroups, filters.UserID, filters.AccountGroupIDs); err != nil {
+		if err = s.general.CheckAccess(ctx, checker.AccountGroups, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
 			return nil, err
 		}
 	} else {
-		filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.UserID)
+		filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.Necessary.UserID)
 	}
 
 	// Получаем все счета

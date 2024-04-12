@@ -17,7 +17,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	repoUpdateReqs[updateReq.ID] = updateReq.ConvertToRepoReq()
 
 	// Проверяем доступ пользователя к счету
-	if err := s.general.CheckAccess(ctx, checker.Accounts, updateReq.UserID, []uint32{updateReq.ID}); err != nil {
+	if err := s.general.CheckAccess(ctx, checker.Accounts, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {
 		return res, err
 	}
 
@@ -47,7 +47,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 		if *updateReq.ParentAccountID != 0 {
 
 			// Проверяем возможность привязки
-			if err := s.accountService.ValidateUpdateParentAccountID(ctx, account, *updateReq.ParentAccountID, updateReq.UserID); err != nil {
+			if err := s.accountService.ValidateUpdateParentAccountID(ctx, account, *updateReq.ParentAccountID, updateReq.Necessary.UserID); err != nil {
 				return res, err
 			}
 			account.ParentAccountID = updateReq.ParentAccountID

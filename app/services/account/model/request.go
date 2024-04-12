@@ -2,13 +2,13 @@ package model
 
 import (
 	"server/app/pkg/datetime/date"
+	"server/app/services"
 	"server/app/services/account/model/accountType"
 	repoModel "server/app/services/account/repository/model"
 )
 
 type GetReq struct {
-	UserID          uint32            `json:"-" schema:"-" validate:"required"  minimum:"1"`                               // Идентификатор пользователя
-	DeviceID        string            `json:"-" schema:"-" validate:"required"`                                            // Идентификатор устройства
+	Necessary       services.NecessaryUserInformation
 	Type            *accountType.Type `json:"type" schema:"type" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
 	Accounting      *bool             `json:"accounting" schema:"accounting"`                                              // Видимость счета
 	AccountGroupIDs []uint32          `json:"accountGroupIDs" schema:"accountGroupIDs" minimum:"1"`                        // Идентификаторы групп счетов
@@ -39,14 +39,13 @@ func (s *GetReq) ConvertToRepoReq() repoModel.GetReq {
 }
 
 type CreateReq struct {
+	Necessary      services.NecessaryUserInformation
 	Name           string           `json:"name" validate:"required"`                                                          // Название счета
 	IconID         uint32           `json:"iconID" validate:"required" minimum:"1"`                                            // Идентификатор иконки
 	Type           accountType.Type `json:"type" validate:"required" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
 	Currency       string           `json:"currency" validate:"required"`                                                      // Валюта счета
 	AccountGroupID uint32           `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
 	Accounting     *bool            `json:"accounting" validate:"required"`                                                    // Подсчет суммы счета в статистике
-	UserID         uint32           `json:"-" validate:"required" minimum:"1"`                                                 // Идентификатор пользователя
-	DeviceID       string           `json:"-" validate:"required"`                                                             // Идентификатор устройства
 	Remainder      float64          `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget         CreateBudgetReq  `json:"budget"`                                                                            // Бюджет
 	IsParent       *bool            `json:"isParent"`                                                                          // Является ли счет родительским
@@ -65,7 +64,7 @@ func (s *CreateReq) ConvertToRepoReq() repoModel.CreateReq {
 		Budget:         s.Budget.ConvertToCreateBudgetReqRepo(),
 		IsParent:       *s.IsParent,
 		Visible:        true,
-		UserID:         s.UserID,
+		UserID:         s.Necessary.UserID,
 	}
 }
 
@@ -87,7 +86,7 @@ func (s *CreateBudgetReq) ConvertToCreateBudgetReqRepo() repoModel.CreateReqBudg
 }
 
 type UpdateReq struct {
-	UserID          uint32          `json:"-" validate:"required" minimum:"1"`  // Идентификатор пользователя
+	Necessary       services.NecessaryUserInformation
 	ID              uint32          `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
 	Remainder       *float64        `json:"remainder"`                          // Остаток средств на счету
 	Name            *string         `json:"name"`                               // Название счета
@@ -96,7 +95,6 @@ type UpdateReq struct {
 	Accounting      *bool           `json:"accounting"`                         // Будет ли счет учитываться в статистике
 	Currency        *string         `json:"currencyCode"`                       // Валюта счета
 	ParentAccountID *uint32         `json:"parentAccountID"`                    // Идентификатор родительского счета
-	DeviceID        string          `json:"-" validate:"required"`              // Идентификатор устройства
 	Budget          UpdateBudgetReq `json:"budget"`                             // Месячный бюджет
 }
 
@@ -131,21 +129,18 @@ func (s *UpdateBudgetReq) ConvertToRepoReq() repoModel.UpdateBudgetReq {
 }
 
 type DeleteReq struct {
-	ID       uint32 `json:"id" schema:"id" validate:"required" minimum:"1"` // Идентификатор счета
-	UserID   uint32 `json:"-" validate:"required" minimum:"1"`              // Идентификатор пользователя
-	DeviceID string `json:"-" validate:"required"`                          // Идентификатор устройства
+	Necessary services.NecessaryUserInformation
+	ID        uint32 `json:"id" schema:"id" validate:"required" minimum:"1"` // Идентификатор счета
 }
 
 type SwitchReq struct {
-	ID1      uint32 `json:"id1" validate:"required" minimum:"1"` // Идентификатор первого счета
-	ID2      uint32 `json:"id2" validate:"required" minimum:"1"` // Идентификатор второго счета
-	UserID   uint32 `json:"-" validate:"required"`               // Идентификатор пользователя
-	DeviceID string `json:"-" validate:"required"`               // Идентификатор устройства
+	Necessary services.NecessaryUserInformation
+	ID1       uint32 `json:"id1" validate:"required" minimum:"1"` // Идентификатор первого счета
+	ID2       uint32 `json:"id2" validate:"required" minimum:"1"` // Идентификатор второго счета
 }
 
 type GetAccountGroupsReq struct {
-	UserID          uint32   `json:"-" validate:"required" minimum:"1"`                    // Идентификатор пользователя
-	DeviceID        string   `json:"-" validate:"required"`                                // Идентификатор устройства
+	Necessary       services.NecessaryUserInformation
 	AccountGroupIDs []uint32 `json:"accountGroupIDs" schema:"accountGroupIDs" minimum:"1"` // Идентификаторы групп счетов
 }
 

@@ -39,7 +39,7 @@ func (repo *TransactionRepository) Create(ctx context.Context, req model.CreateR
 		req.Note,
 		req.IsExecuted,
 		time.Now(),
-		req.UserID,
+		req.Necessary.UserID,
 	); err != nil {
 		return id, err
 	}

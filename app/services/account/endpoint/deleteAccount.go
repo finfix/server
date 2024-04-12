@@ -6,9 +6,9 @@ import (
 
 	"github.com/gorilla/schema"
 
-	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
+	"server/app/services"
 	"server/app/services/account/model"
 )
 
@@ -41,8 +41,10 @@ func decodeDeleteAccountReq(ctx context.Context, r *http.Request) (req model.Del
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
-	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
+	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
+	if err != nil {
+		return req, err
+	}
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)

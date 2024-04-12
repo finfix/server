@@ -46,9 +46,9 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 		args = append(args, _args...)
 	}
 
-	if filters.UserID != 0 {
+	if filters.Necessary.UserID != 0 {
 		queryArgs = append(queryArgs, `utag.user_id = ?`)
-		args = append(args, filters.UserID)
+		args = append(args, filters.Necessary.UserID)
 	}
 
 	if len(queryArgs) == 0 {
