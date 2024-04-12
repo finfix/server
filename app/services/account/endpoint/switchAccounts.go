@@ -16,7 +16,7 @@ import (
 // @Tags account
 // @Security AuthJWT
 // @Accept json
-// @Param Body body model.SwitchReq true "model.SwitchReq"
+// @Param Body body model.SwitchAccountBetweenThemselvesReq true "model.SwitchAccountBetweenThemselvesReq"
 // @Produce json
 // @Success 200 "Если изменение порядка счетов прошло успешно, возвращается пустой ответ"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
@@ -30,10 +30,10 @@ func (s *endpoint) switchAccounts(ctx context.Context, r *http.Request) (any, er
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Switch(ctx, req)
+	return nil, s.service.SwitchAccountBetweenThemselves(ctx, req)
 }
 
-func decodeSwitchAccountsReq(ctx context.Context, r *http.Request) (req model.SwitchReq, err error) {
+func decodeSwitchAccountsReq(ctx context.Context, r *http.Request) (req model.SwitchAccountBetweenThemselvesReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {

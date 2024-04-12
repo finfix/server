@@ -24,33 +24,33 @@ func (_m *MockAccountRepository) EXPECT() *MockAccountRepository_Expecter {
 	return &MockAccountRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, req
-func (_m *MockAccountRepository) Create(ctx context.Context, req model.CreateReq) (uint32, uint32, error) {
+// CreateAccount provides a mock function with given fields: ctx, req
+func (_m *MockAccountRepository) CreateAccount(ctx context.Context, req model.CreateAccountReq) (uint32, uint32, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Create")
+		panic("no return value specified for CreateAccount")
 	}
 
 	var r0 uint32
 	var r1 uint32
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) (uint32, uint32, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateAccountReq) (uint32, uint32, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) uint32); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateAccountReq) uint32); ok {
 		r0 = rf(ctx, req)
 	} else {
 		r0 = ret.Get(0).(uint32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.CreateReq) uint32); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.CreateAccountReq) uint32); ok {
 		r1 = rf(ctx, req)
 	} else {
 		r1 = ret.Get(1).(uint32)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, model.CreateReq) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, model.CreateAccountReq) error); ok {
 		r2 = rf(ctx, req)
 	} else {
 		r2 = ret.Error(2)
@@ -59,31 +59,31 @@ func (_m *MockAccountRepository) Create(ctx context.Context, req model.CreateReq
 	return r0, r1, r2
 }
 
-// MockAccountRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type MockAccountRepository_Create_Call struct {
+// MockAccountRepository_CreateAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAccount'
+type MockAccountRepository_CreateAccount_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
+// CreateAccount is a helper method to define mock.On call
 //   - ctx context.Context
-//   - req model.CreateReq
-func (_e *MockAccountRepository_Expecter) Create(ctx interface{}, req interface{}) *MockAccountRepository_Create_Call {
-	return &MockAccountRepository_Create_Call{Call: _e.mock.On("Create", ctx, req)}
+//   - req model.CreateAccountReq
+func (_e *MockAccountRepository_Expecter) CreateAccount(ctx interface{}, req interface{}) *MockAccountRepository_CreateAccount_Call {
+	return &MockAccountRepository_CreateAccount_Call{Call: _e.mock.On("CreateAccount", ctx, req)}
 }
 
-func (_c *MockAccountRepository_Create_Call) Run(run func(ctx context.Context, req model.CreateReq)) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) Run(run func(ctx context.Context, req model.CreateAccountReq)) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.CreateReq))
+		run(args[0].(context.Context), args[1].(model.CreateAccountReq))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Create_Call) Return(_a0 uint32, _a1 uint32, _a2 error) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) Return(_a0 uint32, _a1 uint32, _a2 error) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockAccountRepository_Create_Call) RunAndReturn(run func(context.Context, model.CreateReq) (uint32, uint32, error)) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) RunAndReturn(run func(context.Context, model.CreateAccountReq) (uint32, uint32, error)) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }

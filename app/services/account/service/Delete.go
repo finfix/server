@@ -7,14 +7,14 @@ import (
 	"server/app/services/generalRepository/checker"
 )
 
-// Delete удаляет счет
-func (s *Service) Delete(ctx context.Context, id model.DeleteReq) error {
+// DeleteAccount удаляет счет
+func (s *Service) DeleteAccount(ctx context.Context, id model.DeleteAccountReq) error {
 
 	// Проверяем доступ пользователя к счету
-	if err := s.general.CheckAccess(ctx, checker.Accounts, id.Necessary.UserID, []uint32{id.ID}); err != nil {
+	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, id.Necessary.UserID, []uint32{id.ID}); err != nil {
 		return err
 	}
 
 	// Удаляем счет
-	return s.accountRepository.Delete(ctx, id.ID)
+	return s.accountRepository.DeleteAccount(ctx, id.ID)
 }

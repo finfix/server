@@ -34,14 +34,14 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		}
 	}`)
 
-	validWant := &model.UpdateReq{
+	validWant := &model.UpdateAccountReq{
 		ID:         1,
 		Remainder:  pointer.Pointer(1.1),
 		Name:       pointer.Pointer("name"),
 		IconID:     pointer.Pointer(uint32(1)),
 		Visible:    pointer.Pointer(true),
 		Accounting: pointer.Pointer(true),
-		Budget: model.UpdateBudgetReq{
+		Budget: model.UpdateAccountBudgetReq{
 			Amount:         pointer.Pointer(1.1),
 			FixedSum:       pointer.Pointer(1.1),
 			DaysOffset:     pointer.Pointer(uint32(1)),
@@ -53,7 +53,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	for _, tt := range []struct {
 		message, body string
 		ctx           context.Context
-		want          *model.UpdateReq
+		want          *model.UpdateAccountReq
 		err           error
 	}{
 		{"1.Обычный запрос",
@@ -79,7 +79,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 				"accountGroupID": 1
 			}`,
 			testingFunc.GeneralCtx.Get(),
-			&model.UpdateReq{
+			&model.UpdateAccountReq{
 				ID:        1,
 				Necessary: testingFunc.ValidNecessary,
 			},

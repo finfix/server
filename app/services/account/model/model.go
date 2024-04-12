@@ -17,10 +17,10 @@ type Account struct {
 	ParentAccountID *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`     // Идентификатор родительского аккаунта
 	SerialNumber    uint32           `json:"serialNumber" db:"serial_number"`                                // Порядковый номер счета
 	IsParent        bool             `json:"isParent" db:"is_parent"`                                        // Является ли счет родительским
-	Budget          `json:"budget"`                                                                          // Бюджет
+	AccountBudget   `json:"budget"`                                                                          // Бюджет
 }
 
-type Budget struct {
+type AccountBudget struct {
 	Amount         float64 `json:"amount" db:"budget_amount"`                  // Сумма бюджета
 	FixedSum       float64 `json:"fixedSum" db:"budget_fixed_sum"`             // Фиксированная сумма
 	DaysOffset     uint32  `json:"daysOffset" db:"budget_days_offset"`         // Смещение в днях
@@ -33,10 +33,4 @@ type AccountGroup struct {
 	Currency     string `json:"currency" db:"currency_signatura"` // Валюта группы счетов
 	SerialNumber uint32 `json:"serialNumber" db:"serial_number"`  // Порядковый номер группы счетов
 	Visible      bool   `json:"visible" db:"visible"`             // Видимость группы счетов
-}
-
-type BalancingAmount struct {
-	Amount         float64 `db:"amount"`
-	Currency       string  `db:"currency_signatura"`
-	AccountGroupID uint32  `db:"account_group_id"`
 }

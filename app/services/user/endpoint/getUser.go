@@ -14,7 +14,6 @@ import (
 // @Tags user
 // @Security AuthJWT
 // @Produce json
-// @Param Authorization header string true
 // @Success 200 {object} model.User
 // @Failure 401,404,500 {object} errors.CustomError
 // @Router /user/ [get]
@@ -26,7 +25,7 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	// Вызываем метод сервиса
-	users, err := s.service.Get(ctx, req)
+	users, err := s.service.GetTransactions(ctx, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}

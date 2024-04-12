@@ -27,7 +27,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		"accounting":      "true",
 	})
 
-	validWant := &model.GetReq{
+	validWant := &model.GetAccountsReq{
 		Type:            pointer.Pointer(accountType.Expense),
 		AccountGroupIDs: []uint32{1, 2},
 		Accounting:      pointer.Pointer(true),
@@ -38,7 +38,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		message string
 		params  url.Values
 		ctx     context.Context
-		want    *model.GetReq
+		want    *model.GetAccountsReq
 		err     error
 	}{
 		{"1.Обычный запрос",
@@ -68,7 +68,7 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 		{"6.Пустой запрос",
 			nil,
 			testingFunc.GeneralCtx.Get(),
-			&model.GetReq{
+			&model.GetAccountsReq{
 				Necessary: testingFunc.ValidNecessary,
 			},
 			nil,

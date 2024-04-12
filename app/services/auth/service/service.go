@@ -25,7 +25,7 @@ type AuthRepository interface {
 }
 
 type UserService interface {
-	Get(context.Context, model2.GetReq) ([]model2.User, error)
+	GetTransactions(context.Context, model2.GetReq) ([]model2.User, error)
 	Create(context.Context, model2.CreateReq) (uint32, error)
 }
 
@@ -33,7 +33,7 @@ type UserService interface {
 func (s *Service) SignIn(ctx context.Context, loginData model3.SignInReq) (accessData model3.AuthRes, err error) {
 
 	// Получаем идентификатор пользователя
-	users, err := s.user.Get(ctx, model2.GetReq{Emails: []string{loginData.Email}})
+	users, err := s.user.GetTransactions(ctx, model2.GetReq{Emails: []string{loginData.Email}})
 	if err != nil {
 		return accessData, err
 	}
@@ -74,7 +74,7 @@ func (s *Service) SignIn(ctx context.Context, loginData model3.SignInReq) (acces
 func (s *Service) SignUp(ctx context.Context, user model3.SignUpReq) (accessData model3.AuthRes, err error) {
 
 	// Проверяем, есть ли пользователь в бд
-	if _users, err := s.user.Get(ctx, model2.GetReq{Emails: []string{user.Email}}); err != nil {
+	if _users, err := s.user.GetTransactions(ctx, model2.GetReq{Emails: []string{user.Email}}); err != nil {
 		return accessData, err
 	} else if len(_users) != 0 {
 		return accessData, errors.Forbidden.New("User with this email is already registered", errors.Options{

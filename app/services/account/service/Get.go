@@ -10,12 +10,12 @@ import (
 	"server/app/services/generalRepository/checker"
 )
 
-// Get возвращает все счета, удовлетворяющие фильтрам
-func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []model.Account, err error) {
+// GetAccounts возвращает все счета, удовлетворяющие фильтрам
+func (s *Service) GetAccounts(ctx context.Context, filters model.GetAccountsReq) (accounts []model.Account, err error) {
 
 	// Проверяем доступ пользователя к группам счетов
 	if len(filters.AccountGroupIDs) != 0 {
-		if err = s.general.CheckAccess(ctx, checker.AccountGroups, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
+		if err = s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
 			return nil, err
 		}
 	} else {
@@ -23,7 +23,7 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 	}
 
 	// Получаем все счета
-	accounts, err = s.accountRepository.Get(ctx, filters.ConvertToRepoReq())
+	accounts, err = s.accountRepository.GetAccounts(ctx, filters.ConvertToRepoReq())
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (s *Service) Get(ctx context.Context, filters model.GetReq) (accounts []mod
 	return accounts, nil
 }
 
-func (s *Service) calculateRemainders(ctx context.Context, filters model.GetReq) (map[uint32]float64, error) {
+func (s *Service) calculateRemainders(ctx context.Context, filters model.GetAccountsReq) (map[uint32]float64, error) {
 
 	// Считаем балансы обычных и долговых счетов
 	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{

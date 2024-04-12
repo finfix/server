@@ -4,14 +4,15 @@ import (
 	"server/app/pkg/datetime/date"
 	"server/app/services"
 	"server/app/services/transaction/model/transactionType"
+	repoModel "server/app/services/transaction/repository/model"
 )
 
-type DeleteReq struct {
+type DeleteTransactionReq struct {
 	Necessary services.NecessaryUserInformation
 	ID        uint32 `json:"id" validate:"required" minimum:"1"` // Идентификатор транзакции
 }
 
-type CreateReq struct {
+type CreateTransactionReq struct {
 	Necessary       services.NecessaryUserInformation
 	Type            transactionType.Type `json:"type" validate:"required"`                                                         // Тип транзакции
 	AmountFrom      float64              `json:"amountFrom" validate:"required" minimum:"1"`                                       // Сумма списания с первого счета
@@ -23,7 +24,21 @@ type CreateReq struct {
 	IsExecuted      *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
 }
 
-type UpdateReq struct {
+func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
+	return repoModel.CreateTransactionReq{
+		Type:            s.Type,
+		AmountFrom:      s.AmountFrom,
+		AmountTo:        s.AmountTo,
+		Note:            s.Note,
+		AccountFromID:   s.AccountFromID,
+		AccountToID:     s.AccountToID,
+		DateTransaction: s.DateTransaction,
+		IsExecuted:      s.IsExecuted,
+		CreatedByUserID: s.Necessary.UserID,
+	}
+}
+
+type UpdateTransactionReq struct {
 	Necessary       services.NecessaryUserInformation
 	ID              uint32     `json:"id" validate:"required" minimum:"1"`                           // Идентификатор транзакции
 	AmountFrom      *float64   `json:"amountFrom" minimum:"1"`                                       // Сумма списания с первого счета
@@ -35,7 +50,7 @@ type UpdateReq struct {
 	IsExecuted      *bool      `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
 }
 
-type GetReq struct {
+type GetTransactionsReq struct {
 	Necessary       services.NecessaryUserInformation
 	AccountID       *uint32               `json:"accountID" schema:"accountID" minimum:"1"`                                // Транзакции какого счета нас интересуют
 	Type            *transactionType.Type `json:"type" schema:"type" enums:"consumption,income,transfer"`                  // Тип транзакции

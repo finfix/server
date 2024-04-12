@@ -92,8 +92,8 @@ func (repo *Repository) GetCurrencies(ctx context.Context) (map[string]float64, 
 	return rates, nil
 }
 
-// CheckAccess проверяет, имеет ли пользователь доступ к указанным идентификаторам объектов
-func (repo *Repository) CheckAccess(ctx context.Context, checkType checker.CheckType, userID uint32, ids []uint32) error {
+// CheckUserAccessToObjects проверяет, имеет ли пользователь доступ к указанным идентификаторам объектов
+func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType checker.CheckType, userID uint32, ids []uint32) error {
 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 

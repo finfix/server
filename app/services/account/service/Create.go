@@ -9,11 +9,11 @@ import (
 	"server/app/services/generalRepository/checker"
 )
 
-// Create создает новый счет
-func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (res model.CreateRes, err error) {
+// CreateAccount создает новый счет
+func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.CreateAccountReq) (res model.CreateAccountRes, err error) {
 
 	// Проверяем доступ пользователя к группе счетов
-	if err = s.general.CheckAccess(ctx, checker.AccountGroups, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
+	if err = s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
 		return res, err
 	}
 
@@ -21,7 +21,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (
 	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Создаем счет
-		if res.ID, res.SerialNumber, err = s.accountRepository.Create(ctx, accountToCreate.ConvertToRepoReq()); err != nil {
+		if res.ID, res.SerialNumber, err = s.accountRepository.CreateAccount(ctx, accountToCreate.ConvertToRepoReq()); err != nil {
 			return err
 		}
 
@@ -29,7 +29,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (
 		if accountToCreate.Remainder != 0 {
 
 			// Получаем счет
-			accounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{IDs: []uint32{res.ID}})
+			accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}})
 			if err != nil {
 				return err
 			}
@@ -39,7 +39,7 @@ func (s *Service) Create(ctx context.Context, accountToCreate model.CreateReq) (
 			account := accounts[0]
 
 			// Меняем остаток счета созданием транзакции
-			updateRes, err := s.accountService.ChangeRemainder(ctxTx, account, account.Remainder)
+			updateRes, err := s.accountService.ChangeAccountRemainder(ctxTx, account, account.Remainder, accountToCreate.Necessary.UserID)
 			if err != nil {
 				return err
 			}

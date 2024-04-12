@@ -7,15 +7,14 @@ import (
 	"server/app/pkg/datetime/date"
 	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
-	"server/app/services"
 	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	accountRepoModel "server/app/services/account/repository/model"
-	transactionModel "server/app/services/transaction/model"
 	"server/app/services/transaction/model/transactionType"
+	transactionRepoModel "server/app/services/transaction/repository/model"
 )
 
-func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, remainderToUpdate float64) (res model.UpdateRes, err error) {
+func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate float64, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Получаем остаток счета
 	remainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
@@ -45,7 +44,7 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 	roundedAmount := math.Round((remainderToUpdate-remainders[account.ID])/rounding) * rounding
 
 	// Создаем транзакцию балансировки
-	balancingAccountID, err = s.transaction.Create(ctx, transactionModel.CreateReq{
+	balancingAccountID, err = s.transaction.CreateTransaction(ctx, transactionRepoModel.CreateTransactionReq{
 		Type:            transactionType.Balancing,
 		AmountFrom:      roundedAmount,
 		AmountTo:        roundedAmount,
@@ -53,9 +52,7 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 		AccountFromID:   balancingAccountID,
 		DateTransaction: date.Now(),
 		IsExecuted:      pointer.Pointer(true),
-		Necessary: services.NecessaryUserInformation{
-			//UserID: UserID, // TODO: Вынести отдельно структуру transactionModel.CreateReq и передавать в него UserID
-		},
+		CreatedByUserID: userID,
 	})
 	if err != nil {
 		return res, err
@@ -69,7 +66,7 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Account) (balancingAccountID uint32, serialNumber uint32, wasCreate bool, err error) {
 
 	// Получаем балансировочный счет группы в нужной валюте, чтобы создать для нее транзакцию
-	balancingAccounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{
+	balancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
 		Types:           []accountType.Type{accountType.Balancing},
 		AccountGroupIDs: []uint32{account.AccountGroupID},
 		Currencies:      []string{account.Currency},
@@ -85,7 +82,7 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 	}
 
 	// Получаем общий балансировочный счет
-	parentBalancingAccounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{
+	parentBalancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
 		Types:           []accountType.Type{accountType.Balancing},
 		AccountGroupIDs: []uint32{account.AccountGroupID},
 		IsParent:        pointer.Pointer(true),
@@ -107,7 +104,7 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 	parentBalancingAccount = parentBalancingAccounts[0]
 
 	// Создаем балансировочный счет
-	balancingAccountID, serialNumber, err = s.accountRepository.Create(ctx, accountRepoModel.CreateReq{
+	balancingAccountID, serialNumber, err = s.accountRepository.CreateAccount(ctx, accountRepoModel.CreateAccountReq{
 		Name:            "Балансировочный",
 		Visible:         parentBalancingAccount.Visible,
 		IconID:          0,

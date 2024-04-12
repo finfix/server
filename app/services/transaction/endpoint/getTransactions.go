@@ -16,7 +16,7 @@ import (
 // @Description Получение всех транзакций по фильтрам
 // @Tags transaction
 // @Security AuthJWT
-// @Param Query query model.GetReq true "model.CreateReq"
+// @Param Query query model.GetTransactionsReq true "model.CreateTransactionReq"
 // @Produce json
 // @Success 200 {object} []model.Transaction
 // @Failure 400,404,500 {object} errors.CustomError
@@ -30,10 +30,10 @@ func (s *endpoint) getTransactions(ctx context.Context, r *http.Request) (any, e
 	}
 
 	// Вызываем метод сервиса
-	return s.service.Get(ctx, req)
+	return s.service.GetTransactions(ctx, req)
 }
 
-func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.GetReq, err error) {
+func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.GetTransactionsReq, err error) {
 
 	// Декодируем параметры запроса в структуру
 	if err = schema.NewDecoder().Decode(&req, r.URL.Query()); err != nil {

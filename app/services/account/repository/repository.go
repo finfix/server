@@ -69,8 +69,8 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 	return accountGroups, nil
 }
 
-// Create создает новый счет
-func (repo *Repository) Create(ctx context.Context, account accountRepoModel.CreateReq) (id uint32, serialNumber uint32, err error) {
+// CreateAccount создает новый счет
+func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
 
 	// Создаем счет
 	id, err = repo.db.ExecWithLastInsertID(ctx, `
@@ -122,8 +122,8 @@ func (repo *Repository) Create(ctx context.Context, account accountRepoModel.Cre
 	return id, serialNumber, nil
 }
 
-// Get возвращает все счета, удовлетворяющие фильтрам
-func (repo *Repository) Get(ctx context.Context, req accountRepoModel.GetReq) (accounts []model.Account, err error) {
+// GetAccounts возвращает все счета, удовлетворяющие фильтрам
+func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
 
 	// Создаем конструктор запроса
 	var (
@@ -313,8 +313,8 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req acco
 	return amountMapToAccountID, nil
 }
 
-// Update обновляет счет
-func (repo *Repository) Update(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateReq) error {
+// UpdateAccount обновляет счет
+func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateAccountReq) error {
 
 	for id, fields := range updateReqs {
 
@@ -395,32 +395,12 @@ func (repo *Repository) Update(ctx context.Context, updateReqs map[uint32]accoun
 	return nil
 }
 
-// GetRemainder возвращает остаток на счете
-func (repo *Repository) GetRemainder(ctx context.Context, id uint32) (remainder float64, err error) {
-
-	// Отнимаем сумму транзакций, поступивших на счет из суммы транзакций, снятых со счета
-	return remainder, repo.db.QueryRow(ctx, `
-			SELECT 
-			  (
-			    SELECT COALESCE(SUM(amount_to), 0) 
-				FROM coin.transactions 
-				WHERE account_to_id = ?
-			  ) - (
-			    SELECT COALESCE(SUM(amount_from), 0) 
-				FROM coin.transactions
-				WHERE account_from_id = ?
-			  ) AS remainder`,
-		id,
-		id,
-	).Scan(&remainder)
-}
-
-// Delete удаляет счет
-func (repo *Repository) Delete(_ context.Context, _ uint32) error {
+// DeleteAccount удаляет счет
+func (repo *Repository) DeleteAccount(_ context.Context, _ uint32) error {
 	panic("implement me")
 }
 
-func (repo *Repository) Switch(ctx context.Context, id1, id2 uint32) error {
+func (repo *Repository) SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error {
 	return repo.db.Exec(ctx, `
 			UPDATE coin.accounts
 			SET serial_number = CASE

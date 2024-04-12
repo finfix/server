@@ -16,7 +16,7 @@ import (
 // @Tags account
 // @Security AuthJWT
 // @Accept json
-// @Param Body body model.UpdateReq true "model.UpdateReq"
+// @Param Body body model.UpdateAccountReq true "model.UpdateAccountReq"
 // @Produce json
 // @Success 200 "Если редактирование счета прошло успешно, возвращается пустой ответ"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
@@ -33,7 +33,7 @@ func (s *endpoint) updateAccount(ctx context.Context, r *http.Request) (any, err
 	return s.service.Update(ctx, req)
 }
 
-func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateReq, err error) {
+func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateAccountReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {

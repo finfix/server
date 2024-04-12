@@ -16,7 +16,7 @@ import (
 // @Description Удаление данных по счету
 // @Tags account
 // @Security AuthJWT
-// @Param Query query model.DeleteReq true "model.DeleteReq"
+// @Param Query query model.DeleteAccountReq true "model.DeleteAccountReq"
 // @Produce json
 // @Success 200 "Если удаление счета прошло успешно, возвращается пустой ответ"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
@@ -30,10 +30,10 @@ func (s *endpoint) deleteAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Delete(ctx, req)
+	return nil, s.service.DeleteAccount(ctx, req)
 }
 
-func decodeDeleteAccountReq(ctx context.Context, r *http.Request) (req model.DeleteReq, err error) {
+func decodeDeleteAccountReq(ctx context.Context, r *http.Request) (req model.DeleteAccountReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = schema.NewDecoder().Decode(&req, r.URL.Query()); err != nil {

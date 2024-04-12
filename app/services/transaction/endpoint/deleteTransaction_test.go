@@ -23,7 +23,7 @@ func TestDecodeDeleteReq(t *testing.T) {
 		"id": "1",
 	})
 
-	validWant := &model.DeleteReq{
+	validWant := &model.DeleteTransactionReq{
 		ID:        1,
 		Necessary: testingFunc.ValidNecessary,
 	}
@@ -32,7 +32,7 @@ func TestDecodeDeleteReq(t *testing.T) {
 		message string
 		params  url.Values
 		ctx     context.Context
-		want    *model.DeleteReq
+		want    *model.DeleteTransactionReq
 		err     error
 	}{
 		{"1.Обычный запрос",

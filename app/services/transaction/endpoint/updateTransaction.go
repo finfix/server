@@ -16,9 +16,8 @@ import (
 // @Tags transaction
 // @Security AuthJWT
 // @Accept json
-// @Param Body body model.UpdateReq true "model.CreateReq"
-// @Produce json
-// @Success 200 {object} model.UpdateRes
+// @Param Body body model.UpdateTransactionReq true "model.UpdateTransactionReq"
+// @Success 200 "При успешном выполнении запроса возвращает пустой ответ"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
 // @Router /transaction [patch]
 func (s *endpoint) updateTransaction(ctx context.Context, r *http.Request) (any, error) {
@@ -30,10 +29,10 @@ func (s *endpoint) updateTransaction(ctx context.Context, r *http.Request) (any,
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Update(ctx, req)
+	return nil, s.service.UpdateTransaction(ctx, req)
 }
 
-func decodeUpdateTransactionReq(ctx context.Context, r *http.Request) (req model.UpdateReq, err error) {
+func decodeUpdateTransactionReq(ctx context.Context, r *http.Request) (req model.UpdateTransactionReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {

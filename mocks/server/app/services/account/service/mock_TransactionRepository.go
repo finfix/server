@@ -4,7 +4,7 @@ package service
 
 import (
 	context "context"
-	model "server/app/services/transaction/model"
+	model "server/app/services/transaction/repository/model"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -22,26 +22,26 @@ func (_m *MockTransactionRepository) EXPECT() *MockTransactionRepository_Expecte
 	return &MockTransactionRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: _a0, _a1
-func (_m *MockTransactionRepository) Create(_a0 context.Context, _a1 model.CreateReq) (uint32, error) {
+// CreateTransaction provides a mock function with given fields: _a0, _a1
+func (_m *MockTransactionRepository) CreateTransaction(_a0 context.Context, _a1 model.CreateTransactionReq) (uint32, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Create")
+		panic("no return value specified for CreateTransaction")
 	}
 
 	var r0 uint32
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) (uint32, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateTransactionReq) (uint32, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) uint32); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateTransactionReq) uint32); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(uint32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.CreateReq) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.CreateTransactionReq) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
@@ -50,31 +50,31 @@ func (_m *MockTransactionRepository) Create(_a0 context.Context, _a1 model.Creat
 	return r0, r1
 }
 
-// MockTransactionRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type MockTransactionRepository_Create_Call struct {
+// MockTransactionRepository_CreateTransaction_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateTransaction'
+type MockTransactionRepository_CreateTransaction_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
+// CreateTransaction is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 model.CreateReq
-func (_e *MockTransactionRepository_Expecter) Create(_a0 interface{}, _a1 interface{}) *MockTransactionRepository_Create_Call {
-	return &MockTransactionRepository_Create_Call{Call: _e.mock.On("Create", _a0, _a1)}
+//   - _a1 model.CreateTransactionReq
+func (_e *MockTransactionRepository_Expecter) CreateTransaction(_a0 interface{}, _a1 interface{}) *MockTransactionRepository_CreateTransaction_Call {
+	return &MockTransactionRepository_CreateTransaction_Call{Call: _e.mock.On("CreateTransaction", _a0, _a1)}
 }
 
-func (_c *MockTransactionRepository_Create_Call) Run(run func(_a0 context.Context, _a1 model.CreateReq)) *MockTransactionRepository_Create_Call {
+func (_c *MockTransactionRepository_CreateTransaction_Call) Run(run func(_a0 context.Context, _a1 model.CreateTransactionReq)) *MockTransactionRepository_CreateTransaction_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.CreateReq))
+		run(args[0].(context.Context), args[1].(model.CreateTransactionReq))
 	})
 	return _c
 }
 
-func (_c *MockTransactionRepository_Create_Call) Return(_a0 uint32, _a1 error) *MockTransactionRepository_Create_Call {
+func (_c *MockTransactionRepository_CreateTransaction_Call) Return(_a0 uint32, _a1 error) *MockTransactionRepository_CreateTransaction_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockTransactionRepository_Create_Call) RunAndReturn(run func(context.Context, model.CreateReq) (uint32, error)) *MockTransactionRepository_Create_Call {
+func (_c *MockTransactionRepository_CreateTransaction_Call) RunAndReturn(run func(context.Context, model.CreateTransactionReq) (uint32, error)) *MockTransactionRepository_CreateTransaction_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -16,9 +16,9 @@ import (
 // @Tags account
 // @Security AuthJWT
 // @Accept json
-// @Param Body body model.CreateReq true "model.CreateReq"
+// @Param Body body model.CreateAccountReq true "model.CreateAccountReq"
 // @Produce json
-// @Success 200 {object} model.CreateRes
+// @Success 200 {object} model.CreateAccountRes
 // @Failure 400,401,403,500 {object} errors.CustomError
 // @Router /account [post]
 func (s *endpoint) createAccount(ctx context.Context, r *http.Request) (any, error) {
@@ -30,10 +30,10 @@ func (s *endpoint) createAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return s.service.Create(ctx, req)
+	return s.service.CreateAccount(ctx, req)
 }
 
-func decodeCreateAccountReq(ctx context.Context, r *http.Request) (req model.CreateReq, err error) {
+func decodeCreateAccountReq(ctx context.Context, r *http.Request) (req model.CreateAccountReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {

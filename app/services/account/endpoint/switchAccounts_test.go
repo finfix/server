@@ -22,7 +22,7 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 		"id2": 2
 	}`)
 
-	validWant := &model.SwitchReq{
+	validWant := &model.SwitchAccountBetweenThemselvesReq{
 		ID1:       1,
 		ID2:       2,
 		Necessary: testingFunc.ValidNecessary,
@@ -31,7 +31,7 @@ func TestDecodeSwitchAccountsReq(t *testing.T) {
 	for _, tt := range []struct {
 		message, body string
 		ctx           context.Context
-		want          *model.SwitchReq
+		want          *model.SwitchAccountBetweenThemselvesReq
 		err           error
 	}{
 		{"1.Обычный запрос",

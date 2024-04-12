@@ -16,14 +16,14 @@ var _ GeneralRepository = &generalRepository.Repository{}
 
 type UserRepository interface {
 	Create(context.Context, model2.CreateReq) (uint32, error)
-	Get(context.Context, model2.GetReq) ([]model2.User, error)
+	GetTransactions(context.Context, model2.GetReq) ([]model2.User, error)
 	GetCurrencies(context.Context) ([]model2.Currency, error)
 	LinkUserToAccountGroup(context.Context, uint32, uint32) error
 }
 
 type AccountRepository interface {
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
-	Create(ctx context.Context, req accountRepoModel.CreateReq) (uint32, uint32, error)
+	CreateAccount(ctx context.Context, req accountRepoModel.CreateAccountReq) (uint32, uint32, error)
 }
 
 type GeneralRepository interface {
@@ -42,9 +42,9 @@ func (s *Service) Create(ctx context.Context, user model2.CreateReq) (id uint32,
 	return s.user.Create(ctx, user)
 }
 
-// Get возвращает всех юзеров по фильтрам
-func (s *Service) Get(ctx context.Context, filters model2.GetReq) (users []model2.User, err error) {
-	return s.user.Get(ctx, filters)
+// GetTransactions возвращает всех юзеров по фильтрам
+func (s *Service) GetTransactions(ctx context.Context, filters model2.GetReq) (users []model2.User, err error) {
+	return s.user.GetTransactions(ctx, filters)
 }
 
 func (s *Service) GetCurrencies(ctx context.Context) ([]model2.Currency, error) {

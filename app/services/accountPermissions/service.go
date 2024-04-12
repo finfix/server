@@ -1,4 +1,4 @@
-package permissions
+package accountPermissions
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"server/app/services/account/model/accountType"
 )
 
-type Permissions struct {
+type AccountPermissions struct {
 	UpdateBudget          bool
 	UpdateRemainder       bool
 	UpdateCurrency        bool
@@ -23,11 +23,11 @@ type Permissions struct {
 type Service struct {
 	db                    sql.SQL
 	logger                *logging.Logger
-	typeToPermissions     map[accountType.Type]Permissions
-	isParentToPermissions map[bool]Permissions
+	typeToPermissions     map[accountType.Type]AccountPermissions
+	isParentToPermissions map[bool]AccountPermissions
 }
 
-var generalPermissions = Permissions{
+var generalPermissions = AccountPermissions{
 	UpdateBudget:          true,
 	UpdateRemainder:       true,
 	UpdateCurrency:        true,
@@ -36,11 +36,11 @@ var generalPermissions = Permissions{
 	CreateTransaction: true,
 }
 
-func (s *Service) GetPermissions(account model.Account) Permissions {
-	return joinPermissions(generalPermissions, s.typeToPermissions[account.Type], s.isParentToPermissions[account.IsParent])
+func (s *Service) GetAccountPermissions(account model.Account) AccountPermissions {
+	return joinAccountPermissions(generalPermissions, s.typeToPermissions[account.Type], s.isParentToPermissions[account.IsParent])
 }
 
-func (s *Service) CheckPermissions(req model.UpdateReq, permissions Permissions) error {
+func (s *Service) CheckAccountPermissions(req model.UpdateAccountReq, permissions AccountPermissions) error {
 
 	if (req.Budget.DaysOffset != nil || req.Budget.Amount != nil || req.Budget.FixedSum != nil || req.Budget.GradualFilling != nil) && !permissions.UpdateBudget {
 		return errors.BadRequest.New("Нельзя менять бюджет")
@@ -57,7 +57,7 @@ func (s *Service) CheckPermissions(req model.UpdateReq, permissions Permissions)
 	return nil
 }
 
-func joinPermissions(permissions ...Permissions) (joinedPermissions Permissions) {
+func joinAccountPermissions(permissions ...AccountPermissions) (joinedPermissions AccountPermissions) {
 	joinedPermissions = generalPermissions
 	for _, permission := range permissions {
 		joinedPermissions.UpdateBudget = joinedPermissions.UpdateBudget && permission.UpdateBudget
@@ -86,8 +86,8 @@ func (s *Service) refreshAccountPermissions(doOnce bool) error {
 }
 
 func (s *Service) getAccountPermissions(ctx context.Context) (
-	_ map[accountType.Type]Permissions,
-	_ map[bool]Permissions,
+	_ map[accountType.Type]AccountPermissions,
+	_ map[bool]AccountPermissions,
 	err error,
 ) {
 
@@ -99,8 +99,8 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 	}
 	defer rows.Close()
 
-	typeToPermissions := make(map[accountType.Type]Permissions)
-	isParentToPermissions := make(map[bool]Permissions)
+	typeToPermissions := make(map[accountType.Type]AccountPermissions)
+	isParentToPermissions := make(map[bool]AccountPermissions)
 
 	for rows.Next() {
 		var _accountType, actionType string
@@ -109,7 +109,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 			return nil, nil, err
 		}
 
-		var permission Permissions
+		var permission AccountPermissions
 		switch _accountType {
 		case "regular", "debt", "earnings", "expense", "balancing":
 			permission = typeToPermissions[accountType.Type(_accountType)]

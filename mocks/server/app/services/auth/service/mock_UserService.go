@@ -79,12 +79,12 @@ func (_c *MockUserService_Create_Call) RunAndReturn(run func(context.Context, mo
 	return _c
 }
 
-// Get provides a mock function with given fields: _a0, _a1
-func (_m *MockUserService) Get(_a0 context.Context, _a1 model.GetReq) ([]model.User, error) {
+// GetTransactions provides a mock function with given fields: _a0, _a1
+func (_m *MockUserService) GetTransactions(_a0 context.Context, _a1 model.GetReq) ([]model.User, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Get")
+		panic("no return value specified for GetTransactions")
 	}
 
 	var r0 []model.User
@@ -109,31 +109,31 @@ func (_m *MockUserService) Get(_a0 context.Context, _a1 model.GetReq) ([]model.U
 	return r0, r1
 }
 
-// MockUserService_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type MockUserService_Get_Call struct {
+// MockUserService_GetTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactions'
+type MockUserService_GetTransactions_Call struct {
 	*mock.Call
 }
 
-// Get is a helper method to define mock.On call
+// GetTransactions is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 model.GetReq
-func (_e *MockUserService_Expecter) Get(_a0 interface{}, _a1 interface{}) *MockUserService_Get_Call {
-	return &MockUserService_Get_Call{Call: _e.mock.On("Get", _a0, _a1)}
+func (_e *MockUserService_Expecter) GetTransactions(_a0 interface{}, _a1 interface{}) *MockUserService_GetTransactions_Call {
+	return &MockUserService_GetTransactions_Call{Call: _e.mock.On("GetTransactions", _a0, _a1)}
 }
 
-func (_c *MockUserService_Get_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockUserService_Get_Call {
+func (_c *MockUserService_GetTransactions_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockUserService_GetTransactions_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(model.GetReq))
 	})
 	return _c
 }
 
-func (_c *MockUserService_Get_Call) Return(_a0 []model.User, _a1 error) *MockUserService_Get_Call {
+func (_c *MockUserService_GetTransactions_Call) Return(_a0 []model.User, _a1 error) *MockUserService_GetTransactions_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockUserService_Get_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]model.User, error)) *MockUserService_Get_Call {
+func (_c *MockUserService_GetTransactions_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]model.User, error)) *MockUserService_GetTransactions_Call {
 	_c.Call.Return(run)
 	return _c
 }

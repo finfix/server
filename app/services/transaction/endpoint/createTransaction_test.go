@@ -30,7 +30,7 @@ func TestDecodeCreateReq(t *testing.T) {
 		"isExecuted": true
 	}`)
 
-	validWant := &model.CreateReq{
+	validWant := &model.CreateTransactionReq{
 		Type:            "income",
 		AmountFrom:      1.1,
 		AmountTo:        1.1,
@@ -45,7 +45,7 @@ func TestDecodeCreateReq(t *testing.T) {
 	for _, tt := range []struct {
 		message, body string
 		ctx           context.Context
-		want          *model.CreateReq
+		want          *model.CreateTransactionReq
 		err           error
 	}{
 		{"1.Обычный запрос",

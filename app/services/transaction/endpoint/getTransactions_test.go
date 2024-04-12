@@ -31,7 +31,7 @@ func TestDecodeGetReq(t *testing.T) {
 		"dateTo":    "2020-01-02",
 	})
 
-	validWant := &model.GetReq{
+	validWant := &model.GetTransactionsReq{
 		Offset:    pointer.Pointer(uint32(1)),
 		Limit:     pointer.Pointer(uint32(100)),
 		AccountID: pointer.Pointer(uint32(1)),
@@ -45,7 +45,7 @@ func TestDecodeGetReq(t *testing.T) {
 		message string
 		params  url.Values
 		ctx     context.Context
-		want    *model.GetReq
+		want    *model.GetTransactionsReq
 		err     error
 	}{
 		{"1.Обычный запрос",
@@ -69,7 +69,7 @@ func TestDecodeGetReq(t *testing.T) {
 		{"4.Пустой запрос",
 			nil,
 			testingFunc.GeneralCtx.Get(),
-			&model.GetReq{
+			&model.GetTransactionsReq{
 				Necessary: testingFunc.ValidNecessary,
 			},
 			nil,

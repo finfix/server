@@ -36,7 +36,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		}
 	}`)
 
-	validWant := &model.CreateReq{
+	validWant := &model.CreateAccountReq{
 		Remainder:      1.1,
 		Name:           "name",
 		IconID:         1,
@@ -44,7 +44,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		Currency:       "USD",
 		AccountGroupID: 1,
 		Accounting:     pointer.Pointer(true),
-		Budget: model.CreateBudgetReq{
+		Budget: model.CreateAccountBudgetReq{
 			Amount:         1.1,
 			FixedSum:       1.1,
 			DaysOffset:     1,
@@ -56,7 +56,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 	for _, tt := range []struct {
 		message, body string
 		ctx           context.Context
-		want          *model.CreateReq
+		want          *model.CreateAccountReq
 		err           error
 	}{
 		{"1.Обычный запрос",

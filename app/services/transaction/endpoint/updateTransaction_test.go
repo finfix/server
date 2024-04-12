@@ -30,7 +30,7 @@ func TestDecodeUpdateReq(t *testing.T) {
 		"isExecuted": true
 	}`)
 
-	validWant := &model.UpdateReq{
+	validWant := &model.UpdateTransactionReq{
 		ID:              1,
 		AmountFrom:      pointer.Pointer(1.1),
 		AmountTo:        pointer.Pointer(1.1),
@@ -45,7 +45,7 @@ func TestDecodeUpdateReq(t *testing.T) {
 	for _, tt := range []struct {
 		message, body string
 		ctx           context.Context
-		want          *model.UpdateReq
+		want          *model.UpdateTransactionReq
 		err           error
 	}{
 		{"1.Обычный запрос",
@@ -70,7 +70,7 @@ func TestDecodeUpdateReq(t *testing.T) {
 				"id": 1
 			}`,
 			testingFunc.GeneralCtx.Get(),
-			&model.UpdateReq{
+			&model.UpdateTransactionReq{
 				ID:        1,
 				Necessary: testingFunc.ValidNecessary,
 			},
