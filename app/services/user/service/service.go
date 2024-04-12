@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"server/app/pkg/logging"
-	"server/app/pkg/pointer"
 	accountModel "server/app/services/account/model"
-	"server/app/services/account/model/accountType"
+	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository"
 	model2 "server/app/services/user/model"
 	userRepository "server/app/services/user/repository"
@@ -24,7 +23,7 @@ type UserRepository interface {
 
 type AccountRepository interface {
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
-	Create(ctx context.Context, req accountModel.CreateReq) (uint32, uint32, error)
+	Create(ctx context.Context, req accountRepoModel.CreateReq) (uint32, uint32, error)
 }
 
 type GeneralRepository interface {
@@ -40,57 +39,7 @@ type Service struct {
 
 // Create создает нового пользователя
 func (s *Service) Create(ctx context.Context, user model2.CreateReq) (id uint32, err error) {
-
-	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
-
-		// Создаем пользователя
-		if id, err = s.user.Create(ctx, user); err != nil {
-			return err
-		}
-
-		// Создаем дефолтную группу счетов с новой группой юзеров
-		accountGroupID, err := s.account.CreateAccountGroup(ctx, accountModel.CreateAccountGroupReq{
-			Name:            "Личные",
-			AvailableBudget: 0,     // TODO: Передавать в запросе
-			Currency:        "RUB", // TODO: Передавать в запросе
-		})
-		if err != nil {
-			return err
-		}
-
-		// Связываем юзера с группой юзеров
-		err = s.user.LinkUserToAccountGroup(ctx, id, accountGroupID)
-		if err != nil {
-			return err
-		}
-
-		// TODO: Перенести в функцию создания группы счетов
-		// Создаем балансировочный счет для группы счетов
-		_, _, err = s.account.Create(ctx, accountModel.CreateReq{
-			Name:           "Балансировочный",
-			IconID:         0,
-			Type:           accountType.Balancing,
-			Currency:       "RUB",
-			AccountGroupID: accountGroupID,
-			Accounting:     pointer.Pointer(true),
-			Remainder:      0,
-			Budget: accountModel.CreateBudgetReq{
-				Amount:         0,
-				FixedSum:       0,
-				DaysOffset:     0,
-				GradualFilling: pointer.Pointer(true),
-			},
-		})
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
+	return s.user.Create(ctx, user)
 }
 
 // Get возвращает всех юзеров по фильтрам

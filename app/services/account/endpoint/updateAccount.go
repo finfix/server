@@ -30,7 +30,7 @@ func (s *endpoint) updateAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Update(ctx, req)
+	return s.service.Update(ctx, req)
 }
 
 func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateReq, err error) {

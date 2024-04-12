@@ -26,7 +26,6 @@ linters:
     - exportloopref # check for loop variable captured by a closure
     - forbidigo # check for forbidden imports
     - forcetypeassert # check for forced type assertions
-    - gocognit # check for high cognitive complexity
     - goconst # check for constants
     - gocritic # check for common mistakes in Go code
     - gocyclo # cyclomatic complexity
@@ -80,6 +79,7 @@ linters:
     - gci # check for common mistakes in Go code
     - gochecknoglobals # check for global variables
     - gochecknoinits # check for init functions
+    - gocognit # check for high cognitive complexity
     - godot # check for dot on end of comment
     - godox # check for to do comments
     - goerr113 # check for defining dynamic errors

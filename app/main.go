@@ -57,8 +57,8 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseDependency --parseInternal
 
-const version = "1.0.0"
-const build = "4"
+const version = "1.0.1"
+const build = "5"
 
 const (
 	readHeaderTimeout = 10 * time.Second

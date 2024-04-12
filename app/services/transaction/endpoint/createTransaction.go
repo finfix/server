@@ -8,7 +8,7 @@ import (
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
-	model2 "server/app/services/transaction/model"
+	"server/app/services/transaction/model"
 )
 
 // @Summary Создание транзакции
@@ -35,10 +35,10 @@ func (s *endpoint) createTransaction(ctx context.Context, r *http.Request) (any,
 		return nil, err
 	}
 
-	return model2.CreateRes{ID: id}, nil
+	return model.CreateRes{ID: id}, nil
 }
 
-func decodeCreateTransactionReq(ctx context.Context, r *http.Request) (req model2.CreateReq, err error) {
+func decodeCreateTransactionReq(ctx context.Context, r *http.Request) (req model.CreateReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {

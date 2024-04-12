@@ -4,7 +4,9 @@ on:
   workflow_call:
   pull_request:
     branches:
+      - main
       - release
+      - dev
 
 jobs:
   testing:
@@ -26,6 +28,10 @@ jobs:
         # Генерируем моки
       - name: Generate mocks
         run: mockery
+
+        # Генерируем swagger
+      - name: Generate swagger
+        run: go generate ./...
 
         # Тестируем код
       - name: Go test

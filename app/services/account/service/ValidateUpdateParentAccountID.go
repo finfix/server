@@ -5,6 +5,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/services/account/model"
+	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository/checker"
 )
 
@@ -15,7 +16,7 @@ func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account mod
 	}
 
 	// Получаем родительский счет
-	parentAccounts, err := s.accountRepository.Get(ctx, model.GetReq{IDs: []uint32{parentAccountID}})
+	parentAccounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{IDs: []uint32{parentAccountID}})
 	if err != nil {
 		return err
 	}

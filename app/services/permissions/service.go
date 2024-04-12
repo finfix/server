@@ -7,7 +7,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
-	model2 "server/app/services/account/model"
+	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 )
 
@@ -36,11 +36,11 @@ var generalPermissions = Permissions{
 	CreateTransaction: true,
 }
 
-func (s *Service) GetPermissions(account model2.Account) Permissions {
+func (s *Service) GetPermissions(account model.Account) Permissions {
 	return joinPermissions(generalPermissions, s.typeToPermissions[account.Type], s.isParentToPermissions[account.IsParent])
 }
 
-func (s *Service) CheckPermissions(req model2.UpdateReq, permissions Permissions) error {
+func (s *Service) CheckPermissions(req model.UpdateReq, permissions Permissions) error {
 
 	if (req.Budget.DaysOffset != nil || req.Budget.Amount != nil || req.Budget.FixedSum != nil || req.Budget.GradualFilling != nil) && !permissions.UpdateBudget {
 		return errors.BadRequest.New("Нельзя менять бюджет")
@@ -111,7 +111,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 
 		var permission Permissions
 		switch _accountType {
-		case "regular", "debt", "earnings", "expense":
+		case "regular", "debt", "earnings", "expense", "balancing":
 			permission = typeToPermissions[accountType.Type(_accountType)]
 		case "parent", "general": //nolint:goconst
 			permission = isParentToPermissions[_accountType == "parent"] //nolint:goconst
@@ -131,7 +131,7 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 		}
 
 		switch _accountType {
-		case "regular", "debt", "earnings", "expense":
+		case "regular", "debt", "earnings", "expense", "balancing":
 			typeToPermissions[accountType.Type(_accountType)] = permission
 		case "parent", "general":
 			isParentToPermissions[_accountType == "parent"] = permission
