@@ -45,9 +45,9 @@ func TestService_update(t *testing.T) {
 			},
 		}
 		updateRes = model.UpdateRes{
-			BalancingTransactionID:       2,
-			BalancingAccountID:           3,
-			BalancingAccountSerialNumber: 4,
+			BalancingTransactionID:       pointer.Pointer(uint32(2)),
+			BalancingAccountID:           pointer.Pointer(uint32(3)),
+			BalancingAccountSerialNumber: pointer.Pointer(uint32(4)),
 		}
 	)
 

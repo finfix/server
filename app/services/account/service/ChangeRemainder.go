@@ -35,8 +35,8 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 		return res, err
 	}
 	if wasCreate {
-		res.BalancingAccountID = balancingAccountID
-		res.BalancingTransactionID = serialNumber
+		res.BalancingAccountID = &balancingAccountID
+		res.BalancingTransactionID = &serialNumber
 	}
 
 	const rounding = 0.0000001
@@ -44,7 +44,7 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 	roundedAmount := math.Round((remainderToUpdate-remainders[account.ID])/rounding) * rounding
 
 	// Создаем транзакцию балансировки
-	if res.BalancingTransactionID, err = s.transaction.Create(ctx, transactionModel.CreateReq{
+	balancingAccountID, err = s.transaction.Create(ctx, transactionModel.CreateReq{
 		Type:            transactionType.Balancing,
 		AmountFrom:      roundedAmount,
 		AmountTo:        roundedAmount,
@@ -52,9 +52,11 @@ func (s *Service) ChangeRemainder(ctx context.Context, account model.Account, re
 		AccountFromID:   balancingAccountID,
 		DateTransaction: date.Now(),
 		IsExecuted:      pointer.Pointer(true),
-	}); err != nil {
+	})
+	if err != nil {
 		return res, err
 	}
+	res.BalancingAccountID = &balancingAccountID
 
 	return res, nil
 }
