@@ -207,7 +207,7 @@ func CORS(handler http.Handler) http.Handler {
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
 			logging.GetLogger().Panic(err)
-			middleware2.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
+			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 
 		handler.ServeHTTP(w, r)
