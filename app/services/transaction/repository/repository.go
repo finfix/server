@@ -28,7 +28,7 @@ func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req tr
               amount_to,  
               note,  
               is_executed,  
-              date_create,
+              datetime_create,
 			  created_by_user_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		req.Type,

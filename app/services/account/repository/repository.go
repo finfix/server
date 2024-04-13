@@ -72,6 +72,12 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 // CreateAccount создает новый счет
 func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
 
+	// Получаем текущий максимальный серийный номер
+	if err = repo.db.QueryRow(ctx, `SELECT MAX(serial_number) FROM coin.accounts`).Scan(&serialNumber); err != nil {
+		return id, serialNumber, err
+	}
+	serialNumber++
+
 	// Создаем счет
 	id, err = repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.accounts (
@@ -89,9 +95,9 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 			  budget_days_offset,        
 			  parent_account_id,
 			  created_by_user_id,
-			  time_create,
+			  datetime_create,
 			  serial_number
-		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
+		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? 
 		  	  FROM coin.accounts`,
 		account.Budget.Amount,
 		account.Name,
@@ -108,15 +114,9 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 		account.ParentAccountID,
 		account.UserID,
 		time.Now(),
+		serialNumber,
 	)
 	if err != nil {
-		return id, serialNumber, err
-	}
-	if err := repo.db.QueryRow(ctx, `
-		SELECT serial_number 
-		FROM coin.accounts 
-		WHERE id = ?`, id).
-		Scan(&serialNumber); err != nil {
 		return id, serialNumber, err
 	}
 	return id, serialNumber, nil
