@@ -39,32 +39,51 @@ func (s *GetAccountsReq) ConvertToRepoReq() repoModel.GetAccountsReq {
 }
 
 type CreateAccountReq struct {
-	Necessary      services.NecessaryUserInformation
-	Name           string                 `json:"name" validate:"required"`                                                          // Название счета
-	IconID         uint32                 `json:"iconID" validate:"required" minimum:"1"`                                            // Идентификатор иконки
-	Type           accountType.Type       `json:"type" validate:"required" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
-	Currency       string                 `json:"currency" validate:"required"`                                                      // Валюта счета
-	AccountGroupID uint32                 `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
-	Accounting     *bool                  `json:"accounting" validate:"required"`                                                    // Подсчет суммы счета в статистике
-	Remainder      float64                `json:"remainder"`                                                                         // Остаток средств на счету
-	Budget         CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
-	IsParent       *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
-	Visible        *bool                  `json:"-"`                                                                                 // Видимость счета
+	Necessary       services.NecessaryUserInformation
+	Name            string                 `json:"name" validate:"required"`                                                          // Название счета
+	IconID          uint32                 `json:"iconID" validate:"required" minimum:"1"`                                            // Идентификатор иконки
+	Type            accountType.Type       `json:"type" validate:"required" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
+	Currency        string                 `json:"currency" validate:"required"`                                                      // Валюта счета
+	AccountGroupID  uint32                 `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
+	Accounting      *bool                  `json:"accounting" validate:"required"`                                                    // Подсчет суммы счета в статистике
+	Remainder       float64                `json:"remainder"`                                                                         // Остаток средств на счету
+	Budget          CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
+	IsParent        *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
+	ParentAccountID *uint32                `json:"parentAccountID"`                                                                   // Идентификатор родительского счета
+	Visible         *bool                  `json:"-"`                                                                                 // Видимость счета
+}
+
+func (s *CreateAccountReq) ContertToAccount() Account {
+	return Account{
+		ID:              0,
+		Name:            s.Name,
+		IconID:          s.IconID,
+		Type:            s.Type,
+		Currency:        s.Currency,
+		AccountGroupID:  s.AccountGroupID,
+		Accounting:      *s.Accounting,
+		Remainder:       s.Remainder,
+		IsParent:        *s.IsParent,
+		Visible:         true,
+		ParentAccountID: s.ParentAccountID,
+		CreatedByUserID: &s.Necessary.UserID,
+	}
 }
 
 // TODO: Переписать
 func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 	return repoModel.CreateAccountReq{
-		Name:           s.Name,
-		IconID:         s.IconID,
-		Type:           s.Type,
-		Currency:       s.Currency,
-		AccountGroupID: s.AccountGroupID,
-		Accounting:     *s.Accounting,
-		Budget:         s.Budget.ConvertToRepoReq(),
-		IsParent:       *s.IsParent,
-		Visible:        true,
-		UserID:         s.Necessary.UserID,
+		Name:            s.Name,
+		IconID:          s.IconID,
+		Type:            s.Type,
+		Currency:        s.Currency,
+		AccountGroupID:  s.AccountGroupID,
+		Accounting:      *s.Accounting,
+		Budget:          s.Budget.ConvertToRepoReq(),
+		IsParent:        *s.IsParent,
+		Visible:         true,
+		ParentAccountID: s.ParentAccountID,
+		UserID:          s.Necessary.UserID,
 	}
 }
 

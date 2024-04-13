@@ -17,6 +17,18 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 		return res, err
 	}
 
+	// Проверяем, можно ли привязать счет к родительскому счету
+	if accountToCreate.ParentAccountID != nil {
+
+		// Представляем, что счет уже создан
+		account := accountToCreate.ContertToAccount()
+
+		// Проверяем возможность привязки
+		if err = s.ValidateUpdateParentAccountID(ctx, account, *accountToCreate.ParentAccountID, accountToCreate.Necessary.UserID); err != nil {
+			return res, err
+		}
+	}
+
 	// Создаем SQL-транзакцию
 	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
@@ -39,7 +51,7 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 			account := accounts[0]
 
 			// Меняем остаток счета созданием транзакции
-			updateRes, err := s.accountService.ChangeAccountRemainder(ctxTx, account, account.Remainder, accountToCreate.Necessary.UserID)
+			updateRes, err := s.accountService.ChangeAccountRemainder(ctxTx, account, accountToCreate.Remainder, accountToCreate.Necessary.UserID)
 			if err != nil {
 				return err
 			}
