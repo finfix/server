@@ -5,8 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"server/app/pkg/logging"
-	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	accountService "server/app/services/account/service"
 )
@@ -24,11 +23,9 @@ func NewEndpoint(service *accountService.Service) http.Handler {
 	}
 
 	options := []server.Option{
-		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
-		server.Before(middleware2.DefaultAuthorization),
-		server.ResponseEncoder(middleware2.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware2.DefaultErrorEncoder),
-		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+		server.Before(middleware.DefaultAuthorization),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}
 
 	router := mux.NewRouter()

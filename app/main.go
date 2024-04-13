@@ -12,12 +12,13 @@ import (
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
-	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
 	accountService "server/app/services/account/service"
+	accountPermisssionsService "server/app/services/accountPermissions"
 	adminEndpoint "server/app/services/admin/endpoint"
 	adminRepository "server/app/services/admin/repository"
 	adminService "server/app/services/admin/service"
@@ -25,7 +26,6 @@ import (
 	authRepository "server/app/services/auth/repository"
 	authService "server/app/services/auth/service"
 	"server/app/services/generalRepository"
-	accountPermisssionsService "server/app/services/permissions"
 	"server/app/services/scheduler"
 	tgBotService "server/app/services/tgBot/service"
 	transactionEndpoint "server/app/services/transaction/endpoint"
@@ -37,7 +37,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0
+// @version 1.0.1 (build 6)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -55,10 +55,10 @@ import (
 
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
 //go:generate go mod download
-//go:generate swag init -o docs --parseDependency --parseInternal
+//go:generate swag init -o docs --parseInternal
 
-const version = "1.0.0"
-const build = "3"
+const version = "1.0.1"
+const build = "6"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -80,7 +80,7 @@ func main() {
 	cfg := config.GetConfig()
 
 	// Передаем в middleware авторизации ключ
-	middleware2.NewAuthMiddleware(cfg.Token.SigningKey)
+	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
 	logger.Info("Подключаемся к БД")
@@ -207,7 +207,7 @@ func CORS(handler http.Handler) http.Handler {
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
 			logging.GetLogger().Panic(err)
-			middleware2.DefaultErrorEncoder(context.Background(), w, err, func(err error) {})
+			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 
 		handler.ServeHTTP(w, r)
@@ -224,6 +224,6 @@ func getVersionHandleFunc(version, build string) http.HandlerFunc {
 			Build:   build,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_ = middleware2.DefaultResponseEncoder(context.Background(), w, versionResponse)
+		_ = middleware.DefaultResponseEncoder(context.Background(), w, versionResponse)
 	}
 }

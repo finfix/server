@@ -10,11 +10,12 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
-	model2 "server/app/services/transaction/model"
+	"server/app/services/transaction/model"
+	transactionRepoModel "server/app/services/transaction/repository/model"
 )
 
-// Create создает новую транзакцию
-func (repo *TransactionRepository) Create(ctx context.Context, req model2.CreateReq) (id uint32, err error) {
+// CreateTransaction создает новую транзакцию
+func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req transactionRepoModel.CreateTransactionReq) (id uint32, err error) {
 
 	// Создаем транзакцию
 	if id, err = repo.db.ExecWithLastInsertID(ctx, `
@@ -27,8 +28,9 @@ func (repo *TransactionRepository) Create(ctx context.Context, req model2.Create
               amount_to,  
               note,  
               is_executed,  
-              date_create
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              datetime_create,
+			  created_by_user_id
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		req.Type,
 		req.DateTransaction,
 		req.AccountFromID,
@@ -38,35 +40,15 @@ func (repo *TransactionRepository) Create(ctx context.Context, req model2.Create
 		req.Note,
 		req.IsExecuted,
 		time.Now(),
+		req.CreatedByUserID,
 	); err != nil {
 		return id, err
 	}
 	return id, nil
 }
 
-// CreateTags создает и привязывает теги к транзакции
-func (repo *TransactionRepository) CreateTags(ctx context.Context, tags []string, transactionID uint32) error {
-
-	// TODO: Оптимизировать, см. кронтаб
-	// Для каждого тега делаем запись в таблицу
-	for _, tag := range tags {
-		if err := repo.db.Exec(ctx, `
-				INSERT INTO coin.tags_to_transaction (
-            	  transaction_id, 
-            	  tag_id
-            	) VALUES (? ,?)`,
-			transactionID,
-			tag,
-		); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Update редактирует транзакцию
-func (repo *TransactionRepository) Update(ctx context.Context, fields model2.UpdateReq) error {
+// UpdateTransaction редактирует транзакцию
+func (repo *TransactionRepository) UpdateTransaction(ctx context.Context, fields model.UpdateTransactionReq) error {
 
 	// Изменяем показатели транзакции
 	var (
@@ -126,8 +108,8 @@ func (repo *TransactionRepository) Update(ctx context.Context, fields model2.Upd
 	return repo.db.Exec(ctx, query, args...)
 }
 
-// Delete удаляет транзакцию
-func (repo *TransactionRepository) Delete(ctx context.Context, id, userID uint32) error {
+// DeleteTransaction удаляет транзакцию
+func (repo *TransactionRepository) DeleteTransaction(ctx context.Context, id, userID uint32) error {
 
 	// Удаляем транзакцию
 	rows, err := repo.db.ExecWithRowsAffected(ctx, `
@@ -152,8 +134,8 @@ func (repo *TransactionRepository) Delete(ctx context.Context, id, userID uint32
 	return nil
 }
 
-// Get возвращает все транзакции по фильтрам
-func (repo *TransactionRepository) Get(ctx context.Context, req model2.GetReq) (transactions []model2.Transaction, err error) {
+// GetTransactions возвращает все транзакции по фильтрам
+func (repo *TransactionRepository) GetTransactions(ctx context.Context, req model.GetTransactionsReq) (transactions []model.Transaction, err error) {
 
 	var (
 		args        []any
@@ -194,7 +176,7 @@ func (repo *TransactionRepository) Get(ctx context.Context, req model2.GetReq) (
 		   WHERE %v
            ORDER BY 
              t.date_transaction DESC,
-             t.date_create DESC`,
+             t.datetime_create DESC`,
 		strings.Join(queryFields, " AND "),
 	)
 
@@ -216,25 +198,6 @@ func (repo *TransactionRepository) Get(ctx context.Context, req model2.GetReq) (
 	}
 
 	return transactions, nil
-}
-
-// GetTags возвращает все теги по списку транзакций
-// TODO: Поменять на мапу
-func (repo *TransactionRepository) GetTags(ctx context.Context, ids []uint32) (tags []model2.Tag, err error) {
-
-	// Конструируем запрос
-	query, args, err := repo.db.In(`
-			SELECT * 
-			FROM coin.tags_to_transaction 
-			WHERE transaction_id IN (?)`,
-		ids,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	// Получаем теги
-	return tags, repo.db.Select(ctx, &tags, query, args...)
 }
 
 type TransactionRepository struct {

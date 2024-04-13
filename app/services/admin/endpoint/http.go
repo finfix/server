@@ -8,8 +8,7 @@ import (
 
 	"server/app/config"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
-	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	adminService "server/app/services/admin/service"
 )
@@ -40,11 +39,9 @@ func NewEndpoint(service *adminService.Service) http.Handler {
 	}
 
 	options := []server.Option{
-		server.LoggingRequest(logging.DefaultRequestLoggerFunc),
 		server.Before(authorization),
-		server.ResponseEncoder(middleware2.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware2.DefaultErrorEncoder),
-		server.ErrorLoggingFunc(logging.DefaultErrorLoggerFunc),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}
 
 	r := mux.NewRouter()

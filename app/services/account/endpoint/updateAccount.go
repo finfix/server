@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
+	"server/app/services"
 	"server/app/services/account/model"
 )
 
@@ -16,7 +16,7 @@ import (
 // @Tags account
 // @Security AuthJWT
 // @Accept json
-// @Param Body body model.UpdateReq true "model.UpdateReq"
+// @Param Body body model.UpdateAccountReq true "model.UpdateAccountReq"
 // @Produce json
 // @Success 200 "Если редактирование счета прошло успешно, возвращается пустой ответ"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
@@ -30,10 +30,10 @@ func (s *endpoint) updateAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Update(ctx, req)
+	return s.service.Update(ctx, req)
 }
 
-func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateReq, err error) {
+func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateAccountReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -41,8 +41,10 @@ func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.Upd
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
-	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
+	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
+	if err != nil {
+		return req, err
+	}
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)
