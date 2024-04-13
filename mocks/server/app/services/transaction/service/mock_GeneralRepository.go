@@ -22,12 +22,12 @@ func (_m *MockGeneralRepository) EXPECT() *MockGeneralRepository_Expecter {
 	return &MockGeneralRepository_Expecter{mock: &_m.Mock}
 }
 
-// CheckAccess provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *MockGeneralRepository) CheckAccess(_a0 context.Context, _a1 checker.CheckType, _a2 uint32, _a3 []uint32) error {
+// CheckUserAccessToObjects provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *MockGeneralRepository) CheckUserAccessToObjects(_a0 context.Context, _a1 checker.CheckType, _a2 uint32, _a3 []uint32) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CheckAccess")
+		panic("no return value specified for CheckUserAccessToObjects")
 	}
 
 	var r0 error
@@ -40,33 +40,33 @@ func (_m *MockGeneralRepository) CheckAccess(_a0 context.Context, _a1 checker.Ch
 	return r0
 }
 
-// MockGeneralRepository_CheckAccess_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckAccess'
-type MockGeneralRepository_CheckAccess_Call struct {
+// MockGeneralRepository_CheckUserAccessToObjects_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CheckUserAccessToObjects'
+type MockGeneralRepository_CheckUserAccessToObjects_Call struct {
 	*mock.Call
 }
 
-// CheckAccess is a helper method to define mock.On call
+// CheckUserAccessToObjects is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 checker.CheckType
 //   - _a2 uint32
 //   - _a3 []uint32
-func (_e *MockGeneralRepository_Expecter) CheckAccess(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *MockGeneralRepository_CheckAccess_Call {
-	return &MockGeneralRepository_CheckAccess_Call{Call: _e.mock.On("CheckAccess", _a0, _a1, _a2, _a3)}
+func (_e *MockGeneralRepository_Expecter) CheckUserAccessToObjects(_a0 interface{}, _a1 interface{}, _a2 interface{}, _a3 interface{}) *MockGeneralRepository_CheckUserAccessToObjects_Call {
+	return &MockGeneralRepository_CheckUserAccessToObjects_Call{Call: _e.mock.On("CheckUserAccessToObjects", _a0, _a1, _a2, _a3)}
 }
 
-func (_c *MockGeneralRepository_CheckAccess_Call) Run(run func(_a0 context.Context, _a1 checker.CheckType, _a2 uint32, _a3 []uint32)) *MockGeneralRepository_CheckAccess_Call {
+func (_c *MockGeneralRepository_CheckUserAccessToObjects_Call) Run(run func(_a0 context.Context, _a1 checker.CheckType, _a2 uint32, _a3 []uint32)) *MockGeneralRepository_CheckUserAccessToObjects_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(checker.CheckType), args[2].(uint32), args[3].([]uint32))
 	})
 	return _c
 }
 
-func (_c *MockGeneralRepository_CheckAccess_Call) Return(_a0 error) *MockGeneralRepository_CheckAccess_Call {
+func (_c *MockGeneralRepository_CheckUserAccessToObjects_Call) Return(_a0 error) *MockGeneralRepository_CheckUserAccessToObjects_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockGeneralRepository_CheckAccess_Call) RunAndReturn(run func(context.Context, checker.CheckType, uint32, []uint32) error) *MockGeneralRepository_CheckAccess_Call {
+func (_c *MockGeneralRepository_CheckUserAccessToObjects_Call) RunAndReturn(run func(context.Context, checker.CheckType, uint32, []uint32) error) *MockGeneralRepository_CheckUserAccessToObjects_Call {
 	_c.Call.Return(run)
 	return _c
 }

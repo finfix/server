@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
+	"server/app/services"
 	"server/app/services/user/model"
 )
 
@@ -14,7 +14,6 @@ import (
 // @Tags user
 // @Security AuthJWT
 // @Produce json
-// @Param Authorization header string true "Бла бла бла"
 // @Success 200 {object} model.User
 // @Failure 401,404,500 {object} errors.CustomError
 // @Router /user/ [get]
@@ -26,14 +25,14 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	// Вызываем метод сервиса
-	users, err := s.service.Get(ctx, req)
+	users, err := s.service.GetTransactions(ctx, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
 	if len(users) == 0 {
-		return nil, errors.NotFound.New("Пользователь не найден", errors.Options{Params: map[string]any{
-			"UserID": req.ID,
+		return nil, errors.InternalServer.New("Пользователь не найден", errors.Options{Params: map[string]any{
+			"UserID": req.Necessary.UserID,
 		}})
 	}
 
@@ -44,7 +43,10 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 func decodeGetUserReq(ctx context.Context, _ *http.Request) (req model.GetReq, err error) {
 
 	// Заполняем поля из контекста
-	req.ID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
+	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
+	if err != nil {
+		return req, err
+	}
 
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)

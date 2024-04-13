@@ -8,7 +8,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
-	testingFunc2 "server/app/pkg/testingFunc"
+	"server/app/pkg/testingFunc"
 	"server/app/services/auth/model"
 )
 
@@ -16,7 +16,7 @@ func TestDecodeRefreshTokens(t *testing.T) {
 
 	logging.Off()
 
-	validJSON := testingFunc2.NewJSONUpdater(t, `{
+	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"token": "token"
 	}`)
 
@@ -33,7 +33,7 @@ func TestDecodeRefreshTokens(t *testing.T) {
 			nil,
 		},
 		{"2.Невалидный json",
-			testingFunc2.InvalidJSON,
+			testingFunc.InvalidJSON,
 			nil,
 			errors.BadRequest.New("invalid"),
 		},
@@ -51,11 +51,11 @@ func TestDecodeRefreshTokens(t *testing.T) {
 		t.Run(tt.message, func(t *testing.T) {
 
 			res, err := decodeRefreshTokensReq(context.Background(), httptest.NewRequest("", "/", strings.NewReader(tt.body)))
-			if testingFunc2.CheckError(t, tt.err, err) {
+			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
 
-			testingFunc2.CheckStruct(t, *tt.want, res, nil)
+			testingFunc.CheckStruct(t, *tt.want, res, nil)
 		})
 	}
 }

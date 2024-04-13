@@ -8,7 +8,7 @@ import (
 	"server/app/pkg/logging"
 )
 
-func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, er error, loggingFunc func(error)) {
+func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, er error) {
 
 	if er == nil {
 		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", errors.Options{
@@ -19,7 +19,14 @@ func DefaultErrorEncoder(_ context.Context, w http.ResponseWriter, er error, log
 	err := errors.CastError(er)
 	err.HumanText = humanTextByLevel[err.ErrorType]
 
-	loggingFunc(err)
+	logger := logging.GetLogger()
+
+	switch err.LogAs {
+	case errors.LogAsError:
+		logger.Error(err)
+	case errors.LogAsWarning:
+		logger.Warning(err)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(int(err.ErrorType))

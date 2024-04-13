@@ -24,20 +24,20 @@ func (_m *MockAccountRepository) EXPECT() *MockAccountRepository_Expecter {
 	return &MockAccountRepository_Expecter{mock: &_m.Mock}
 }
 
-// Get provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) Get(_a0 context.Context, _a1 model.GetReq) ([]accountmodel.Account, error) {
+// GetAccounts provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) GetAccounts(_a0 context.Context, _a1 model.GetAccountsReq) ([]accountmodel.Account, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Get")
+		panic("no return value specified for GetAccounts")
 	}
 
 	var r0 []accountmodel.Account
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) ([]accountmodel.Account, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetAccountsReq) ([]accountmodel.Account, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) []accountmodel.Account); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetAccountsReq) []accountmodel.Account); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
@@ -45,7 +45,7 @@ func (_m *MockAccountRepository) Get(_a0 context.Context, _a1 model.GetReq) ([]a
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.GetReq) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.GetAccountsReq) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
@@ -54,31 +54,31 @@ func (_m *MockAccountRepository) Get(_a0 context.Context, _a1 model.GetReq) ([]a
 	return r0, r1
 }
 
-// MockAccountRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type MockAccountRepository_Get_Call struct {
+// MockAccountRepository_GetAccounts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccounts'
+type MockAccountRepository_GetAccounts_Call struct {
 	*mock.Call
 }
 
-// Get is a helper method to define mock.On call
+// GetAccounts is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 model.GetReq
-func (_e *MockAccountRepository_Expecter) Get(_a0 interface{}, _a1 interface{}) *MockAccountRepository_Get_Call {
-	return &MockAccountRepository_Get_Call{Call: _e.mock.On("Get", _a0, _a1)}
+//   - _a1 model.GetAccountsReq
+func (_e *MockAccountRepository_Expecter) GetAccounts(_a0 interface{}, _a1 interface{}) *MockAccountRepository_GetAccounts_Call {
+	return &MockAccountRepository_GetAccounts_Call{Call: _e.mock.On("GetAccounts", _a0, _a1)}
 }
 
-func (_c *MockAccountRepository_Get_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockAccountRepository_Get_Call {
+func (_c *MockAccountRepository_GetAccounts_Call) Run(run func(_a0 context.Context, _a1 model.GetAccountsReq)) *MockAccountRepository_GetAccounts_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.GetReq))
+		run(args[0].(context.Context), args[1].(model.GetAccountsReq))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Get_Call) Return(_a0 []accountmodel.Account, _a1 error) *MockAccountRepository_Get_Call {
+func (_c *MockAccountRepository_GetAccounts_Call) Return(_a0 []accountmodel.Account, _a1 error) *MockAccountRepository_GetAccounts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAccountRepository_Get_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]accountmodel.Account, error)) *MockAccountRepository_Get_Call {
+func (_c *MockAccountRepository_GetAccounts_Call) RunAndReturn(run func(context.Context, model.GetAccountsReq) ([]accountmodel.Account, error)) *MockAccountRepository_GetAccounts_Call {
 	_c.Call.Return(run)
 	return _c
 }

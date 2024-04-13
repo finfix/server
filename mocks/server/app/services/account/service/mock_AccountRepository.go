@@ -83,33 +83,33 @@ func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) RunAndReturn(ru
 	return _c
 }
 
-// Create provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) Create(_a0 context.Context, _a1 model.CreateReq) (uint32, uint32, error) {
+// CreateAccount provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) CreateAccount(_a0 context.Context, _a1 model.CreateAccountReq) (uint32, uint32, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Create")
+		panic("no return value specified for CreateAccount")
 	}
 
 	var r0 uint32
 	var r1 uint32
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) (uint32, uint32, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateAccountReq) (uint32, uint32, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.CreateReq) uint32); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateAccountReq) uint32); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Get(0).(uint32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.CreateReq) uint32); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.CreateAccountReq) uint32); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Get(1).(uint32)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context, model.CreateReq) error); ok {
+	if rf, ok := ret.Get(2).(func(context.Context, model.CreateAccountReq) error); ok {
 		r2 = rf(_a0, _a1)
 	} else {
 		r2 = ret.Error(2)
@@ -118,31 +118,31 @@ func (_m *MockAccountRepository) Create(_a0 context.Context, _a1 model.CreateReq
 	return r0, r1, r2
 }
 
-// MockAccountRepository_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
-type MockAccountRepository_Create_Call struct {
+// MockAccountRepository_CreateAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAccount'
+type MockAccountRepository_CreateAccount_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
+// CreateAccount is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 model.CreateReq
-func (_e *MockAccountRepository_Expecter) Create(_a0 interface{}, _a1 interface{}) *MockAccountRepository_Create_Call {
-	return &MockAccountRepository_Create_Call{Call: _e.mock.On("Create", _a0, _a1)}
+//   - _a1 model.CreateAccountReq
+func (_e *MockAccountRepository_Expecter) CreateAccount(_a0 interface{}, _a1 interface{}) *MockAccountRepository_CreateAccount_Call {
+	return &MockAccountRepository_CreateAccount_Call{Call: _e.mock.On("CreateAccount", _a0, _a1)}
 }
 
-func (_c *MockAccountRepository_Create_Call) Run(run func(_a0 context.Context, _a1 model.CreateReq)) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) Run(run func(_a0 context.Context, _a1 model.CreateAccountReq)) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.CreateReq))
+		run(args[0].(context.Context), args[1].(model.CreateAccountReq))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Create_Call) Return(_a0 uint32, _a1 uint32, _a2 error) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) Return(_a0 uint32, _a1 uint32, _a2 error) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Return(_a0, _a1, _a2)
 	return _c
 }
 
-func (_c *MockAccountRepository_Create_Call) RunAndReturn(run func(context.Context, model.CreateReq) (uint32, uint32, error)) *MockAccountRepository_Create_Call {
+func (_c *MockAccountRepository_CreateAccount_Call) RunAndReturn(run func(context.Context, model.CreateAccountReq) (uint32, uint32, error)) *MockAccountRepository_CreateAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -204,12 +204,12 @@ func (_c *MockAccountRepository_CreateAccountGroup_Call) RunAndReturn(run func(c
 	return _c
 }
 
-// Delete provides a mock function with given fields: ctx, id
-func (_m *MockAccountRepository) Delete(ctx context.Context, id uint32) error {
+// DeleteAccount provides a mock function with given fields: ctx, id
+func (_m *MockAccountRepository) DeleteAccount(ctx context.Context, id uint32) error {
 	ret := _m.Called(ctx, id)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Delete")
+		panic("no return value specified for DeleteAccount")
 	}
 
 	var r0 error
@@ -222,90 +222,31 @@ func (_m *MockAccountRepository) Delete(ctx context.Context, id uint32) error {
 	return r0
 }
 
-// MockAccountRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
-type MockAccountRepository_Delete_Call struct {
+// MockAccountRepository_DeleteAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteAccount'
+type MockAccountRepository_DeleteAccount_Call struct {
 	*mock.Call
 }
 
-// Delete is a helper method to define mock.On call
+// DeleteAccount is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id uint32
-func (_e *MockAccountRepository_Expecter) Delete(ctx interface{}, id interface{}) *MockAccountRepository_Delete_Call {
-	return &MockAccountRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, id)}
+func (_e *MockAccountRepository_Expecter) DeleteAccount(ctx interface{}, id interface{}) *MockAccountRepository_DeleteAccount_Call {
+	return &MockAccountRepository_DeleteAccount_Call{Call: _e.mock.On("DeleteAccount", ctx, id)}
 }
 
-func (_c *MockAccountRepository_Delete_Call) Run(run func(ctx context.Context, id uint32)) *MockAccountRepository_Delete_Call {
+func (_c *MockAccountRepository_DeleteAccount_Call) Run(run func(ctx context.Context, id uint32)) *MockAccountRepository_DeleteAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uint32))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Delete_Call) Return(_a0 error) *MockAccountRepository_Delete_Call {
+func (_c *MockAccountRepository_DeleteAccount_Call) Return(_a0 error) *MockAccountRepository_DeleteAccount_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockAccountRepository_Delete_Call) RunAndReturn(run func(context.Context, uint32) error) *MockAccountRepository_Delete_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// Get provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) Get(_a0 context.Context, _a1 model.GetReq) ([]accountmodel.Account, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for Get")
-	}
-
-	var r0 []accountmodel.Account
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) ([]accountmodel.Account, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) []accountmodel.Account); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]accountmodel.Account)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, model.GetReq) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockAccountRepository_Get_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Get'
-type MockAccountRepository_Get_Call struct {
-	*mock.Call
-}
-
-// Get is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 model.GetReq
-func (_e *MockAccountRepository_Expecter) Get(_a0 interface{}, _a1 interface{}) *MockAccountRepository_Get_Call {
-	return &MockAccountRepository_Get_Call{Call: _e.mock.On("Get", _a0, _a1)}
-}
-
-func (_c *MockAccountRepository_Get_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockAccountRepository_Get_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.GetReq))
-	})
-	return _c
-}
-
-func (_c *MockAccountRepository_Get_Call) Return(_a0 []accountmodel.Account, _a1 error) *MockAccountRepository_Get_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockAccountRepository_Get_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]accountmodel.Account, error)) *MockAccountRepository_Get_Call {
+func (_c *MockAccountRepository_DeleteAccount_Call) RunAndReturn(run func(context.Context, uint32) error) *MockAccountRepository_DeleteAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -369,12 +310,71 @@ func (_c *MockAccountRepository_GetAccountGroups_Call) RunAndReturn(run func(con
 	return _c
 }
 
-// Switch provides a mock function with given fields: ctx, id1, id2
-func (_m *MockAccountRepository) Switch(ctx context.Context, id1 uint32, id2 uint32) error {
+// GetAccounts provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) GetAccounts(_a0 context.Context, _a1 model.GetAccountsReq) ([]accountmodel.Account, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccounts")
+	}
+
+	var r0 []accountmodel.Account
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetAccountsReq) ([]accountmodel.Account, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetAccountsReq) []accountmodel.Account); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]accountmodel.Account)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, model.GetAccountsReq) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAccountRepository_GetAccounts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccounts'
+type MockAccountRepository_GetAccounts_Call struct {
+	*mock.Call
+}
+
+// GetAccounts is a helper method to define mock.On call
+//   - _a0 context.Context
+//   - _a1 model.GetAccountsReq
+func (_e *MockAccountRepository_Expecter) GetAccounts(_a0 interface{}, _a1 interface{}) *MockAccountRepository_GetAccounts_Call {
+	return &MockAccountRepository_GetAccounts_Call{Call: _e.mock.On("GetAccounts", _a0, _a1)}
+}
+
+func (_c *MockAccountRepository_GetAccounts_Call) Run(run func(_a0 context.Context, _a1 model.GetAccountsReq)) *MockAccountRepository_GetAccounts_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(model.GetAccountsReq))
+	})
+	return _c
+}
+
+func (_c *MockAccountRepository_GetAccounts_Call) Return(_a0 []accountmodel.Account, _a1 error) *MockAccountRepository_GetAccounts_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAccountRepository_GetAccounts_Call) RunAndReturn(run func(context.Context, model.GetAccountsReq) ([]accountmodel.Account, error)) *MockAccountRepository_GetAccounts_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// SwitchAccountsBetweenThemselves provides a mock function with given fields: ctx, id1, id2
+func (_m *MockAccountRepository) SwitchAccountsBetweenThemselves(ctx context.Context, id1 uint32, id2 uint32) error {
 	ret := _m.Called(ctx, id1, id2)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Switch")
+		panic("no return value specified for SwitchAccountsBetweenThemselves")
 	}
 
 	var r0 error
@@ -387,46 +387,46 @@ func (_m *MockAccountRepository) Switch(ctx context.Context, id1 uint32, id2 uin
 	return r0
 }
 
-// MockAccountRepository_Switch_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Switch'
-type MockAccountRepository_Switch_Call struct {
+// MockAccountRepository_SwitchAccountsBetweenThemselves_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SwitchAccountsBetweenThemselves'
+type MockAccountRepository_SwitchAccountsBetweenThemselves_Call struct {
 	*mock.Call
 }
 
-// Switch is a helper method to define mock.On call
+// SwitchAccountsBetweenThemselves is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id1 uint32
 //   - id2 uint32
-func (_e *MockAccountRepository_Expecter) Switch(ctx interface{}, id1 interface{}, id2 interface{}) *MockAccountRepository_Switch_Call {
-	return &MockAccountRepository_Switch_Call{Call: _e.mock.On("Switch", ctx, id1, id2)}
+func (_e *MockAccountRepository_Expecter) SwitchAccountsBetweenThemselves(ctx interface{}, id1 interface{}, id2 interface{}) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
+	return &MockAccountRepository_SwitchAccountsBetweenThemselves_Call{Call: _e.mock.On("SwitchAccountsBetweenThemselves", ctx, id1, id2)}
 }
 
-func (_c *MockAccountRepository_Switch_Call) Run(run func(ctx context.Context, id1 uint32, id2 uint32)) *MockAccountRepository_Switch_Call {
+func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) Run(run func(ctx context.Context, id1 uint32, id2 uint32)) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uint32), args[2].(uint32))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Switch_Call) Return(_a0 error) *MockAccountRepository_Switch_Call {
+func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) Return(_a0 error) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockAccountRepository_Switch_Call) RunAndReturn(run func(context.Context, uint32, uint32) error) *MockAccountRepository_Switch_Call {
+func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) RunAndReturn(run func(context.Context, uint32, uint32) error) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// Update provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) Update(_a0 context.Context, _a1 map[uint32]model.UpdateReq) error {
+// UpdateAccount provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) UpdateAccount(_a0 context.Context, _a1 map[uint32]model.UpdateAccountReq) error {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Update")
+		panic("no return value specified for UpdateAccount")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, map[uint32]model.UpdateReq) error); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, map[uint32]model.UpdateAccountReq) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -435,31 +435,31 @@ func (_m *MockAccountRepository) Update(_a0 context.Context, _a1 map[uint32]mode
 	return r0
 }
 
-// MockAccountRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
-type MockAccountRepository_Update_Call struct {
+// MockAccountRepository_UpdateAccount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateAccount'
+type MockAccountRepository_UpdateAccount_Call struct {
 	*mock.Call
 }
 
-// Update is a helper method to define mock.On call
+// UpdateAccount is a helper method to define mock.On call
 //   - _a0 context.Context
-//   - _a1 map[uint32]model.UpdateReq
-func (_e *MockAccountRepository_Expecter) Update(_a0 interface{}, _a1 interface{}) *MockAccountRepository_Update_Call {
-	return &MockAccountRepository_Update_Call{Call: _e.mock.On("Update", _a0, _a1)}
+//   - _a1 map[uint32]model.UpdateAccountReq
+func (_e *MockAccountRepository_Expecter) UpdateAccount(_a0 interface{}, _a1 interface{}) *MockAccountRepository_UpdateAccount_Call {
+	return &MockAccountRepository_UpdateAccount_Call{Call: _e.mock.On("UpdateAccount", _a0, _a1)}
 }
 
-func (_c *MockAccountRepository_Update_Call) Run(run func(_a0 context.Context, _a1 map[uint32]model.UpdateReq)) *MockAccountRepository_Update_Call {
+func (_c *MockAccountRepository_UpdateAccount_Call) Run(run func(_a0 context.Context, _a1 map[uint32]model.UpdateAccountReq)) *MockAccountRepository_UpdateAccount_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(map[uint32]model.UpdateReq))
+		run(args[0].(context.Context), args[1].(map[uint32]model.UpdateAccountReq))
 	})
 	return _c
 }
 
-func (_c *MockAccountRepository_Update_Call) Return(_a0 error) *MockAccountRepository_Update_Call {
+func (_c *MockAccountRepository_UpdateAccount_Call) Return(_a0 error) *MockAccountRepository_UpdateAccount_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockAccountRepository_Update_Call) RunAndReturn(run func(context.Context, map[uint32]model.UpdateReq) error) *MockAccountRepository_Update_Call {
+func (_c *MockAccountRepository_UpdateAccount_Call) RunAndReturn(run func(context.Context, map[uint32]model.UpdateAccountReq) error) *MockAccountRepository_UpdateAccount_Call {
 	_c.Call.Return(run)
 	return _c
 }

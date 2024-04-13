@@ -6,9 +6,9 @@ import (
 
 	"github.com/gorilla/schema"
 
-	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
+	"server/app/services"
 	"server/app/services/transaction/model"
 )
 
@@ -16,7 +16,7 @@ import (
 // @Description Получение всех транзакций по фильтрам
 // @Tags transaction
 // @Security AuthJWT
-// @Param Query query model.GetReq true "model.CreateReq"
+// @Param Query query model.GetTransactionsReq true "model.CreateTransactionReq"
 // @Produce json
 // @Success 200 {object} []model.Transaction
 // @Failure 400,404,500 {object} errors.CustomError
@@ -30,10 +30,10 @@ func (s *endpoint) getTransactions(ctx context.Context, r *http.Request) (any, e
 	}
 
 	// Вызываем метод сервиса
-	return s.service.Get(ctx, req)
+	return s.service.GetTransactions(ctx, req)
 }
 
-func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.GetReq, err error) {
+func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.GetTransactionsReq, err error) {
 
 	// Декодируем параметры запроса в структуру
 	if err = schema.NewDecoder().Decode(&req, r.URL.Query()); err != nil {
@@ -41,8 +41,10 @@ func decodeGetTransactionsReq(ctx context.Context, r *http.Request) (req model.G
 	}
 
 	// Заполняем поля из контекста
-	req.UserID, _ = ctx.Value(contextKeys.UserIDKey).(uint32)
-	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
+	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
+	if err != nil {
+		return req, err
+	}
 
 	// Валидируем поля
 	if err = req.Type.Validate(); err != nil {

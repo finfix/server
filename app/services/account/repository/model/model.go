@@ -7,7 +7,7 @@ import (
 	"server/app/services/account/model/accountType"
 )
 
-type CreateReq struct {
+type CreateAccountReq struct {
 	Budget          CreateReqBudget
 	Name            string
 	Visible         bool
@@ -29,7 +29,7 @@ type CreateReqBudget struct {
 	DaysOffset     uint32
 }
 
-type GetReq struct {
+type GetAccountsReq struct {
 	IDs              []uint32
 	AccountGroupIDs  []uint32
 	Types            []accountType.Type
@@ -48,7 +48,7 @@ type CalculateRemaindersAccountsReq struct {
 	DateTo          *date.Date
 }
 
-type UpdateReq struct {
+type UpdateAccountReq struct {
 	Remainder       *float64
 	Name            *string
 	IconID          *uint32
@@ -56,10 +56,10 @@ type UpdateReq struct {
 	Accounting      *bool
 	Currency        *string
 	ParentAccountID *uint32
-	Budget          UpdateBudgetReq
+	Budget          UpdateAccountBudgetReq
 }
 
-type UpdateBudgetReq struct {
+type UpdateAccountBudgetReq struct {
 	Amount         *float64
 	FixedSum       *float64
 	DaysOffset     *uint32

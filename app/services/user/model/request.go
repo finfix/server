@@ -1,6 +1,10 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"server/app/services"
+)
 
 type CreateReq struct {
 	Name            string
@@ -11,7 +15,7 @@ type CreateReq struct {
 }
 
 type GetReq struct {
-	ID     uint32
-	IDs    []uint32
-	Emails []string
+	Necessary services.NecessaryUserInformation
+	IDs       []uint32
+	Emails    []string
 }

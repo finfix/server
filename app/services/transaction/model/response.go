@@ -1,9 +1,9 @@
 package model
 
-type CreateRes struct {
+type CreateTransactionRes struct {
 	ID uint32 `json:"id" validate:"required" minimum:"1"` // Идентификатор транзакции
 }
 
-type GetRes struct {
+type GetTransactionsRes struct {
 	Transactions []Transaction `json:"transactions"`
 }

@@ -46,9 +46,9 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 		args = append(args, _args...)
 	}
 
-	if filters.UserID != 0 {
+	if filters.Necessary.UserID != 0 {
 		queryArgs = append(queryArgs, `utag.user_id = ?`)
-		args = append(args, filters.UserID)
+		args = append(args, filters.Necessary.UserID)
 	}
 
 	if len(queryArgs) == 0 {
@@ -69,8 +69,14 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 	return accountGroups, nil
 }
 
-// Create создает новый счет
-func (repo *Repository) Create(ctx context.Context, account accountRepoModel.CreateReq) (id uint32, serialNumber uint32, err error) {
+// CreateAccount создает новый счет
+func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
+
+	// Получаем текущий максимальный серийный номер
+	if err = repo.db.QueryRow(ctx, `SELECT MAX(serial_number) FROM coin.accounts`).Scan(&serialNumber); err != nil {
+		return id, serialNumber, err
+	}
+	serialNumber++
 
 	// Создаем счет
 	id, err = repo.db.ExecWithLastInsertID(ctx, `
@@ -89,10 +95,9 @@ func (repo *Repository) Create(ctx context.Context, account accountRepoModel.Cre
 			  budget_days_offset,        
 			  parent_account_id,
 			  created_by_user_id,
-			  time_create,
+			  datetime_create,
 			  serial_number
-		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE(MAX(serial_number), 0) + 1 
-		  	  FROM coin.accounts`,
+		  	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		account.Budget.Amount,
 		account.Name,
 		account.IconID,
@@ -108,22 +113,16 @@ func (repo *Repository) Create(ctx context.Context, account accountRepoModel.Cre
 		account.ParentAccountID,
 		account.UserID,
 		time.Now(),
+		serialNumber,
 	)
 	if err != nil {
-		return id, serialNumber, err
-	}
-	if err := repo.db.QueryRow(ctx, `
-		SELECT serial_number 
-		FROM coin.accounts 
-		WHERE id = ?`, id).
-		Scan(&serialNumber); err != nil {
 		return id, serialNumber, err
 	}
 	return id, serialNumber, nil
 }
 
-// Get возвращает все счета, удовлетворяющие фильтрам
-func (repo *Repository) Get(ctx context.Context, req accountRepoModel.GetReq) (accounts []model.Account, err error) {
+// GetAccounts возвращает все счета, удовлетворяющие фильтрам
+func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
 
 	// Создаем конструктор запроса
 	var (
@@ -313,8 +312,8 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req acco
 	return amountMapToAccountID, nil
 }
 
-// Update обновляет счет
-func (repo *Repository) Update(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateReq) error {
+// UpdateAccount обновляет счет
+func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateAccountReq) error {
 
 	for id, fields := range updateReqs {
 
@@ -395,32 +394,12 @@ func (repo *Repository) Update(ctx context.Context, updateReqs map[uint32]accoun
 	return nil
 }
 
-// GetRemainder возвращает остаток на счете
-func (repo *Repository) GetRemainder(ctx context.Context, id uint32) (remainder float64, err error) {
-
-	// Отнимаем сумму транзакций, поступивших на счет из суммы транзакций, снятых со счета
-	return remainder, repo.db.QueryRow(ctx, `
-			SELECT 
-			  (
-			    SELECT COALESCE(SUM(amount_to), 0) 
-				FROM coin.transactions 
-				WHERE account_to_id = ?
-			  ) - (
-			    SELECT COALESCE(SUM(amount_from), 0) 
-				FROM coin.transactions
-				WHERE account_from_id = ?
-			  ) AS remainder`,
-		id,
-		id,
-	).Scan(&remainder)
+// DeleteAccount удаляет счет
+func (repo *Repository) DeleteAccount(ctx context.Context, id uint32) error {
+	return repo.db.Exec(ctx, `DELETE FROM coin.accounts WHERE id = ?`, id)
 }
 
-// Delete удаляет счет
-func (repo *Repository) Delete(_ context.Context, _ uint32) error {
-	panic("implement me")
-}
-
-func (repo *Repository) Switch(ctx context.Context, id1, id2 uint32) error {
+func (repo *Repository) SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error {
 	return repo.db.Exec(ctx, `
 			UPDATE coin.accounts
 			SET serial_number = CASE

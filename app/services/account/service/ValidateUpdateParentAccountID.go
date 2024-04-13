@@ -11,12 +11,20 @@ import (
 
 func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {
 
-	if err := s.general.CheckAccess(ctx, checker.Accounts, userID, []uint32{parentAccountID}); err != nil {
+	if account.IsParent {
+		return errors.BadRequest.New("Счет уже является родительским", errors.Options{
+			Params: map[string]any{
+				"accountID": account.ID,
+			},
+		})
+	}
+
+	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, userID, []uint32{parentAccountID}); err != nil {
 		return err
 	}
 
 	// Получаем родительский счет
-	parentAccounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{IDs: []uint32{parentAccountID}})
+	parentAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{parentAccountID}})
 	if err != nil {
 		return err
 	}

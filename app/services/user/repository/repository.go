@@ -43,8 +43,8 @@ func (repo *Repository) Create(ctx context.Context, user model2.CreateReq) (uint
 		user.DefaultCurrency)
 }
 
-// Get Возвращает пользователя по фильтрам
-func (repo *Repository) Get(ctx context.Context, filters model2.GetReq) (user []model2.User, err error) {
+// GetTransactions Возвращает пользователя по фильтрам
+func (repo *Repository) GetTransactions(ctx context.Context, filters model2.GetReq) (user []model2.User, err error) {
 
 	query := `
 			SELECT *

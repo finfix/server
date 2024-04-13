@@ -36,7 +36,7 @@ func TestEncodeErrorResponse(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			w := httptest.NewRecorder()
-			DefaultErrorEncoder(context.Background(), w, tt.err, func(error) {})
+			DefaultErrorEncoder(context.Background(), w, tt.err)
 
 			wantCustomError := errors.CastError(tt.wantError)
 			wantCode := int(wantCustomError.ErrorType)

@@ -11,18 +11,18 @@ import (
 )
 
 // Update обновляет счета по конкретным полям
-func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res model.UpdateRes, err error) {
+func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) (res model.UpdateAccountRes, err error) {
 
-	repoUpdateReqs := make(map[uint32]accountRepoModel.UpdateReq)
+	repoUpdateReqs := make(map[uint32]accountRepoModel.UpdateAccountReq)
 	repoUpdateReqs[updateReq.ID] = updateReq.ConvertToRepoReq()
 
 	// Проверяем доступ пользователя к счету
-	if err := s.general.CheckAccess(ctx, checker.Accounts, updateReq.UserID, []uint32{updateReq.ID}); err != nil {
+	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {
 		return res, err
 	}
 
 	// Получаем счет
-	accounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{IDs: []uint32{updateReq.ID}})
+	accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{updateReq.ID}})
 	if err != nil {
 		return res, err
 	}
@@ -36,7 +36,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	account := accounts[0]
 
 	// Проверяем, что входные данные не противоречат разрешениям
-	if err = s.permissionsService.CheckPermissions(updateReq, s.permissionsService.GetPermissions(account)); err != nil {
+	if err = s.accountPermissionsService.CheckAccountPermissions(updateReq, s.accountPermissionsService.GetAccountPermissions(account)); err != nil {
 		return res, err
 	}
 
@@ -47,7 +47,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 		if *updateReq.ParentAccountID != 0 {
 
 			// Проверяем возможность привязки
-			if err := s.accountService.ValidateUpdateParentAccountID(ctx, account, *updateReq.ParentAccountID, updateReq.UserID); err != nil {
+			if err := s.ValidateUpdateParentAccountID(ctx, account, *updateReq.ParentAccountID, updateReq.Necessary.UserID); err != nil {
 				return res, err
 			}
 			account.ParentAccountID = updateReq.ParentAccountID
@@ -60,7 +60,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	// Получаем дочерние счета
 	var childrenAccounts []model.Account
 	if account.IsParent {
-		childrenAccounts, err = s.accountRepository.Get(ctx, accountRepoModel.GetReq{ParentAccountIDs: []uint32{updateReq.ID}})
+		childrenAccounts, err = s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ParentAccountIDs: []uint32{updateReq.ID}})
 		if err != nil {
 			return res, err
 		}
@@ -69,7 +69,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	// Получаем родительский счет
 	var parentAccount *model.Account
 	if account.ParentAccountID != nil {
-		parentAccounts, err := s.accountRepository.Get(ctx, accountRepoModel.GetReq{IDs: []uint32{*account.ParentAccountID}})
+		parentAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{*account.ParentAccountID}})
 		if err != nil {
 			return res, err
 		}
@@ -97,7 +97,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	)
 
 	return res, s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
-		err, res = s.update(ctxTx, account, repoUpdateReqs)
+		res, err = s.updateAccounts(ctxTx, account, repoUpdateReqs, updateReq.Necessary.UserID)
 		if err != nil {
 			return err
 		}
@@ -105,25 +105,25 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateReq) (res mo
 	})
 }
 
-func (s *Service) update(ctx context.Context, account model.Account, updateReqs map[uint32]accountRepoModel.UpdateReq) (err error, res model.UpdateRes) {
+func (s *Service) updateAccounts(ctx context.Context, account model.Account, updateReqs map[uint32]accountRepoModel.UpdateAccountReq, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Если передан остаток, редактируем его
 	if updateReqs[account.ID].Remainder != nil {
-		if res, err = s.accountService.ChangeRemainder(ctx, account, *updateReqs[account.ID].Remainder); err != nil {
-			return err, res
+		if res, err = s.accountService.ChangeAccountRemainder(ctx, account, *updateReqs[account.ID].Remainder, userID); err != nil {
+			return res, err
 		}
 	}
 
 	// Редактируем счет
-	return s.accountRepository.Update(ctx, updateReqs), res
+	return res, s.accountRepository.UpdateAccount(ctx, updateReqs)
 }
 
 func (s *Service) CheckAccountingLogic(
-	repoUpdateReqs map[uint32]accountRepoModel.UpdateReq,
+	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,
 	parentAccount *model.Account,
-) map[uint32]accountRepoModel.UpdateReq {
+) map[uint32]accountRepoModel.UpdateAccountReq {
 
 	// Если значение родительского счета отрицательное, а у дочернего счета положительное
 	if parentAccount != nil && !parentAccount.Accounting && mainAccount.Accounting {
@@ -152,11 +152,11 @@ func (s *Service) CheckAccountingLogic(
 }
 
 func (s *Service) CheckVisibleLogic(
-	repoUpdateReqs map[uint32]accountRepoModel.UpdateReq,
+	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,
 	parentAccount *model.Account,
-) map[uint32]accountRepoModel.UpdateReq {
+) map[uint32]accountRepoModel.UpdateAccountReq {
 
 	// Если значение родительского счета отрицательное, а у дочернего счета положительное
 	if parentAccount != nil && !parentAccount.Visible && mainAccount.Visible {

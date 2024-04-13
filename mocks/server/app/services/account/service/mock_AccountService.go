@@ -22,27 +22,27 @@ func (_m *MockAccountService) EXPECT() *MockAccountService_Expecter {
 	return &MockAccountService_Expecter{mock: &_m.Mock}
 }
 
-// ChangeRemainder provides a mock function with given fields: ctx, account, remainderToUpdate
-func (_m *MockAccountService) ChangeRemainder(ctx context.Context, account model.Account, remainderToUpdate float64) (model.UpdateRes, error) {
-	ret := _m.Called(ctx, account, remainderToUpdate)
+// ChangeAccountRemainder provides a mock function with given fields: ctx, account, remainderToUpdate, userID
+func (_m *MockAccountService) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate float64, userID uint32) (model.UpdateAccountRes, error) {
+	ret := _m.Called(ctx, account, remainderToUpdate, userID)
 
 	if len(ret) == 0 {
-		panic("no return value specified for ChangeRemainder")
+		panic("no return value specified for ChangeAccountRemainder")
 	}
 
-	var r0 model.UpdateRes
+	var r0 model.UpdateAccountRes
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64) (model.UpdateRes, error)); ok {
-		return rf(ctx, account, remainderToUpdate)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64, uint32) (model.UpdateAccountRes, error)); ok {
+		return rf(ctx, account, remainderToUpdate, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64) model.UpdateRes); ok {
-		r0 = rf(ctx, account, remainderToUpdate)
+	if rf, ok := ret.Get(0).(func(context.Context, model.Account, float64, uint32) model.UpdateAccountRes); ok {
+		r0 = rf(ctx, account, remainderToUpdate, userID)
 	} else {
-		r0 = ret.Get(0).(model.UpdateRes)
+		r0 = ret.Get(0).(model.UpdateAccountRes)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.Account, float64) error); ok {
-		r1 = rf(ctx, account, remainderToUpdate)
+	if rf, ok := ret.Get(1).(func(context.Context, model.Account, float64, uint32) error); ok {
+		r1 = rf(ctx, account, remainderToUpdate, userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -50,81 +50,33 @@ func (_m *MockAccountService) ChangeRemainder(ctx context.Context, account model
 	return r0, r1
 }
 
-// MockAccountService_ChangeRemainder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeRemainder'
-type MockAccountService_ChangeRemainder_Call struct {
+// MockAccountService_ChangeAccountRemainder_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeAccountRemainder'
+type MockAccountService_ChangeAccountRemainder_Call struct {
 	*mock.Call
 }
 
-// ChangeRemainder is a helper method to define mock.On call
+// ChangeAccountRemainder is a helper method to define mock.On call
 //   - ctx context.Context
 //   - account model.Account
 //   - remainderToUpdate float64
-func (_e *MockAccountService_Expecter) ChangeRemainder(ctx interface{}, account interface{}, remainderToUpdate interface{}) *MockAccountService_ChangeRemainder_Call {
-	return &MockAccountService_ChangeRemainder_Call{Call: _e.mock.On("ChangeRemainder", ctx, account, remainderToUpdate)}
+//   - userID uint32
+func (_e *MockAccountService_Expecter) ChangeAccountRemainder(ctx interface{}, account interface{}, remainderToUpdate interface{}, userID interface{}) *MockAccountService_ChangeAccountRemainder_Call {
+	return &MockAccountService_ChangeAccountRemainder_Call{Call: _e.mock.On("ChangeAccountRemainder", ctx, account, remainderToUpdate, userID)}
 }
 
-func (_c *MockAccountService_ChangeRemainder_Call) Run(run func(ctx context.Context, account model.Account, remainderToUpdate float64)) *MockAccountService_ChangeRemainder_Call {
+func (_c *MockAccountService_ChangeAccountRemainder_Call) Run(run func(ctx context.Context, account model.Account, remainderToUpdate float64, userID uint32)) *MockAccountService_ChangeAccountRemainder_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.Account), args[2].(float64))
+		run(args[0].(context.Context), args[1].(model.Account), args[2].(float64), args[3].(uint32))
 	})
 	return _c
 }
 
-func (_c *MockAccountService_ChangeRemainder_Call) Return(_a0 model.UpdateRes, _a1 error) *MockAccountService_ChangeRemainder_Call {
+func (_c *MockAccountService_ChangeAccountRemainder_Call) Return(_a0 model.UpdateAccountRes, _a1 error) *MockAccountService_ChangeAccountRemainder_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAccountService_ChangeRemainder_Call) RunAndReturn(run func(context.Context, model.Account, float64) (model.UpdateRes, error)) *MockAccountService_ChangeRemainder_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// ValidateUpdateParentAccountID provides a mock function with given fields: ctx, account, parentAccountID, userID
-func (_m *MockAccountService) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID uint32, userID uint32) error {
-	ret := _m.Called(ctx, account, parentAccountID, userID)
-
-	if len(ret) == 0 {
-		panic("no return value specified for ValidateUpdateParentAccountID")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.Account, uint32, uint32) error); ok {
-		r0 = rf(ctx, account, parentAccountID, userID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockAccountService_ValidateUpdateParentAccountID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ValidateUpdateParentAccountID'
-type MockAccountService_ValidateUpdateParentAccountID_Call struct {
-	*mock.Call
-}
-
-// ValidateUpdateParentAccountID is a helper method to define mock.On call
-//   - ctx context.Context
-//   - account model.Account
-//   - parentAccountID uint32
-//   - userID uint32
-func (_e *MockAccountService_Expecter) ValidateUpdateParentAccountID(ctx interface{}, account interface{}, parentAccountID interface{}, userID interface{}) *MockAccountService_ValidateUpdateParentAccountID_Call {
-	return &MockAccountService_ValidateUpdateParentAccountID_Call{Call: _e.mock.On("ValidateUpdateParentAccountID", ctx, account, parentAccountID, userID)}
-}
-
-func (_c *MockAccountService_ValidateUpdateParentAccountID_Call) Run(run func(ctx context.Context, account model.Account, parentAccountID uint32, userID uint32)) *MockAccountService_ValidateUpdateParentAccountID_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(model.Account), args[2].(uint32), args[3].(uint32))
-	})
-	return _c
-}
-
-func (_c *MockAccountService_ValidateUpdateParentAccountID_Call) Return(_a0 error) *MockAccountService_ValidateUpdateParentAccountID_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockAccountService_ValidateUpdateParentAccountID_Call) RunAndReturn(run func(context.Context, model.Account, uint32, uint32) error) *MockAccountService_ValidateUpdateParentAccountID_Call {
+func (_c *MockAccountService_ChangeAccountRemainder_Call) RunAndReturn(run func(context.Context, model.Account, float64, uint32) (model.UpdateAccountRes, error)) *MockAccountService_ChangeAccountRemainder_Call {
 	_c.Call.Return(run)
 	return _c
 }
