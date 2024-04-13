@@ -395,8 +395,8 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 }
 
 // DeleteAccount удаляет счет
-func (repo *Repository) DeleteAccount(_ context.Context, _ uint32) error {
-	panic("implement me")
+func (repo *Repository) DeleteAccount(ctx context.Context, id uint32) error {
+	return repo.db.Exec(ctx, `DELETE FROM coin.accounts WHERE id = ?`, id)
 }
 
 func (repo *Repository) SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error {
