@@ -12,7 +12,7 @@ import (
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
-	middleware2 "server/app/pkg/middleware"
+	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
@@ -80,7 +80,7 @@ func main() {
 	cfg := config.GetConfig()
 
 	// Передаем в middleware авторизации ключ
-	middleware2.NewAuthMiddleware(cfg.Token.SigningKey)
+	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
 	logger.Info("Подключаемся к БД")
@@ -224,6 +224,6 @@ func getVersionHandleFunc(version, build string) http.HandlerFunc {
 			Build:   build,
 		}
 		w.Header().Set("Content-Type", "application/json")
-		_ = middleware2.DefaultResponseEncoder(context.Background(), w, versionResponse)
+		_ = middleware.DefaultResponseEncoder(context.Background(), w, versionResponse)
 	}
 }

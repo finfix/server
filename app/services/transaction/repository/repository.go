@@ -176,7 +176,7 @@ func (repo *TransactionRepository) GetTransactions(ctx context.Context, req mode
 		   WHERE %v
            ORDER BY 
              t.date_transaction DESC,
-             t.date_create DESC`,
+             t.datetime_create DESC`,
 		strings.Join(queryFields, " AND "),
 	)
 

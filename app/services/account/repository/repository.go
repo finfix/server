@@ -97,8 +97,7 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 			  created_by_user_id,
 			  datetime_create,
 			  serial_number
-		  	) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? 
-		  	  FROM coin.accounts`,
+		  	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		account.Budget.Amount,
 		account.Name,
 		account.IconID,
