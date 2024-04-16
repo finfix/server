@@ -1,7 +1,7 @@
 package model
 
 import (
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/services"
 	"server/app/services/account/model/accountType"
 	repoModel "server/app/services/account/repository/model"
@@ -12,8 +12,8 @@ type GetAccountsReq struct {
 	Type            *accountType.Type `json:"type" schema:"type" enums:"regular,expense,credit,debt,earnings,investments"` // Тип счета
 	Accounting      *bool             `json:"accounting" schema:"accounting"`                                              // Видимость счета
 	AccountGroupIDs []uint32          `json:"accountGroupIDs" schema:"accountGroupIDs" minimum:"1"`                        // Идентификаторы групп счетов
-	DateFrom        *date.Date        `json:"dateFrom" schema:"dateFrom" format:"date" swaggertype:"primitive,string"`     // Дата начала выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
-	DateTo          *date.Date        `json:"dateTo" schema:"dateTo" format:"date" swaggertype:"primitive,string"`         // Дата конца выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
+	DateFrom        *datetime.Date    `json:"dateFrom" schema:"dateFrom" format:"date" swaggertype:"primitive,string"`     // Дата начала выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
+	DateTo          *datetime.Date    `json:"dateTo" schema:"dateTo" format:"date" swaggertype:"primitive,string"`         // Дата конца выборки (Обязательна при type = expense or earnings и отсутствующем периоде)
 	Visible         *bool             `json:"visible" schema:"visible"`                                                    // Видимость счета
 	Currency        *string           `json:"-" schema:"-"`                                                                // Валюта счета
 	IsParent        *bool             `json:"-" schema:"-"`                                                                // Является ли счет родительским
