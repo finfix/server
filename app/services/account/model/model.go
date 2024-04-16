@@ -1,8 +1,7 @@
 package model
 
 import (
-	"time"
-
+	"server/app/pkg/datetime"
 	"server/app/services/account/model/accountType"
 )
 
@@ -20,7 +19,7 @@ type Account struct {
 	SerialNumber    uint32           `json:"serialNumber" db:"serial_number"`                                // Порядковый номер счета
 	IsParent        bool             `json:"isParent" db:"is_parent"`                                        // Является ли счет родительским
 	CreatedByUserID *uint32          `json:"createdByUserID" db:"created_by_user_id"`                        // Идентификатор пользователя, создавшего счет
-	DatetimeCreate  time.Time        `json:"datetimeCreate" db:"datetime_create"`                            // Дата и время создания счета
+	DatetimeCreate  datetime.Time    `json:"datetimeCreate" db:"datetime_create"`                            // Дата и время создания счета
 	AccountBudget   `json:"budget"`                                                                          // Бюджет
 }
 

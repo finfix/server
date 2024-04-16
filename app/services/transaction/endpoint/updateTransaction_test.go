@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"server/app/pkg/contextKeys"
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/pointer"
@@ -37,7 +37,7 @@ func TestDecodeUpdateReq(t *testing.T) {
 		Note:            pointer.Pointer("name"),
 		AccountFromID:   pointer.Pointer(uint32(1)),
 		AccountToID:     pointer.Pointer(uint32(1)),
-		DateTransaction: pointer.Pointer(date.NewDate(2020, 1, 1)),
+		DateTransaction: pointer.Pointer(datetime.NewDate(2020, 1, 1)),
 		IsExecuted:      pointer.Pointer(true),
 		Necessary:       testingFunc.ValidNecessary,
 	}

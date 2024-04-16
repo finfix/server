@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"math"
+	"time"
 
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
 	"server/app/services/account/model"
@@ -50,7 +51,7 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 		AmountTo:        roundedAmount,
 		AccountToID:     account.ID,
 		AccountFromID:   balancingAccountID,
-		DateTransaction: date.Now(),
+		DateTransaction: datetime.Date{Time: time.Now()},
 		IsExecuted:      pointer.Pointer(true),
 		CreatedByUserID: userID,
 	})
