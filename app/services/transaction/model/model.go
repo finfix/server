@@ -1,9 +1,7 @@
 package model
 
 import (
-	"time"
-
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/services/transaction/model/transactionType"
 )
 
@@ -15,9 +13,9 @@ type Transaction struct {
 	Note            string               `json:"note" db:"note"`                                                                     // Заметка сделки
 	AccountFromID   uint32               `json:"accountFromID" db:"account_from_id" minimum:"1"`                                     // Идентификатор счета списания
 	AccountToID     uint32               `json:"accountToID" db:"account_to_id" minimum:"1"`                                         // Идентификатор счета пополнения
-	DateTransaction date.Date            `json:"dateTransaction" db:"date_transaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции (пользовательские)
+	DateTransaction datetime.Date        `json:"dateTransaction" db:"date_transaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции (пользовательские)
 	IsExecuted      bool                 `json:"isExecuted" db:"is_executed"`                                                        // Исполнена операция или нет (если нет, сделки как бы не существует)
 	Accounting      bool                 `json:"accounting" db:"accounting"`                                                         // Учитывается ли транзакция в статистике или нет
 	CreatedByUserID *uint32              `json:"createdByUserID" db:"created_by_user_id" minimum:"1"`                                // Идентификатор пользователя, создавшего транзакцию
-	DatetimeCreate  time.Time            `json:"timeCreate" db:"datetime_create" format:"date-time"`                                 // Дата и время создания транзакции
+	DatetimeCreate  datetime.Time        `json:"datetimeCreate" db:"datetime_create" format:"date-time"`                             // Дата и время создания транзакции
 }

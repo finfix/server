@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"server/app/pkg/contextKeys"
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/pointer"
@@ -36,8 +36,8 @@ func TestDecodeGetReq(t *testing.T) {
 		Limit:     pointer.Pointer(uint32(100)),
 		AccountID: pointer.Pointer(uint32(1)),
 		Type:      pointer.Pointer(transactionType.Income),
-		DateFrom:  pointer.Pointer(date.NewDate(2020, 1, 1)),
-		DateTo:    pointer.Pointer(date.NewDate(2020, 1, 2)),
+		DateFrom:  pointer.Pointer(datetime.NewDate(2020, 1, 1)),
+		DateTo:    pointer.Pointer(datetime.NewDate(2020, 1, 2)),
 		Necessary: testingFunc.ValidNecessary,
 	}
 

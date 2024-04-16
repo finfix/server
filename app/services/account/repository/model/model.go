@@ -1,9 +1,7 @@
 package model
 
 import (
-	"time"
-
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/services/account/model/accountType"
 )
 
@@ -19,7 +17,7 @@ type CreateAccountReq struct {
 	IsParent        bool
 	ParentAccountID *uint32
 	UserID          uint32
-	TimeCreate      time.Time
+	TimeCreate      datetime.Time
 }
 
 type CreateReqBudget struct {
@@ -44,8 +42,8 @@ type CalculateRemaindersAccountsReq struct {
 	IDs             []uint32
 	AccountGroupIDs []uint32
 	Types           []accountType.Type
-	DateFrom        *date.Date
-	DateTo          *date.Date
+	DateFrom        *datetime.Date
+	DateTo          *datetime.Date
 }
 
 type UpdateAccountReq struct {

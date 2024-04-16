@@ -6,6 +6,7 @@ import (
 
 	"server/app/config"
 	"server/app/pkg/auth"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/hasher"
 	"server/app/pkg/logging"
@@ -96,7 +97,7 @@ func (s *Service) SignUp(ctx context.Context, user model3.SignUpReq) (accessData
 		Name:            user.Name,
 		Email:           user.Email,
 		PasswordHash:    user.Password,
-		TimeCreate:      time.Now(),
+		TimeCreate:      datetime.Time{Time: time.Now()},
 		DefaultCurrency: "RUB", // TODO: Поменять
 	})
 	if err != nil {
