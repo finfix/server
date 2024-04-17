@@ -88,7 +88,8 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 			  currency_signatura,
 			  visible,
 			  account_group_id,
-			  accounting,
+			  accountingInHeader,
+			  accountingInCharts,
 			  budget_gradual_filling,
 			  is_parent,
 			  budget_fixed_sum,
@@ -97,7 +98,7 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 			  created_by_user_id,
 			  datetime_create,
 			  serial_number
-		  	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		  	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		account.Budget.Amount,
 		account.Name,
 		account.IconID,
@@ -105,7 +106,8 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 		account.Currency,
 		account.Visible,
 		account.AccountGroupID,
-		account.Accounting,
+		account.AccountingInHeader,
+		account.AccountingInCharts,
 		account.Budget.GradualFilling,
 		account.IsParent,
 		account.Budget.FixedSum,
@@ -174,9 +176,13 @@ func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.Ge
 		reqFields = append(reqFields, `a.is_parent = ?`)
 		variables = append(variables, req.IsParent)
 	}
-	if req.Accounting != nil {
-		reqFields = append(reqFields, `a.accounting = ?`)
-		variables = append(variables, req.Accounting)
+	if req.AccountingInHeader != nil {
+		reqFields = append(reqFields, `a.accounting_in_header = ?`)
+		variables = append(variables, req.AccountingInHeader)
+	}
+	if req.AccountingInCharts != nil {
+		reqFields = append(reqFields, `a.accounting_in_charts = ?`)
+		variables = append(variables, req.AccountingInCharts)
 	}
 	if req.Visible != nil {
 		reqFields = append(reqFields, `a.visible = ?`)
@@ -327,9 +333,13 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 			queryFields = append(queryFields, "icon_id = ?")
 			args = append(args, fields.IconID)
 		}
-		if fields.Accounting != nil {
+		if fields.AccountingInHeader != nil {
 			queryFields = append(queryFields, "accounting = ?")
-			args = append(args, fields.Accounting)
+			args = append(args, fields.AccountingInHeader)
+		}
+		if fields.AccountingInCharts != nil {
+			queryFields = append(queryFields, "accounting_in_charts = ?")
+			args = append(args, fields.AccountingInCharts)
 		}
 		if fields.Name != nil {
 			queryFields = append(queryFields, "name = ?")

@@ -106,15 +106,15 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 
 	// Создаем балансировочный счет
 	balancingAccountID, serialNumber, err = s.accountRepository.CreateAccount(ctx, accountRepoModel.CreateAccountReq{
-		Name:            "Балансировочный",
-		Visible:         parentBalancingAccount.Visible,
-		IconID:          0,
-		Type:            accountType.Balancing,
-		Currency:        account.Currency,
-		AccountGroupID:  parentBalancingAccount.AccountGroupID,
-		Accounting:      parentBalancingAccount.Accounting,
-		IsParent:        false,
-		ParentAccountID: &parentBalancingAccount.ID,
+		Name:               "Балансировочный",
+		Visible:            parentBalancingAccount.Visible,
+		IconID:             0,
+		Type:               accountType.Balancing,
+		Currency:           account.Currency,
+		AccountGroupID:     parentBalancingAccount.AccountGroupID,
+		AccountingInHeader: parentBalancingAccount.AccountingInHeader,
+		IsParent:           false,
+		ParentAccountID:    &parentBalancingAccount.ID,
 	})
 	if err != nil {
 		return balancingAccountID, serialNumber, wasCreate, err

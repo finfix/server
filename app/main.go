@@ -37,7 +37,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0.2 (build 7)
+// @version 1.0.2 (build 8)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -58,7 +58,7 @@ import (
 //go:generate swag init -o docs --parseInternal
 
 const version = "1.0.2"
-const build = "7"
+const build = "8"
 
 const (
 	readHeaderTimeout = 10 * time.Second
