@@ -25,7 +25,8 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		"iconID": 1,
 		"visible": true,
 		"accountGroupID": 1,
-		"accounting": true,
+		"accountingInHeader": true,
+		"accountingInCharts": true,
 		"budget": {
 			"amount": 1.1,
 			"fixedSum": 1.1,
@@ -35,12 +36,13 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	}`)
 
 	validWant := &model.UpdateAccountReq{
-		ID:         1,
-		Remainder:  pointer.Pointer(1.1),
-		Name:       pointer.Pointer("name"),
-		IconID:     pointer.Pointer(uint32(1)),
-		Visible:    pointer.Pointer(true),
-		Accounting: pointer.Pointer(true),
+		ID:                 1,
+		Remainder:          pointer.Pointer(1.1),
+		Name:               pointer.Pointer("name"),
+		IconID:             pointer.Pointer(uint32(1)),
+		Visible:            pointer.Pointer(true),
+		AccountingInHeader: pointer.Pointer(true),
+		AccountingInCharts: pointer.Pointer(true),
 		Budget: model.UpdateAccountBudgetReq{
 			Amount:         pointer.Pointer(1.1),
 			FixedSum:       pointer.Pointer(1.1),
