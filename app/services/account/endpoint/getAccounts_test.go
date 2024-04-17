@@ -22,16 +22,16 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 	logging.Off()
 
 	validParams := testingFunc.NewParamUpdater(map[string]string{
-		"type":            "expense",
-		"accountGroupIDs": "1,2",
-		"accounting":      "true",
+		"type":               "expense",
+		"accountGroupIDs":    "1,2",
+		"accountingInHeader": "true",
 	})
 
 	validWant := &model.GetAccountsReq{
-		Type:            pointer.Pointer(accountType.Expense),
-		AccountGroupIDs: []uint32{1, 2},
-		Accounting:      pointer.Pointer(true),
-		Necessary:       testingFunc.ValidNecessary,
+		Type:               pointer.Pointer(accountType.Expense),
+		AccountGroupIDs:    []uint32{1, 2},
+		AccountingInHeader: pointer.Pointer(true),
+		Necessary:          testingFunc.ValidNecessary,
 	}
 
 	for _, tt := range []struct {

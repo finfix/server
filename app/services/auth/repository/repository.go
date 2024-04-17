@@ -6,6 +6,7 @@ import (
 
 	"server/app/config"
 	"server/app/pkg/auth"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
@@ -54,9 +55,9 @@ func (repo *Repository) DeleteSession(ctx context.Context, oldRefreshToken strin
 func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id uint32, deviceID string, err error) {
 
 	var session struct {
-		ExpiresAt time.Time `db:"expires_at"`
-		ID        uint32    `db:"id"`
-		DeviceID  string    `db:"device_id"`
+		ExpiresAt datetime.Time `db:"expires_at"`
+		ID        uint32        `db:"id"`
+		DeviceID  string        `db:"device_id"`
 	}
 
 	// Получаем данные сессии

@@ -3,8 +3,9 @@ package service
 import (
 	"context"
 	"math"
+	"time"
 
-	"server/app/pkg/datetime/date"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
 	"server/app/services/account/model"
@@ -50,7 +51,7 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 		AmountTo:        roundedAmount,
 		AccountToID:     account.ID,
 		AccountFromID:   balancingAccountID,
-		DateTransaction: date.Now(),
+		DateTransaction: datetime.Date{Time: time.Now()},
 		IsExecuted:      pointer.Pointer(true),
 		CreatedByUserID: userID,
 	})
@@ -105,15 +106,15 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 
 	// Создаем балансировочный счет
 	balancingAccountID, serialNumber, err = s.accountRepository.CreateAccount(ctx, accountRepoModel.CreateAccountReq{
-		Name:            "Балансировочный",
-		Visible:         parentBalancingAccount.Visible,
-		IconID:          0,
-		Type:            accountType.Balancing,
-		Currency:        account.Currency,
-		AccountGroupID:  parentBalancingAccount.AccountGroupID,
-		Accounting:      parentBalancingAccount.Accounting,
-		IsParent:        false,
-		ParentAccountID: &parentBalancingAccount.ID,
+		Name:               "Балансировочный",
+		Visible:            parentBalancingAccount.Visible,
+		IconID:             0,
+		Type:               accountType.Balancing,
+		Currency:           account.Currency,
+		AccountGroupID:     parentBalancingAccount.AccountGroupID,
+		AccountingInHeader: parentBalancingAccount.AccountingInHeader,
+		IsParent:           false,
+		ParentAccountID:    &parentBalancingAccount.ID,
 	})
 	if err != nil {
 		return balancingAccountID, serialNumber, wasCreate, err
