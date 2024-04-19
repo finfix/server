@@ -54,6 +54,7 @@ func NewEndpoint(service *settingsService.Service) http.Handler {
 
 	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(e.updateCurrencies, adminMethodsOptions...))
 	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, userMethodsOptions...))
+	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(e.getIcons, userMethodsOptions...))
 	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(e.getVersion, []server.Option{
 		server.ResponseEncoder(middleware.DefaultResponseEncoder),
 		server.ErrorEncoder(middleware.DefaultErrorEncoder),
