@@ -7,7 +7,7 @@ import (
 
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
-	model2 "server/app/services/user/model"
+	userModel "server/app/services/user/model"
 )
 
 type Repository struct {
@@ -26,7 +26,7 @@ func (repo *Repository) LinkUserToAccountGroup(ctx context.Context, userID uint3
 }
 
 // Create Создает нового пользователя
-func (repo *Repository) Create(ctx context.Context, user model2.CreateReq) (uint32, error) {
+func (repo *Repository) CreateUser(ctx context.Context, user userModel.CreateReq) (uint32, error) {
 
 	return repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.users (
@@ -44,7 +44,7 @@ func (repo *Repository) Create(ctx context.Context, user model2.CreateReq) (uint
 }
 
 // GetTransactions Возвращает пользователя по фильтрам
-func (repo *Repository) GetTransactions(ctx context.Context, filters model2.GetReq) (user []model2.User, err error) {
+func (repo *Repository) GetTransactions(ctx context.Context, filters userModel.GetReq) (user []userModel.User, err error) {
 
 	query := `
 			SELECT *
@@ -78,12 +78,6 @@ func (repo *Repository) GetTransactions(ctx context.Context, filters model2.GetR
 	}
 
 	return user, repo.db.Select(ctx, &user, query, args...)
-}
-
-func (repo *Repository) GetCurrencies(ctx context.Context) (currencies []model2.Currency, err error) {
-	return currencies, repo.db.Select(ctx, &currencies, `
-		SELECT *
-		FROM coin.currencies`)
 }
 
 func New(db sql.SQL, logger *logging.Logger) *Repository {

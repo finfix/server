@@ -46,6 +46,12 @@ func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.Upd
 		return req, err
 	}
 
+	if req.Name != nil {
+		if *req.Name == "" {
+			return req, errors.BadRequest.New("Field 'name' must be not empty")
+		}
+	}
+
 	// Проверяем обязательные поля на zero value
 	return req, validation.ZeroValue(req)
 }

@@ -30,7 +30,6 @@ func NewEndpoint(service *userService.Service) http.Handler {
 
 	r := mux.NewRouter()
 
-	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, options...))
 	r.Methods("GET").Path(part + "/").Handler(server.NewChain(e.getUser, options...))
 	return r
 }

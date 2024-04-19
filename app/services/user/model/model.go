@@ -2,13 +2,6 @@ package model
 
 import "server/app/pkg/datetime"
 
-type Currency struct {
-	Signatura string  `json:"isoCode" db:"signatura"` // Сигнатура валюты
-	Name      string  `json:"name" db:"name"`         // Название валюты
-	Symbol    string  `json:"symbol" db:"symbol"`     // Символ валюты
-	Rate      float64 `json:"rate" db:"rate"`         // Курс валюты
-}
-
 type User struct {
 	ID                    uint32        `db:"id" json:"id"`                                      // Идентификатор пользователя
 	Name                  string        `db:"name" json:"name"`                                  // Имя пользователя

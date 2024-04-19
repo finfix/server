@@ -6,6 +6,6 @@ services:
     container_name: coin-@{project_name}
     restart: always
     ports:
-      - @{service_port}:@{service_port}
+      - 127.0.0.1:@{service_port}:@{service_port}
     env_file: .env@{test_suffix}
     @{network_mode}

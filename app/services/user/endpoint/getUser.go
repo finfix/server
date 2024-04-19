@@ -7,7 +7,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
 	"server/app/services"
-	"server/app/services/user/model"
+	userModel "server/app/services/user/model"
 )
 
 // @Summary Получение данных пользователя
@@ -40,7 +40,7 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	return users[0], nil
 }
 
-func decodeGetUserReq(ctx context.Context, _ *http.Request) (req model.GetReq, err error) {
+func decodeGetUserReq(ctx context.Context, _ *http.Request) (req userModel.GetReq, err error) {
 
 	// Заполняем поля из контекста
 	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)

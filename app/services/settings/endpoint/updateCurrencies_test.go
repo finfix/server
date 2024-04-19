@@ -39,7 +39,7 @@ func TestAuthorization(t *testing.T) {
 				r.Header.Set(k, v)
 			}
 
-			_, err := authorization(context.Background(), r)
+			_, err := authorizationWithAdminKey(context.Background(), r)
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
