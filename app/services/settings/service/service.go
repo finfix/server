@@ -7,12 +7,18 @@ import (
 	"server/app/pkg/logging"
 	settingsModel "server/app/services/settings/model"
 	"server/app/services/settings/network"
+	settingsRepository "server/app/services/settings/repository"
 	tgBotModel "server/app/services/tgBot/model"
+	tgBotService "server/app/services/tgBot/service"
 )
+
+var _ SettingsRepository = &settingsRepository.Repository{}
+var _ TgBotService = &tgBotService.Service{}
 
 type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]float64) error
 	GetCurrencies(context.Context) ([]settingsModel.Currency, error)
+	GetIcons(context.Context) ([]settingsModel.Icon, error)
 }
 
 type TgBotService interface {
@@ -76,6 +82,10 @@ func getRate(rates map[string]float64, currency, currencyRelate string) float64 
 
 func (s *Service) GetCurrencies(ctx context.Context) ([]settingsModel.Currency, error) {
 	return s.settingsRepository.GetCurrencies(ctx)
+}
+
+func (s *Service) GetIcons(ctx context.Context) ([]settingsModel.Icon, error) {
+	return s.settingsRepository.GetIcons(ctx)
 }
 
 func (s *Service) GetVersion() settingsModel.Version {

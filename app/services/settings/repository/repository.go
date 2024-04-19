@@ -41,6 +41,10 @@ func (repo *Repository) GetCurrencies(ctx context.Context) (currencies []setting
 	return currencies, repo.db.Select(ctx, &currencies, `SELECT * FROM coin.currencies`)
 }
 
+func (repo *Repository) GetIcons(ctx context.Context) (icons []settingsModel.Icon, err error) {
+	return icons, repo.db.Select(ctx, &icons, `SELECT * FROM coin.icons`)
+}
+
 type Repository struct {
 	db     sql.SQL
 	logger *logging.Logger
