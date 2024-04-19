@@ -25,7 +25,6 @@ runs:
         sed \
           -e "s|@{project_name}|${{ inputs.project_name }}|" \
           -e "s|@{service_port}|${{ inputs.service_port }}|" \
-          -e "s|@{service_port}|${{ inputs.service_port }}|" \
           -e "s|@{image_name}|${{ inputs.image_name }}|" \
           -e "s|@{network_mode}|${{ inputs.network_mode_host }}|" \
           -e "s|@{test_suffix}|${{ inputs.test_suffix }}|" \

@@ -23,11 +23,11 @@ func (_m *MockUserService) EXPECT() *MockUserService_Expecter {
 }
 
 // Create provides a mock function with given fields: _a0, _a1
-func (_m *MockUserService) Create(_a0 context.Context, _a1 model.CreateReq) (uint32, error) {
+func (_m *MockUserService) CreateUser(_a0 context.Context, _a1 model.CreateReq) (uint32, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Create")
+		panic("no return value specified for CreateUser")
 	}
 
 	var r0 uint32
@@ -50,7 +50,7 @@ func (_m *MockUserService) Create(_a0 context.Context, _a1 model.CreateReq) (uin
 	return r0, r1
 }
 
-// MockUserService_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Create'
+// MockUserService_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
 type MockUserService_Create_Call struct {
 	*mock.Call
 }
@@ -59,7 +59,7 @@ type MockUserService_Create_Call struct {
 //   - _a0 context.Context
 //   - _a1 model.CreateReq
 func (_e *MockUserService_Expecter) Create(_a0 interface{}, _a1 interface{}) *MockUserService_Create_Call {
-	return &MockUserService_Create_Call{Call: _e.mock.On("Create", _a0, _a1)}
+	return &MockUserService_Create_Call{Call: _e.mock.On("CreateUser", _a0, _a1)}
 }
 
 func (_c *MockUserService_Create_Call) Run(run func(_a0 context.Context, _a1 model.CreateReq)) *MockUserService_Create_Call {

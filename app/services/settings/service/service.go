@@ -5,16 +5,26 @@ import (
 	"fmt"
 
 	"server/app/pkg/logging"
-	"server/app/services/admin/network"
+	settingsModel "server/app/services/settings/model"
+	"server/app/services/settings/network"
 	tgBotModel "server/app/services/tgBot/model"
 )
 
-type Repository interface {
-	UpdCurrencies(ctx context.Context, rates map[string]float64) error
+type SettingsRepository interface {
+	UpdateCurrencies(ctx context.Context, rates map[string]float64) error
+	GetCurrencies(context.Context) ([]settingsModel.Currency, error)
 }
 
 type TgBotService interface {
 	SendMessage(context.Context, tgBotModel.SendMessageReq) error
+}
+
+type Service struct {
+	settingsRepository SettingsRepository
+	tgBotService       TgBotService
+	logger             *logging.Logger
+	version            string
+	build              string
 }
 
 // UpdateCurrencies обновляет курсы валют
@@ -40,7 +50,7 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 	tgMessage.Message += "Успешно получили курсы валют от провайдера\n"
 
 	// Обновляем курсы валют в БД
-	if err = s.repository.UpdCurrencies(ctx, rates); err != nil {
+	if err = s.settingsRepository.UpdateCurrencies(ctx, rates); err != nil {
 		tgMessage.Message += fmt.Sprintf("Не смогли обновить курсы валют в базе данных\n\n%v", err.Error())
 		return err
 	}
@@ -64,16 +74,23 @@ func getRate(rates map[string]float64, currency, currencyRelate string) float64 
 	return currencyRelateRate / currencyRate
 }
 
-type Service struct {
-	repository   Repository
-	tgBotService TgBotService
-	logger       *logging.Logger
+func (s *Service) GetCurrencies(ctx context.Context) ([]settingsModel.Currency, error) {
+	return s.settingsRepository.GetCurrencies(ctx)
 }
 
-func New(rep Repository, tgBotService TgBotService, logger *logging.Logger) *Service {
+func (s *Service) GetVersion() settingsModel.Version {
+	return settingsModel.Version{
+		Version: s.version,
+		Build:   s.build,
+	}
+}
+
+func New(rep SettingsRepository, tgBotService TgBotService, logger *logging.Logger, version, build string) *Service {
 	return &Service{
-		repository:   rep,
-		tgBotService: tgBotService,
-		logger:       logger,
+		settingsRepository: rep,
+		tgBotService:       tgBotService,
+		logger:             logger,
+		version:            version,
+		build:              build,
 	}
 }

@@ -7,10 +7,11 @@ import (
 
 	"server/app/pkg/logging"
 	"server/app/pkg/sql"
+	settingsModel "server/app/services/settings/model"
 )
 
-// UpdCurrencies обновляет курсы валют в базе данных
-func (repo *Repository) UpdCurrencies(ctx context.Context, rates map[string]float64) error {
+// UpdateCurrencies обновляет курсы валют в базе данных
+func (repo *Repository) UpdateCurrencies(ctx context.Context, rates map[string]float64) error {
 	var (
 		pattern  = "(?, ?, ?, ?)"
 		tmpQuery = make([]string, 0, len(rates))
@@ -34,6 +35,10 @@ func (repo *Repository) UpdCurrencies(ctx context.Context, rates map[string]floa
 
 	// Обновляем курсы валют
 	return repo.db.Exec(ctx, query, args...)
+}
+
+func (repo *Repository) GetCurrencies(ctx context.Context) (currencies []settingsModel.Currency, err error) {
+	return currencies, repo.db.Select(ctx, &currencies, `SELECT * FROM coin.currencies`)
 }
 
 type Repository struct {

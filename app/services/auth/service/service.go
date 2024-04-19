@@ -27,7 +27,7 @@ type AuthRepository interface {
 
 type UserService interface {
 	GetTransactions(context.Context, model2.GetReq) ([]model2.User, error)
-	Create(context.Context, model2.CreateReq) (uint32, error)
+	CreateUser(context.Context, model2.CreateReq) (uint32, error)
 }
 
 // SignIn авторизует пользователя и возвращает токены доступа
@@ -93,7 +93,7 @@ func (s *Service) SignUp(ctx context.Context, user model3.SignUpReq) (accessData
 	}
 
 	// Заносим пользователя в базу данных
-	accessData.ID, err = s.user.Create(ctx, model2.CreateReq{
+	accessData.ID, err = s.user.CreateUser(ctx, model2.CreateReq{
 		Name:            user.Name,
 		Email:           user.Email,
 		PasswordHash:    user.Password,

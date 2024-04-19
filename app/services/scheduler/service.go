@@ -8,23 +8,23 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
-	adminService "server/app/services/admin/service"
+	settingsService "server/app/services/settings/service"
 )
 
 type Scheduler struct {
-	cron         *cron.Cron
-	adminService *adminService.Service
-	logger       *logging.Logger
+	cron            *cron.Cron
+	settingsService *settingsService.Service
+	logger          *logging.Logger
 }
 
 func NewScheduler(
-	adminService *adminService.Service,
+	settingsService *settingsService.Service,
 	logger *logging.Logger,
 ) *Scheduler {
 	return &Scheduler{
-		cron:         cron.New(),
-		adminService: adminService,
-		logger:       logger,
+		cron:            cron.New(),
+		settingsService: settingsService,
+		logger:          logger,
 	}
 }
 
@@ -34,7 +34,7 @@ func (s *Scheduler) Start() error {
 	_, err := s.cron.AddFunc("@daily", func() { // Every day at 00:00 UTC
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
-		if err := s.adminService.UpdateCurrencies(ctx); err != nil {
+		if err := s.settingsService.UpdateCurrencies(ctx); err != nil {
 			s.logger.Error(err)
 		}
 	})

@@ -22,11 +22,11 @@ func (_m *MockRepository) EXPECT() *MockRepository_Expecter {
 }
 
 // UpdCurrencies provides a mock function with given fields: ctx, rates
-func (_m *MockRepository) UpdCurrencies(ctx context.Context, rates map[string]float64) error {
+func (_m *MockRepository) UpdateCurrencies(ctx context.Context, rates map[string]float64) error {
 	ret := _m.Called(ctx, rates)
 
 	if len(ret) == 0 {
-		panic("no return value specified for UpdCurrencies")
+		panic("no return value specified for UpdateCurrencies")
 	}
 
 	var r0 error
@@ -39,7 +39,7 @@ func (_m *MockRepository) UpdCurrencies(ctx context.Context, rates map[string]fl
 	return r0
 }
 
-// MockRepository_UpdCurrencies_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdCurrencies'
+// MockRepository_UpdCurrencies_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateCurrencies'
 type MockRepository_UpdCurrencies_Call struct {
 	*mock.Call
 }
@@ -48,7 +48,7 @@ type MockRepository_UpdCurrencies_Call struct {
 //   - ctx context.Context
 //   - rates map[string]float64
 func (_e *MockRepository_Expecter) UpdCurrencies(ctx interface{}, rates interface{}) *MockRepository_UpdCurrencies_Call {
-	return &MockRepository_UpdCurrencies_Call{Call: _e.mock.On("UpdCurrencies", ctx, rates)}
+	return &MockRepository_UpdCurrencies_Call{Call: _e.mock.On("UpdateCurrencies", ctx, rates)}
 }
 
 func (_c *MockRepository_UpdCurrencies_Call) Run(run func(ctx context.Context, rates map[string]float64)) *MockRepository_UpdCurrencies_Call {
