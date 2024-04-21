@@ -16,7 +16,7 @@ func getErrorFromPanic(r interface{}) error {
 	for i := 3; i < n; i++ {
 		_, file, _, _ := runtime.Caller(i)
 		if strings.Contains(file, []string{"coin", "Coin"}) {
-			err := errors.InternalServer.New(textErr, errors.Options{PathDepth: 2 + i})
+			err := errors.InternalServer.New(textErr, errors.Options{PathDepth: errors.SecondPathDepth + i})
 			return err
 		}
 	}

@@ -35,7 +35,7 @@ func (s *Scheduler) Start() error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 		if err := s.settingsService.UpdateCurrencies(ctx); err != nil {
-			s.logger.Error(err)
+			s.logger.Error(context.Background(), err)
 		}
 	})
 	if err != nil {

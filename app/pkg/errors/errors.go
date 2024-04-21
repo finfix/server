@@ -36,6 +36,7 @@ type CustomError struct {
 	InitialError error          `json:"-"`
 	Path         string         `json:"path"`
 	Params       map[string]any `json:"parameters,omitempty" validate:"required"`
+	TaskID       *string        `json:"taskID,omitempty"`
 	LogAs        LogOption      `json:"-"`
 }
 

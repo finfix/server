@@ -1,11 +1,12 @@
 package logging
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"runtime"
 	"strconv"
+	"strings"
 	"time"
 
 	"server/app/pkg/errors"
@@ -16,16 +17,16 @@ const (
 )
 
 var logHeaders = map[logLevel]string{
-	errorLevel:   "\x1b[31m[ERROR] \x1b[0m ",
-	fatalLevel:   "\x1b[35m[FATAL] \x1b[0m ",
-	infoLevel:    "\x1b[34m[INFO] \x1b[0m ",
-	debugLevel:   "\x1b[36m[DEBUG] \x1b[0m ",
-	warningLevel: "\x1b[33m[WARN] \x1b[0m ",
-	panicLevel:   "\x1b[32m[PANIC] \x1b[0m ",
+	errorLevel:   "\x1b[31mERROR\x1b[0m",
+	fatalLevel:   "\x1b[35mFATAL\x1b[0m",
+	infoLevel:    "\x1b[34mINFO\x1b[0m",
+	debugLevel:   "\x1b[36mDEBUG\x1b[0m",
+	warningLevel: "\x1b[33mWARN\x1b[0m",
+	panicLevel:   "\x1b[32mPANIC\x1b[0m",
 }
 
 // processingErrorLog обрабатывает ошибки для логгирования
-func processingErrorLog(level logLevel, err error) {
+func processingErrorLog(ctx context.Context, level logLevel, err error) {
 
 	// Приводим пришедшую ошибку к нашей кастомной ошибке
 	customErr := errors.CastError(err)
@@ -36,11 +37,12 @@ func processingErrorLog(level logLevel, err error) {
 		Message: customErr.Error(),
 		Level:   level,
 		Time:    time.Now(),
+		TaskID:  ExtractTaskID(ctx),
 	})
 }
 
 // processingLog обрабатывает входные данные для логгирования
-func processingLog(level logLevel, msg string, args ...any) {
+func processingLog(ctx context.Context, level logLevel, msg string, args ...any) {
 
 	_, file, line, _ := runtime.Caller(errors.SecondPathDepth)
 
@@ -50,6 +52,7 @@ func processingLog(level logLevel, msg string, args ...any) {
 		Message: fmt.Sprintf(msg, args...),
 		Level:   level,
 		Time:    time.Now(),
+		TaskID:  ExtractTaskID(ctx),
 	})
 }
 
@@ -67,20 +70,24 @@ func shareLog(values Log) {
 // getConsoleLog возвращает цветной лог из входных данных
 func getConsoleLog(values Log) (log string) {
 
-	buffer := bytes.Buffer{}
-	buffer.WriteString(logHeaders[values.Level])
-	buffer.WriteString(values.Path)
-	buffer.WriteString(spacer)
-	buffer.WriteString(values.Message)
-	buffer.WriteString(spacer)
+	logComponents := []string{
+		logHeaders[values.Level],
+		values.Time.Format("2006-01-02 15:04:05.000"),
+	}
+
+	if values.TaskID != nil {
+		logComponents = append(logComponents, *values.TaskID)
+	}
+
+	logComponents = append(logComponents, values.Path, values.Message)
 
 	if len(values.Params) != 0 {
 		params, err := json.Marshal(values.Params)
 		if err != nil {
-			GetLogger().Error(errors.InternalServer.Wrap(err))
+			GetLogger().Error(context.Background(), errors.InternalServer.Wrap(err))
 		}
-		buffer.WriteString(string(params))
+		logComponents = append(logComponents, string(params))
 	}
 
-	return buffer.String()
+	return strings.Join(logComponents, spacer)
 }

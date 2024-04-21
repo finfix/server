@@ -66,9 +66,11 @@ const (
 
 func main() {
 
+	mainCtx := context.Background()
+
 	// Перехватываем панику
 	defer panicRecover.PanicRecover(func(err error) {
-		logging.GetLogger().Panic(err)
+		logging.GetLogger().Panic(mainCtx, err)
 	})
 
 	// Получаем логгер
@@ -81,7 +83,7 @@ func main() {
 	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
-	logger.Info("Подключаемся к БД")
+	logger.Info(mainCtx, "Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
 		logger.Fatal(err)
@@ -89,7 +91,7 @@ func main() {
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	logger.Info("Инициализируем телеграм клиента")
+	logger.Info(mainCtx, "Инициализируем телеграм клиента")
 	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
 		logger.Fatal(err)
@@ -156,28 +158,30 @@ func main() {
 		logger,
 	)
 
-	logger.Info("Запускаем планировщик")
+	logger.Info(mainCtx, "Запускаем планировщик")
 	if err = scheduler.NewScheduler(settingsService, logger).Start(); err != nil {
 		logger.Fatal(err)
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
-	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService))
-	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
+	mux.Handle("/account", accountEndpoint.NewEndpoint(logger, accountService))
+	mux.Handle("/account/", accountEndpoint.NewEndpoint(logger, accountService))
+	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(logger, transactionService))
+	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(logger, transactionService))
+	mux.Handle("/tag/", tagEndpoint.NewEndpoint(logger, tagService))
+	mux.Handle("/tag", tagEndpoint.NewEndpoint(logger, tagService))
+	mux.Handle("/auth/", authEndpoint.NewEndpoint(logger, authService))
+	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(logger, settingsService))
+	mux.Handle("/user/", userEndpoint.NewEndpoint(logger, userService))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
 
-	logger.Info("Запускаем HTTP-сервер")
+	logger.Info(mainCtx, "Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
 		logger.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
 	}
-	logger.Info("Server is listening %v", cfg.HTTP)
+	logger.Info(mainCtx, "Server is listening %v", cfg.HTTP)
 
 	go func() {
 		server := &http.Server{
@@ -204,7 +208,7 @@ func CORS(handler http.Handler) http.Handler {
 
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
-			logging.GetLogger().Panic(err)
+			logging.GetLogger().Panic(context.Background(), err)
 			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 

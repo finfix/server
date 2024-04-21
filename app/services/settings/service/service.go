@@ -43,7 +43,7 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 	defer func() {
 		err := s.tgBotService.SendMessage(ctx, tgMessage)
 		if err != nil {
-			s.logger.Error(err)
+			s.logger.Error(ctx, err)
 		}
 	}()
 

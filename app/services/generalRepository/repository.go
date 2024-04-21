@@ -245,7 +245,7 @@ func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
 		logger: logger,
 	}
 
-	logger.Info("Получаем доступы пользователей к объектам")
+	logger.Info(context.Background(), "Получаем доступы пользователей к объектам")
 	err = repository.refreshAccesses(true)
 	if err != nil {
 		return nil, err
@@ -265,7 +265,7 @@ func (repo *Repository) refreshAccesses(doOnce bool) error {
 			return err
 		}
 		if err != nil {
-			repo.logger.Error(err)
+			repo.logger.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)
