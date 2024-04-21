@@ -22,3 +22,47 @@ func ToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
 func GetUniqueByField[K comparable, V any](slice []V, field func(V) K) []V {
 	return MapToSlice(ToMap(slice, field))
 }
+
+func GetFields[K comparable, V any](slice []V, field func(V) K) []K {
+	fields := make([]K, 0, len(slice))
+	for _, v := range slice {
+		fields = append(fields, field(v))
+	}
+	return fields
+}
+
+func In[K comparable](value K, slice ...K) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}
+
+func GetMapValueStruct[K comparable, V any](slice []V, field func(V) K) map[K]struct{} {
+	m := make(map[K]struct{}, len(slice))
+	for _, v := range slice {
+		m[field(v)] = struct{}{}
+	}
+	return m
+}
+
+func JoinExclusive(leftObjects, rightObjects []uint32) (leftObjectsExclusive, rightObjectsExclusive []uint32) {
+	leftObjectsMap := GetMapValueStruct(leftObjects, func(v uint32) uint32 { return v })
+	rightObjectsMap := GetMapValueStruct(rightObjects, func(v uint32) uint32 { return v })
+
+	for _, leftObject := range leftObjects {
+		if _, ok := rightObjectsMap[leftObject]; !ok {
+			leftObjectsExclusive = append(leftObjectsExclusive, leftObject)
+		}
+	}
+
+	for _, rightObject := range rightObjects {
+		if _, ok := leftObjectsMap[rightObject]; !ok {
+			rightObjectsExclusive = append(rightObjectsExclusive, rightObject)
+		}
+	}
+
+	return
+}

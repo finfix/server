@@ -181,10 +181,26 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		args = append(args, argsAGs...)
 		args = append(args, argsAGs...)
 		args = append(args, argsIDs...)
+
+	case checker.Tags:
+		query = fmt.Sprintf(`
+				SELECT COUNT(*)
+				FROM coin.tags t
+				WHERE t.account_group_id IN (%v)
+				AND t.id IN (%v)`,
+			questionsAccountGroupIDs,
+			questionsIDs,
+		)
+		args = append(args, argsAGs...)
+		args = append(args, argsIDs...)
 	}
 
 	// Смотрим количество записей, которые удовлетворяют условию
-	if err = repo.db.QueryRow(ctx, query, args...).Scan(&countAccess); err != nil {
+	row, err := repo.db.QueryRow(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	if err = row.Scan(&countAccess); err != nil {
 		return err
 	}
 
