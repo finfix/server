@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"server/app/pkg/logging"
 	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	authService "server/app/services/auth/service"
@@ -16,7 +17,7 @@ type endpoint struct {
 	service *authService.Service
 }
 
-func NewEndpoint(service *authService.Service) http.Handler {
+func NewEndpoint(logger *logging.Logger, service *authService.Service) http.Handler {
 
 	s := &endpoint{
 		service: service,
@@ -30,8 +31,8 @@ func NewEndpoint(service *authService.Service) http.Handler {
 
 	r := mux.NewRouter()
 
-	r.Methods("POST").Path(part + "/signIn").Handler(server.NewChain(s.signIn, options...))
-	r.Methods("POST").Path(part + "/signUp").Handler(server.NewChain(s.signUp, options...))
-	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(s.refreshTokens, options...))
+	r.Methods("POST").Path(part + "/signIn").Handler(server.NewChain(logger, s.signIn, options...))
+	r.Methods("POST").Path(part + "/signUp").Handler(server.NewChain(logger, s.signUp, options...))
+	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(logger, s.refreshTokens, options...))
 	return r
 }

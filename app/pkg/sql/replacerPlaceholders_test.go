@@ -34,8 +34,12 @@ func TestReplacingPlaceholders(t *testing.T) {
 		},
 	} {
 		t.Run(tt.message, func(t *testing.T) {
-			if tt.result != replacePlaceholders(tt.sql) {
-				t.Fatalf("\n\nОжидалось: %v\nПолучено: %v\n\n", tt.result, replacePlaceholders(tt.sql))
+			result, err := replacePlaceholders(tt.sql)
+			if err != nil {
+				t.Fatalf("\n\nОжидалось: %v\nПолучено: %v\n\n", tt.result, err)
+			}
+			if result != tt.result {
+				t.Fatalf("\n\nОжидалось: %v\nПолучено: %v\n\n", tt.result, result)
 			}
 		})
 	}

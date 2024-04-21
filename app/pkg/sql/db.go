@@ -19,7 +19,7 @@ type SQL interface {
 	Get(ctx context.Context, dest any, query string, args ...any) error
 	Select(ctx context.Context, dest any, query string, args ...any) error
 	Query(ctx context.Context, query string, args ...any) (*Rows, error)
-	QueryRow(ctx context.Context, query string, args ...any) *Row
+	QueryRow(ctx context.Context, query string, args ...any) (*Row, error)
 	Exec(ctx context.Context, query string, args ...any) error
 	ExecWithLastInsertID(ctx context.Context, query string, args ...any) (uint32, error)
 	ExecWithRowsAffected(ctx context.Context, query string, args ...any) (uint32, error)
@@ -75,7 +75,10 @@ func (s *DB) Unsafe() *DB {
 
 func (s *DB) Select(ctx context.Context, dest any, query string, args ...any) (err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return err
+	}
 
 	if tx := extractTx(ctx); tx != nil {
 		err = tx.Tx.SelectContext(ctx, dest, query, args...)
@@ -92,7 +95,10 @@ func (s *DB) Select(ctx context.Context, dest any, query string, args ...any) (e
 
 func (s *DB) Get(ctx context.Context, dest any, query string, args ...any) (err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return err
+	}
 
 	if tx := extractTx(ctx); tx != nil {
 		err = tx.Tx.GetContext(ctx, dest, query, args...)
@@ -109,7 +115,10 @@ func (s *DB) Get(ctx context.Context, dest any, query string, args ...any) (err 
 
 func (s *DB) Query(ctx context.Context, query string, args ...any) (_ *Rows, err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return nil, err
+	}
 
 	rows := &Rows{}
 	if tx := extractTx(ctx); tx != nil {
@@ -125,9 +134,12 @@ func (s *DB) Query(ctx context.Context, query string, args ...any) (_ *Rows, err
 	return rows, nil
 }
 
-func (s *DB) QueryRow(ctx context.Context, query string, args ...any) *Row {
+func (s *DB) QueryRow(ctx context.Context, query string, args ...any) (*Row, error) {
 
-	query = replacePlaceholders(query)
+	query, err := replacePlaceholders(query)
+	if err != nil {
+		return nil, err
+	}
 
 	row := &Row{}
 	if tx := extractTx(ctx); tx != nil {
@@ -136,12 +148,15 @@ func (s *DB) QueryRow(ctx context.Context, query string, args ...any) *Row {
 		row.Row = s.DB.QueryRowxContext(ctx, query, args...)
 	}
 
-	return row
+	return row, nil
 }
 
 func (s *DB) Prepare(ctx context.Context, query string) (_ *Stmt, err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return nil, err
+	}
 
 	stmt := &Stmt{}
 	if tx := extractTx(ctx); tx != nil {
@@ -159,7 +174,10 @@ func (s *DB) Prepare(ctx context.Context, query string) (_ *Stmt, err error) {
 
 func (s *DB) Exec(ctx context.Context, query string, args ...any) (err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return err
+	}
 
 	if tx := extractTx(ctx); tx != nil {
 		_, err = tx.Tx.ExecContext(ctx, query, args...)
@@ -177,7 +195,10 @@ func (s *DB) Exec(ctx context.Context, query string, args ...any) (err error) {
 func (s *DB) ExecWithLastInsertID(ctx context.Context, query string, args ...any) (id uint32, err error) {
 
 	query += " RETURNING id"
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return 0, err
+	}
 
 	if tx := extractTx(ctx); tx != nil {
 		err = tx.Tx.GetContext(ctx, &id, query, args...)
@@ -194,7 +215,10 @@ func (s *DB) ExecWithLastInsertID(ctx context.Context, query string, args ...any
 
 func (s *DB) ExecWithRowsAffected(ctx context.Context, query string, args ...any) (_ uint32, err error) {
 
-	query = replacePlaceholders(query)
+	query, err = replacePlaceholders(query)
+	if err != nil {
+		return 0, err
+	}
 
 	var result sql.Result
 

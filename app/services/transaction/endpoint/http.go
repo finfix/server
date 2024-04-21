@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"server/app/pkg/logging"
 	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	transactionService "server/app/services/transaction/service"
@@ -16,7 +17,7 @@ type endpoint struct {
 	service *transactionService.Service
 }
 
-func NewEndpoint(service *transactionService.Service) http.Handler {
+func NewEndpoint(logger *logging.Logger, service *transactionService.Service) http.Handler {
 
 	s := &endpoint{
 		service: service,
@@ -30,9 +31,9 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 
 	router := mux.NewRouter()
 
-	router.Methods("POST").Path(part).Handler(server.NewChain(s.createTransaction, options...))
-	router.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateTransaction, options...))
-	router.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteTransaction, options...))
-	router.Methods("GET").Path(part).Handler(server.NewChain(s.getTransactions, options...))
+	router.Methods("POST").Path(part).Handler(server.NewChain(logger, s.createTransaction, options...))
+	router.Methods("PATCH").Path(part).Handler(server.NewChain(logger, s.updateTransaction, options...))
+	router.Methods("DELETE").Path(part).Handler(server.NewChain(logger, s.deleteTransaction, options...))
+	router.Methods("GET").Path(part).Handler(server.NewChain(logger, s.getTransactions, options...))
 	return router
 }

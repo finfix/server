@@ -629,7 +629,7 @@ func (_c *MockSQL_Query_Call) RunAndReturn(run func(context.Context, string, ...
 }
 
 // QueryRow provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
+func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface{}) (*sql.Row, error) {
 	var _ca []interface{}
 	_ca = append(_ca, ctx, query)
 	_ca = append(_ca, args...)
@@ -640,6 +640,10 @@ func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface
 	}
 
 	var r0 *sql.Row
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (*sql.Row, error)); ok {
+		return rf(ctx, query, args...)
+	}
 	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) *sql.Row); ok {
 		r0 = rf(ctx, query, args...)
 	} else {
@@ -648,7 +652,13 @@ func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
+		r1 = rf(ctx, query, args...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockSQL_QueryRow_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'QueryRow'
@@ -678,12 +688,12 @@ func (_c *MockSQL_QueryRow_Call) Run(run func(ctx context.Context, query string,
 	return _c
 }
 
-func (_c *MockSQL_QueryRow_Call) Return(_a0 *sql.Row) *MockSQL_QueryRow_Call {
-	_c.Call.Return(_a0)
+func (_c *MockSQL_QueryRow_Call) Return(_a0 *sql.Row, _a1 error) *MockSQL_QueryRow_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockSQL_QueryRow_Call) RunAndReturn(run func(context.Context, string, ...interface{}) *sql.Row) *MockSQL_QueryRow_Call {
+func (_c *MockSQL_QueryRow_Call) RunAndReturn(run func(context.Context, string, ...interface{}) (*sql.Row, error)) *MockSQL_QueryRow_Call {
 	_c.Call.Return(run)
 	return _c
 }

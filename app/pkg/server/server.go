@@ -9,6 +9,7 @@ import (
 )
 
 type Chain struct {
+	logger      *logging.Logger
 	before      []BeforeFunc
 	send        SendFunc
 	after       []AfterFunc
@@ -16,9 +17,10 @@ type Chain struct {
 	errorEncode EncodeErrorFunc
 }
 
-func NewChain(send SendFunc, opts ...Option) *Chain {
+func NewChain(logger *logging.Logger, send SendFunc, opts ...Option) *Chain {
 	chain := &Chain{
-		send: send,
+		logger: logger,
+		send:   send,
 	}
 	for _, option := range opts {
 		option(chain)
@@ -57,16 +59,18 @@ type ErrorHandler interface {
 
 func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	startTime := time.Now().Local()
-	defer func() {
-		logging.GetLogger().Info("Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime))
-	}()
-
 	var (
-		ctx = r.Context()
-		err error
-		res any
+		startTime = time.Now().Local()
+		ctx       = r.Context()
+		err       error
+		res       any
 	)
+
+	ctx = logging.SetTaskID(ctx)
+
+	defer func() {
+		s.logger.Info(ctx, "Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime))
+	}()
 
 	for _, f := range s.before {
 		ctx, err = f(ctx, r)

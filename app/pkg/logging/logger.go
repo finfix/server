@@ -11,7 +11,12 @@ type Log struct {
 	Message string
 	Level   logLevel
 	Time    time.Time
+	TaskID  *string
 }
+
+type uuidKeyType string
+
+const uuidKey uuidKeyType = "uuid"
 
 // loggerSettings - Конфигурация логгера
 type loggerSettings struct {
