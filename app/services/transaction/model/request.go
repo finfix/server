@@ -22,6 +22,7 @@ type CreateTransactionReq struct {
 	AccountToID     uint32               `json:"accountToID" validate:"required" minimum:"1"`                                      // Идентификатор счета пополнения
 	DateTransaction datetime.Date        `json:"dateTransaction" validate:"required" format:"date" swaggertype:"primitive,string"` // Дата транзакции
 	IsExecuted      *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
+	TagIDs          []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
 }
 
 func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
@@ -48,10 +49,12 @@ type UpdateTransactionReq struct {
 	AccountToID     *uint32        `json:"accountToID" minimum:"1"`                                      // Идентификатор счета пополнения
 	DateTransaction *datetime.Date `json:"dateTransaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции
 	IsExecuted      *bool          `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
+	TagIDs          *[]uint32      `json:"tagIDs"`                                                       // Идентификаторы тегов
 }
 
 type GetTransactionsReq struct {
 	Necessary       services.NecessaryUserInformation
+	IDs             []uint32              `json:"-"`                                                                       // Идентификаторы транзакций
 	AccountID       *uint32               `json:"accountID" schema:"accountID" minimum:"1"`                                // Транзакции какого счета нас интересуют
 	Type            *transactionType.Type `json:"type" schema:"type" enums:"consumption,income,transfer"`                  // Тип транзакции
 	DateFrom        *datetime.Date        `json:"dateFrom" schema:"dateFrom" format:"date" swaggertype:"primitive,string"` // Дата, от которой начинать учитывать транзакции

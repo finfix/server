@@ -22,7 +22,7 @@ func (_m *MockUserService) EXPECT() *MockUserService_Expecter {
 	return &MockUserService_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: _a0, _a1
+// CreateUser provides a mock function with given fields: _a0, _a1
 func (_m *MockUserService) CreateUser(_a0 context.Context, _a1 model.CreateReq) (uint32, error) {
 	ret := _m.Called(_a0, _a1)
 
@@ -50,31 +50,31 @@ func (_m *MockUserService) CreateUser(_a0 context.Context, _a1 model.CreateReq) 
 	return r0, r1
 }
 
-// MockUserService_Create_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
-type MockUserService_Create_Call struct {
+// MockUserService_CreateUser_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateUser'
+type MockUserService_CreateUser_Call struct {
 	*mock.Call
 }
 
-// Create is a helper method to define mock.On call
+// CreateUser is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 model.CreateReq
-func (_e *MockUserService_Expecter) Create(_a0 interface{}, _a1 interface{}) *MockUserService_Create_Call {
-	return &MockUserService_Create_Call{Call: _e.mock.On("CreateUser", _a0, _a1)}
+func (_e *MockUserService_Expecter) CreateUser(_a0 interface{}, _a1 interface{}) *MockUserService_CreateUser_Call {
+	return &MockUserService_CreateUser_Call{Call: _e.mock.On("CreateUser", _a0, _a1)}
 }
 
-func (_c *MockUserService_Create_Call) Run(run func(_a0 context.Context, _a1 model.CreateReq)) *MockUserService_Create_Call {
+func (_c *MockUserService_CreateUser_Call) Run(run func(_a0 context.Context, _a1 model.CreateReq)) *MockUserService_CreateUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(model.CreateReq))
 	})
 	return _c
 }
 
-func (_c *MockUserService_Create_Call) Return(_a0 uint32, _a1 error) *MockUserService_Create_Call {
+func (_c *MockUserService_CreateUser_Call) Return(_a0 uint32, _a1 error) *MockUserService_CreateUser_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockUserService_Create_Call) RunAndReturn(run func(context.Context, model.CreateReq) (uint32, error)) *MockUserService_Create_Call {
+func (_c *MockUserService_CreateUser_Call) RunAndReturn(run func(context.Context, model.CreateReq) (uint32, error)) *MockUserService_CreateUser_Call {
 	_c.Call.Return(run)
 	return _c
 }

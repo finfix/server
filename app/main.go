@@ -27,6 +27,9 @@ import (
 	settingsEndpoint "server/app/services/settings/endpoint"
 	settingsRepository "server/app/services/settings/repository"
 	settingsService "server/app/services/settings/service"
+	tagEndpoint "server/app/services/tag/endpoint"
+	tagRepository "server/app/services/tag/repository"
+	tagService "server/app/services/tag/service"
 	tgBotService "server/app/services/tgBot/service"
 	transactionEndpoint "server/app/services/transaction/endpoint"
 	transactionRepository "server/app/services/transaction/repository"
@@ -106,6 +109,7 @@ func main() {
 		logger.Fatal(err)
 	}
 	accountRepository := accountRepository.New(db, logger)
+	tagRepository := tagRepository.New(db, logger)
 	transactionRepository := transactionRepository.New(db, logger)
 	settingsRepository := settingsRepository.New(db, logger)
 	userRepository := userRepository.New(db, logger)
@@ -137,11 +141,18 @@ func main() {
 		logger,
 	)
 
+	tagService := tagService.New(
+		tagRepository,
+		generalRepository,
+		logger,
+	)
+
 	transactionService := transactionService.New(
 		transactionRepository,
 		accountRepository,
 		generalRepository,
 		accountPermisssionsService,
+		tagRepository,
 		logger,
 	)
 
