@@ -19,14 +19,17 @@ import (
 	accountRepository "server/app/services/account/repository"
 	accountService "server/app/services/account/service"
 	accountPermisssionsService "server/app/services/accountPermissions"
-	adminEndpoint "server/app/services/admin/endpoint"
-	adminRepository "server/app/services/admin/repository"
-	adminService "server/app/services/admin/service"
 	authEndpoint "server/app/services/auth/endpoint"
 	authRepository "server/app/services/auth/repository"
 	authService "server/app/services/auth/service"
 	"server/app/services/generalRepository"
 	"server/app/services/scheduler"
+	settingsEndpoint "server/app/services/settings/endpoint"
+	settingsRepository "server/app/services/settings/repository"
+	settingsService "server/app/services/settings/service"
+	tagEndpoint "server/app/services/tag/endpoint"
+	tagRepository "server/app/services/tag/repository"
+	tagService "server/app/services/tag/service"
 	tgBotService "server/app/services/tgBot/service"
 	transactionEndpoint "server/app/services/transaction/endpoint"
 	transactionRepository "server/app/services/transaction/repository"
@@ -37,7 +40,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0.2 (build 9)
+// @version 1.0.3 (build 11)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -57,20 +60,20 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
 
-const version = "1.0.2"
-const build = "9"
+const version = "1.0.3"
+const build = "11"
 
 const (
 	readHeaderTimeout = 10 * time.Second
 )
 
-var erasePathOption = errors.Options{ErasePath: true}
-
 func main() {
+
+	mainCtx := context.Background()
 
 	// Перехватываем панику
 	defer panicRecover.PanicRecover(func(err error) {
-		logging.GetLogger().Panic(err)
+		logging.GetLogger().Panic(mainCtx, err)
 	})
 
 	// Получаем логгер
@@ -83,18 +86,18 @@ func main() {
 	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
-	logger.Info("Подключаемся к БД")
+	logger.Info(mainCtx, "Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+		logger.Fatal(err)
 	}
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	logger.Info("Инициализируем телеграм клиента")
+	logger.Info(mainCtx, "Инициализируем телеграм клиента")
 	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+		logger.Fatal(err)
 	}
 
 	// Регистрируем сервисы
@@ -103,11 +106,12 @@ func main() {
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db, logger)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+		logger.Fatal(err)
 	}
 	accountRepository := accountRepository.New(db, logger)
+	tagRepository := tagRepository.New(db, logger)
 	transactionRepository := transactionRepository.New(db, logger)
-	adminRepository := adminRepository.New(db, logger)
+	settingsRepository := settingsRepository.New(db, logger)
 	userRepository := userRepository.New(db, logger)
 	authRepository := authRepository.New(db, logger)
 
@@ -117,8 +121,16 @@ func main() {
 		logger,
 	)
 	if err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+		logger.Fatal(err)
 	}
+
+	settingsService := settingsService.New(
+		settingsRepository,
+		tgBotService,
+		logger,
+		version,
+		build,
+	)
 
 	accountService := accountService.New(
 		accountRepository,
@@ -129,17 +141,18 @@ func main() {
 		logger,
 	)
 
+	tagService := tagService.New(
+		tagRepository,
+		generalRepository,
+		logger,
+	)
+
 	transactionService := transactionService.New(
 		transactionRepository,
 		accountRepository,
 		generalRepository,
 		accountPermisssionsService,
-		logger,
-	)
-
-	adminService := adminService.New(
-		adminRepository,
-		tgBotService,
+		tagRepository,
 		logger,
 	)
 
@@ -156,30 +169,30 @@ func main() {
 		logger,
 	)
 
-	logger.Info("Запускаем планировщик")
-	if err = scheduler.NewScheduler(adminService, logger).Start(); err != nil {
-		logger.Fatal(errors.InternalServer.Wrap(err, erasePathOption))
+	logger.Info(mainCtx, "Запускаем планировщик")
+	if err = scheduler.NewScheduler(settingsService, logger).Start(); err != nil {
+		logger.Fatal(err)
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
-	mux.Handle("/admin/", adminEndpoint.NewEndpoint(adminService))
-	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
-
-	mux.HandleFunc("/version", getVersionHandleFunc(version, build))
+	mux.Handle("/account", accountEndpoint.NewEndpoint(logger, accountService))
+	mux.Handle("/account/", accountEndpoint.NewEndpoint(logger, accountService))
+	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(logger, transactionService))
+	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(logger, transactionService))
+	mux.Handle("/tag/", tagEndpoint.NewEndpoint(logger, tagService))
+	mux.Handle("/tag", tagEndpoint.NewEndpoint(logger, tagService))
+	mux.Handle("/auth/", authEndpoint.NewEndpoint(logger, authService))
+	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(logger, settingsService))
+	mux.Handle("/user/", userEndpoint.NewEndpoint(logger, userService))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
 
-	logger.Info("Запускаем HTTP-сервер")
+	logger.Info(mainCtx, "Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
 		logger.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
 	}
-	logger.Info("Server is listening %v", cfg.HTTP)
+	logger.Info(mainCtx, "Server is listening %v", cfg.HTTP)
 
 	go func() {
 		server := &http.Server{
@@ -206,24 +219,10 @@ func CORS(handler http.Handler) http.Handler {
 
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
-			logging.GetLogger().Panic(err)
+			logging.GetLogger().Panic(context.Background(), err)
 			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 
 		handler.ServeHTTP(w, r)
 	})
-}
-
-func getVersionHandleFunc(version, build string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		versionResponse := struct {
-			Version string `json:"version"`
-			Build   string `json:"build"`
-		}{
-			Version: version,
-			Build:   build,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = middleware.DefaultResponseEncoder(context.Background(), w, versionResponse)
-	}
 }

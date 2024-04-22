@@ -59,7 +59,7 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 			SELECT ag.*
 			FROM coin.account_groups ag
     		  JOIN coin.users_to_account_groups utag ON utag.account_group_id = ag.id
-			WHERE %s`, strings.Join(queryArgs, " AND "))
+			WHERE %v`, strings.Join(queryArgs, " AND "))
 
 	// Выполняем запрос
 	if err = repo.db.Select(ctx, &accountGroups, query, args...); err != nil {
@@ -73,7 +73,11 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
 
 	// Получаем текущий максимальный серийный номер
-	if err = repo.db.QueryRow(ctx, `SELECT MAX(serial_number) FROM coin.accounts`).Scan(&serialNumber); err != nil {
+	row, err := repo.db.QueryRow(ctx, `SELECT MAX(serial_number) FROM coin.accounts`)
+	if err != nil {
+		return id, serialNumber, err
+	}
+	if err = row.Scan(&serialNumber); err != nil {
 		return id, serialNumber, err
 	}
 	serialNumber++
@@ -88,8 +92,8 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 			  currency_signatura,
 			  visible,
 			  account_group_id,
-			  accountingInHeader,
-			  accountingInCharts,
+			  accounting_in_header,
+			  accounting_in_charts,
 			  budget_gradual_filling,
 			  is_parent,
 			  budget_fixed_sum,
@@ -334,7 +338,7 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 			args = append(args, fields.IconID)
 		}
 		if fields.AccountingInHeader != nil {
-			queryFields = append(queryFields, "accounting = ?")
+			queryFields = append(queryFields, "accounting_in_header = ?")
 			args = append(args, fields.AccountingInHeader)
 		}
 		if fields.AccountingInCharts != nil {
@@ -388,7 +392,7 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 		// Конструируем запрос
 		query := fmt.Sprintf(`
 				UPDATE coin.accounts 
-				  SET %s 
+				  SET %v 
 				WHERE id = ?`,
 			strings.Join(queryFields, ", "),
 		)

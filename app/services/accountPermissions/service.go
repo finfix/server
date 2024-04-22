@@ -78,7 +78,7 @@ func (s *Service) refreshAccountPermissions(doOnce bool) error {
 			return err
 		}
 		if err != nil {
-			s.logger.Error(err)
+			s.logger.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)
@@ -151,7 +151,7 @@ func New(
 		logger: logger,
 	}
 
-	logger.Info("Получаем пермишены на действия со счетами")
+	logger.Info(context.Background(), "Получаем пермишены на действия со счетами")
 	err := service.refreshAccountPermissions(true)
 	if err != nil {
 		return nil, err

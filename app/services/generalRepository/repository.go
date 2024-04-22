@@ -181,10 +181,26 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		args = append(args, argsAGs...)
 		args = append(args, argsAGs...)
 		args = append(args, argsIDs...)
+
+	case checker.Tags:
+		query = fmt.Sprintf(`
+				SELECT COUNT(*)
+				FROM coin.tags t
+				WHERE t.account_group_id IN (%v)
+				AND t.id IN (%v)`,
+			questionsAccountGroupIDs,
+			questionsIDs,
+		)
+		args = append(args, argsAGs...)
+		args = append(args, argsIDs...)
 	}
 
 	// Смотрим количество записей, которые удовлетворяют условию
-	if err = repo.db.QueryRow(ctx, query, args...).Scan(&countAccess); err != nil {
+	row, err := repo.db.QueryRow(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+	if err = row.Scan(&countAccess); err != nil {
 		return err
 	}
 
@@ -245,7 +261,7 @@ func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
 		logger: logger,
 	}
 
-	logger.Info("Получаем доступы пользователей к объектам")
+	logger.Info(context.Background(), "Получаем доступы пользователей к объектам")
 	err = repository.refreshAccesses(true)
 	if err != nil {
 		return nil, err
@@ -265,7 +281,7 @@ func (repo *Repository) refreshAccesses(doOnce bool) error {
 			return err
 		}
 		if err != nil {
-			repo.logger.Error(err)
+			repo.logger.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)

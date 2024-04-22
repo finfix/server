@@ -6,10 +6,9 @@ import (
 	"strings"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 )
 
-func replacePlaceholders(sql string) string {
+func replacePlaceholders(sql string) (string, error) {
 	buffer := bytes.Buffer{}
 	var i int
 	for {
@@ -19,7 +18,7 @@ func replacePlaceholders(sql string) string {
 			buffer.WriteString(sql[:positionQ])
 			_, err := fmt.Fprintf(&buffer, "$%d", i)
 			if err != nil {
-				logging.GetLogger().Error(errors.InternalServer.Wrap(err))
+				return "", errors.InternalServer.Wrap(err)
 			}
 			sql = sql[positionQ+1:]
 		} else {
@@ -28,7 +27,7 @@ func replacePlaceholders(sql string) string {
 		}
 	}
 	if i == 0 {
-		return sql
+		return sql, nil
 	}
-	return buffer.String()
+	return buffer.String(), nil
 }

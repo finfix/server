@@ -7,7 +7,7 @@ import (
 	accountModel "server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository"
-	model2 "server/app/services/user/model"
+	userModel "server/app/services/user/model"
 	userRepository "server/app/services/user/repository"
 )
 
@@ -15,9 +15,8 @@ var _ UserRepository = &userRepository.Repository{}
 var _ GeneralRepository = &generalRepository.Repository{}
 
 type UserRepository interface {
-	Create(context.Context, model2.CreateReq) (uint32, error)
-	GetTransactions(context.Context, model2.GetReq) ([]model2.User, error)
-	GetCurrencies(context.Context) ([]model2.Currency, error)
+	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
+	GetTransactions(context.Context, userModel.GetReq) ([]userModel.User, error)
 	LinkUserToAccountGroup(context.Context, uint32, uint32) error
 }
 
@@ -37,18 +36,14 @@ type Service struct {
 	logger  *logging.Logger
 }
 
-// Create создает нового пользователя
-func (s *Service) Create(ctx context.Context, user model2.CreateReq) (id uint32, err error) {
-	return s.user.Create(ctx, user)
+// CreateUser создает нового пользователя
+func (s *Service) CreateUser(ctx context.Context, user userModel.CreateReq) (id uint32, err error) {
+	return s.user.CreateUser(ctx, user)
 }
 
 // GetTransactions возвращает всех юзеров по фильтрам
-func (s *Service) GetTransactions(ctx context.Context, filters model2.GetReq) (users []model2.User, err error) {
+func (s *Service) GetTransactions(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error) {
 	return s.user.GetTransactions(ctx, filters)
-}
-
-func (s *Service) GetCurrencies(ctx context.Context) ([]model2.Currency, error) {
-	return s.user.GetCurrencies(ctx)
 }
 
 func New(

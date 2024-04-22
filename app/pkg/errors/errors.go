@@ -35,7 +35,8 @@ type CustomError struct {
 	DevelopText  string         `json:"developerTextError"`
 	InitialError error          `json:"-"`
 	Path         string         `json:"path"`
-	Params       map[string]any `json:"params,omitempty" validate:"required"`
+	Params       map[string]any `json:"parameters,omitempty" validate:"required"`
+	TaskID       *string        `json:"taskID,omitempty"`
 	LogAs        LogOption      `json:"-"`
 }
 

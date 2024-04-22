@@ -92,6 +92,9 @@ func (repo *TransactionRepository) UpdateTransaction(ctx context.Context, fields
 		}
 	}
 	if len(queryFields) == 0 {
+		if fields.TagIDs != nil {
+			return nil
+		}
 		return errors.BadRequest.New("No fields to update")
 	}
 
@@ -142,15 +145,24 @@ func (repo *TransactionRepository) GetTransactions(ctx context.Context, req mode
 		queryFields []string
 	)
 
-	_query, _args, err := repo.db.In(`account_group_id IN (?)`, req.AccountGroupIDs)
-	if err != nil {
-		return nil, err
-	}
-	queryFields = append(queryFields, fmt.Sprintf(`(a1.%v OR a2.%v)`, _query, _query))
-	args = append(args, _args...)
-	args = append(args, _args...)
-
 	// Добавляем фильтры
+	if len(req.AccountGroupIDs) != 0 {
+		_query, _args, err := repo.db.In(`account_group_id IN (?)`, req.AccountGroupIDs)
+		if err != nil {
+			return nil, err
+		}
+		queryFields = append(queryFields, fmt.Sprintf(`(a1.%v OR a2.%v)`, _query, _query))
+		args = append(args, _args...)
+		args = append(args, _args...)
+	}
+	if len(req.IDs) != 0 {
+		_query, _args, err := repo.db.In(`t.id IN (?)`, req.IDs)
+		if err != nil {
+			return nil, err
+		}
+		queryFields = append(queryFields, _query)
+		args = append(args, _args...)
+	}
 	if req.AccountID != nil {
 		queryFields = append(queryFields, `(a1.id = ? OR a2.id = ?)`)
 		args = append(args, *req.AccountID, *req.AccountID)
