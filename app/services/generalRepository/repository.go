@@ -3,6 +3,7 @@ package generalRepository
 import (
 	"context"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"server/app/pkg/errors"
@@ -72,10 +73,10 @@ func (repo *Repository) CreateAction(ctx context.Context, actionType enum.Action
 }
 
 // GetCurrencies возвращает список валют и их курсов
-func (repo *Repository) GetCurrencies(ctx context.Context) (map[string]float64, error) {
+func (repo *Repository) GetCurrencies(ctx context.Context) (map[string]decimal.Decimal, error) {
 	var currencies []struct {
-		Name string  `db:"signatura"`
-		Rate float64 `db:"rate"`
+		Name string          `db:"signatura"`
+		Rate decimal.Decimal `db:"rate"`
 	}
 	if err := repo.db.Select(ctx, &currencies, `
 			SELECT * 
@@ -84,7 +85,7 @@ func (repo *Repository) GetCurrencies(ctx context.Context) (map[string]float64, 
 		return nil, err
 	}
 
-	rates := make(map[string]float64, len(currencies))
+	rates := make(map[string]decimal.Decimal, len(currencies))
 	for _, currency := range currencies {
 		rates[currency.Name] = currency.Rate
 	}

@@ -117,17 +117,17 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 
 	return id, s.generalRepository.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
+		// Создаем транзакцию
+		id, err = s.transactionRepository.CreateTransaction(ctx, transaction.ConvertToRepoReq())
+		if err != nil {
+			return err
+		}
+
 		// Если переданы теги
 		if len(transaction.TagIDs) != 0 {
 			if err = s.updateTransactionTags(ctx, transaction.Necessary.UserID, id, transaction.TagIDs); err != nil {
 				return err
 			}
-		}
-
-		// Создаем транзакцию
-		id, err = s.transactionRepository.CreateTransaction(ctx, transaction.ConvertToRepoReq())
-		if err != nil {
-			return err
 		}
 		return nil
 	})

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http"
 	"time"
 
@@ -78,6 +79,8 @@ func main() {
 
 	// Получаем логгер
 	logger := logging.GetLogger()
+
+	decimal.MarshalJSONWithoutQuotes = true
 
 	// Получаем конфиг
 	cfg := config.GetConfig()

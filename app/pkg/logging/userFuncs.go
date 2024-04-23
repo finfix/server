@@ -62,6 +62,9 @@ func generateTaskID() (string, error) {
 
 // ExtractTaskID извлекает TaskID из контекста
 func ExtractTaskID(ctx context.Context) *string {
+	if ctx == nil {
+		return nil
+	}
 	if uuid, ok := ctx.Value(uuidKey).(string); ok {
 		return &uuid
 	}

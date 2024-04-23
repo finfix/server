@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/datetime"
 	"server/app/services"
 	"server/app/services/account/model/accountType"
@@ -50,7 +52,7 @@ type CreateAccountReq struct {
 	AccountingInHeader *bool                  `json:"accountingInHeader" validate:"required"`                                            // Подсчет суммы счета в статистике
 	AccountingInCharts *bool                  `json:"accountingInCharts" validate:"required"`                                            // Учитывать ли счет в графиках
 	DatetimeCreate     datetime.Time          `json:"datetimeCreate" validate:"required"`                                                // Дата создания счета
-	Remainder          float64                `json:"remainder"`                                                                         // Остаток средств на счету
+	Remainder          decimal.Decimal        `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget             CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
 	IsParent           *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
 	ParentAccountID    *uint32                `json:"parentAccountID"`                                                                   // Идентификатор родительского счета
@@ -95,10 +97,10 @@ func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 }
 
 type CreateAccountBudgetReq struct {
-	Amount         float64 `json:"amount"`                             // Сумма
-	FixedSum       float64 `json:"fixedSum"`                           // Фиксированная сумма
-	DaysOffset     uint32  `json:"daysOffset"`                         // Смещение в днях
-	GradualFilling *bool   `json:"gradualFilling" validate:"required"` // Постепенное пополнение
+	Amount         decimal.Decimal `json:"amount"`                             // Сумма
+	FixedSum       decimal.Decimal `json:"fixedSum"`                           // Фиксированная сумма
+	DaysOffset     uint32          `json:"daysOffset"`                         // Смещение в днях
+	GradualFilling *bool           `json:"gradualFilling" validate:"required"` // Постепенное пополнение
 }
 
 // TODO: Переписать
@@ -114,7 +116,7 @@ func (s *CreateAccountBudgetReq) ConvertToRepoReq() repoModel.CreateReqBudget {
 type UpdateAccountReq struct {
 	Necessary          services.NecessaryUserInformation
 	ID                 uint32                 `json:"id" validate:"required" minimum:"1"` // Идентификатор счета
-	Remainder          *float64               `json:"remainder"`                          // Остаток средств на счету
+	Remainder          *decimal.Decimal       `json:"remainder"`                          // Остаток средств на счету
 	Name               *string                `json:"name"`                               // Название счета
 	IconID             *uint32                `json:"iconID" minimum:"1"`                 // Идентификатор иконки
 	Visible            *bool                  `json:"visible"`                            // Видимость счета
@@ -140,10 +142,10 @@ func (s *UpdateAccountReq) ConvertToRepoReq() repoModel.UpdateAccountReq {
 }
 
 type UpdateAccountBudgetReq struct {
-	Amount         *float64 `json:"amount"`         // Сумма
-	FixedSum       *float64 `json:"fixedSum"`       // Фиксированная сумма
-	DaysOffset     *uint32  `json:"daysOffset"`     // Смещение в днях
-	GradualFilling *bool    `json:"gradualFilling"` // Постепенное пополнение
+	Amount         *decimal.Decimal `json:"amount"`         // Сумма
+	FixedSum       *decimal.Decimal `json:"fixedSum"`       // Фиксированная сумма
+	DaysOffset     *uint32          `json:"daysOffset"`     // Смещение в днях
+	GradualFilling *bool            `json:"gradualFilling"` // Постепенное пополнение
 }
 
 func (s *UpdateAccountBudgetReq) ConvertToRepoReq() repoModel.UpdateAccountBudgetReq {
@@ -172,7 +174,7 @@ type GetAccountGroupsReq struct {
 }
 
 type CreateAccountGroupReq struct {
-	Name            string  // Название группы счетов
-	AvailableBudget float64 // Доступный бюджет
-	Currency        string  // Валюта группы счетов
+	Name            string          // Название группы счетов
+	AvailableBudget decimal.Decimal // Доступный бюджет
+	Currency        string          // Валюта группы счетов
 }

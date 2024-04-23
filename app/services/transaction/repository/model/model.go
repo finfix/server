@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/shopspring/decimal"
 	"time"
 
 	"server/app/pkg/datetime"
@@ -9,8 +10,8 @@ import (
 
 type CreateTransactionReq struct {
 	Type            transactionType.Type
-	AmountFrom      float64
-	AmountTo        float64
+	AmountFrom      decimal.Decimal
+	AmountTo        decimal.Decimal
 	Note            string
 	AccountFromID   uint32
 	AccountToID     uint32

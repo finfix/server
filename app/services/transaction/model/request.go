@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/datetime"
 	"server/app/services"
 	"server/app/services/transaction/model/transactionType"
@@ -15,8 +17,8 @@ type DeleteTransactionReq struct {
 type CreateTransactionReq struct {
 	Necessary       services.NecessaryUserInformation
 	Type            transactionType.Type `json:"type" validate:"required"`                                                         // Тип транзакции
-	AmountFrom      float64              `json:"amountFrom" validate:"required" minimum:"1"`                                       // Сумма списания с первого счета
-	AmountTo        float64              `json:"amountTo" validate:"required" minimum:"1"`                                         // Сумма пополнения второго счета (в случаях меж валютной транзакции цифры отличаются)
+	AmountFrom      decimal.Decimal      `json:"amountFrom" validate:"required" minimum:"1"`                                       // Сумма списания с первого счета
+	AmountTo        decimal.Decimal      `json:"amountTo" validate:"required" minimum:"1"`                                         // Сумма пополнения второго счета (в случаях меж валютной транзакции цифры отличаются)
 	Note            string               `json:"note"`                                                                             // Заметка для транзакции
 	AccountFromID   uint32               `json:"accountFromID" validate:"required" minimum:"1"`                                    // Идентификатор счета списания
 	AccountToID     uint32               `json:"accountToID" validate:"required" minimum:"1"`                                      // Идентификатор счета пополнения
@@ -43,15 +45,15 @@ func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq
 
 type UpdateTransactionReq struct {
 	Necessary       services.NecessaryUserInformation
-	ID              uint32         `json:"id" validate:"required" minimum:"1"`                           // Идентификатор транзакции
-	AmountFrom      *float64       `json:"amountFrom" minimum:"1"`                                       // Сумма списания с первого счета
-	AmountTo        *float64       `json:"amountTo" minimum:"1"`                                         // Сумма пополнения второго счета
-	Note            *string        `json:"note"`                                                         // Заметка для транзакции
-	AccountFromID   *uint32        `json:"accountFromID" minimum:"1"`                                    // Идентификатор счета списания
-	AccountToID     *uint32        `json:"accountToID" minimum:"1"`                                      // Идентификатор счета пополнения
-	DateTransaction *datetime.Date `json:"dateTransaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции
-	IsExecuted      *bool          `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
-	TagIDs          *[]uint32      `json:"tagIDs"`                                                       // Идентификаторы тегов
+	ID              uint32           `json:"id" validate:"required" minimum:"1"`                           // Идентификатор транзакции
+	AmountFrom      *decimal.Decimal `json:"amountFrom" minimum:"1"`                                       // Сумма списания с первого счета
+	AmountTo        *decimal.Decimal `json:"amountTo" minimum:"1"`                                         // Сумма пополнения второго счета
+	Note            *string          `json:"note"`                                                         // Заметка для транзакции
+	AccountFromID   *uint32          `json:"accountFromID" minimum:"1"`                                    // Идентификатор счета списания
+	AccountToID     *uint32          `json:"accountToID" minimum:"1"`                                      // Идентификатор счета пополнения
+	DateTransaction *datetime.Date   `json:"dateTransaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции
+	IsExecuted      *bool            `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
+	TagIDs          *[]uint32        `json:"tagIDs"`                                                       // Идентификаторы тегов
 }
 
 type GetTransactionsReq struct {

@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"encoding/json"
+	"github.com/shopspring/decimal"
 	"net/http"
 	"net/url"
 	"time"
@@ -11,13 +12,13 @@ import (
 	"server/app/pkg/errors"
 )
 
-func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
+func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
 	var providerModel struct {
 		Meta struct {
 			LastUpdatedAt time.Time `json:"last_updated_at"`
 		} `json:"meta"`
 		Rates map[string]struct {
-			Rate float64 `json:"value"`
+			Rate decimal.Decimal `json:"value"`
 		} `json:"data"`
 	}
 
@@ -64,7 +65,7 @@ func GetCurrencyRates(ctx context.Context) (map[string]float64, error) {
 		})
 	}
 
-	rates := make(map[string]float64, len(providerModel.Rates))
+	rates := make(map[string]decimal.Decimal, len(providerModel.Rates))
 
 	// Конвертируем полученные данные в нужный формат
 	for currency, rate := range providerModel.Rates {

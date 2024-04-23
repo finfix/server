@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"math"
+	"github.com/shopspring/decimal"
 	"time"
 
 	"server/app/pkg/datetime"
@@ -15,7 +15,7 @@ import (
 	transactionRepoModel "server/app/services/transaction/repository/model"
 )
 
-func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate float64, userID uint32) (res model.UpdateAccountRes, err error) {
+func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate decimal.Decimal, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Получаем остаток счета
 	remainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
@@ -40,20 +40,19 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 		res.BalancingTransactionID = &serialNumber
 	}
 
-	const rounding = 0.0000001
-
-	roundedAmount := math.Round((remainderToUpdate-remainders[account.ID])/rounding) * rounding
+	amount := remainderToUpdate.Sub(remainders[account.ID])
 
 	// Создаем транзакцию балансировки
 	balancingTransactionID, err := s.transaction.CreateTransaction(ctx, transactionRepoModel.CreateTransactionReq{
 		Type:            transactionType.Balancing,
-		AmountFrom:      roundedAmount,
-		AmountTo:        roundedAmount,
+		AmountFrom:      amount,
+		AmountTo:        amount,
 		AccountToID:     account.ID,
 		AccountFromID:   balancingAccountID,
 		DateTransaction: datetime.Date{Time: time.Now()},
 		IsExecuted:      pointer.Pointer(true),
 		CreatedByUserID: userID,
+		DatetimeCreate:  time.Now(),
 	})
 	if err != nil {
 		return res, err

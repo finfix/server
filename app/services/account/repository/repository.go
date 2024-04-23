@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"strings"
 
 	"server/app/pkg/errors"
@@ -209,7 +210,7 @@ func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.Ge
 }
 
 // CalculateRemainderAccounts возвращает остатки счетов
-func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]float64, error) {
+func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	var queryFields []string
 	var args []any
@@ -270,8 +271,8 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req acco
 		strings.Join(queryFields, " AND "))
 
 	var amountsArray []struct {
-		ID        uint32  `db:"id"`
-		Remainder float64 `db:"remainder"`
+		ID        uint32          `db:"id"`
+		Remainder decimal.Decimal `db:"remainder"`
 	}
 
 	// Вычисляем сумму всех транзакций из счетов, id - сумма из
@@ -280,7 +281,7 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req acco
 	}
 
 	// Формируем мапу с суммой исходящих транзакций в виде map[accountID]amountTransactions
-	amountFromAccount := make(map[uint32]float64, len(amountsArray))
+	amountFromAccount := make(map[uint32]decimal.Decimal, len(amountsArray))
 	for _, remainder := range amountsArray {
 		amountFromAccount[remainder.ID] = remainder.Remainder
 	}
@@ -300,15 +301,15 @@ func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req acco
 	}
 
 	// Формируем мапу с суммой входящих транзакций в виде map[accountID]amountTransactions
-	amountToAccount := make(map[uint32]float64, len(amountFromAccount))
+	amountToAccount := make(map[uint32]decimal.Decimal, len(amountFromAccount))
 	for _, remainder := range amountsArray {
 		amountToAccount[remainder.ID] = remainder.Remainder
 	}
 
 	// Проходим по всем счетам и вычисляем остаток разницей суммы в и из счета, формируем новую мапу
-	amountMapToAccountID := make(map[uint32]float64)
+	amountMapToAccountID := make(map[uint32]decimal.Decimal)
 	for id := range amountToAccount {
-		amountMapToAccountID[id] = amountFromAccount[id] - amountToAccount[id]
+		amountMapToAccountID[id] = amountFromAccount[id].Sub(amountToAccount[id])
 	}
 
 	// Если счета нет в списке транзакций, то добавляем его со значением -сумма из счета
