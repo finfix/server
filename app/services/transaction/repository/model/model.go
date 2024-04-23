@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"server/app/pkg/datetime"
 	"server/app/services/transaction/model/transactionType"
 )
@@ -15,4 +17,5 @@ type CreateTransactionReq struct {
 	DateTransaction datetime.Date
 	IsExecuted      *bool
 	CreatedByUserID uint32
+	DatetimeCreate  time.Time
 }

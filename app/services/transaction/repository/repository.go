@@ -5,7 +5,6 @@ import (
 	defErr "errors"
 	"fmt"
 	"strings"
-	"time"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
@@ -39,7 +38,7 @@ func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req tr
 		req.AmountTo,
 		req.Note,
 		req.IsExecuted,
-		time.Now(),
+		req.DatetimeCreate,
 		req.CreatedByUserID,
 	); err != nil {
 		return id, err

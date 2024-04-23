@@ -23,6 +23,7 @@ type CreateTransactionReq struct {
 	DateTransaction datetime.Date        `json:"dateTransaction" validate:"required" format:"date" swaggertype:"primitive,string"` // Дата транзакции
 	IsExecuted      *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
 	TagIDs          []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
+	DatetimeCreate  datetime.Time        `json:"datetimeCreate" validate:"required"`                                               // Дата создания транзакции
 }
 
 func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
@@ -36,6 +37,7 @@ func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq
 		DateTransaction: s.DateTransaction,
 		IsExecuted:      s.IsExecuted,
 		CreatedByUserID: s.Necessary.UserID,
+		DatetimeCreate:  s.DatetimeCreate.Time,
 	}
 }
 

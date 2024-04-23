@@ -49,6 +49,7 @@ type CreateAccountReq struct {
 	AccountGroupID     uint32                 `json:"accountGroupID" validate:"required" minimum:"1"`                                    // Группа счета
 	AccountingInHeader *bool                  `json:"accountingInHeader" validate:"required"`                                            // Подсчет суммы счета в статистике
 	AccountingInCharts *bool                  `json:"accountingInCharts" validate:"required"`                                            // Учитывать ли счет в графиках
+	DatetimeCreate     datetime.Time          `json:"datetimeCreate" validate:"required"`                                                // Дата создания счета
 	Remainder          float64                `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget             CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
 	IsParent           *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
@@ -89,6 +90,7 @@ func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 		Visible:            true,
 		ParentAccountID:    s.ParentAccountID,
 		UserID:             s.Necessary.UserID,
+		DatetimeCreate:     s.DatetimeCreate.Time,
 	}
 }
 

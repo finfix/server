@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
@@ -118,7 +117,7 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 		account.Budget.DaysOffset,
 		account.ParentAccountID,
 		account.UserID,
-		time.Now(),
+		account.DatetimeCreate,
 		serialNumber,
 	)
 	if err != nil {
