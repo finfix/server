@@ -115,7 +115,7 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 		})
 	}
 
-	return 0, s.generalRepository.WithinTransaction(ctx, func(ctxTx context.Context) error {
+	return id, s.generalRepository.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Если переданы теги
 		if len(transaction.TagIDs) != 0 {
