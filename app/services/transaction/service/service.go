@@ -174,26 +174,23 @@ func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel
 	}
 	transaction := transactions[0]
 
-	var accountIDs []uint32
 	// Если в запросе есть изменение счетов, то проверяем доступ пользователя к ним
 	if fields.AccountFromID != nil || fields.AccountToID != nil {
 		if fields.AccountFromID != nil {
-			accountIDs = append(accountIDs, *fields.AccountFromID)
 			transaction.AccountFromID = *fields.AccountFromID
 		}
 		if fields.AccountToID != nil {
-			accountIDs = append(accountIDs, *fields.AccountToID)
 			transaction.AccountToID = *fields.AccountToID
 		}
 
 		// Проверяем доступ пользователя к счетам
-		if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, fields.Necessary.UserID, accountIDs); err != nil {
+		if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, fields.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
 			return err
 		}
 
 		// Получаем счета
 		_accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
-			IDs: accountIDs,
+			IDs: []uint32{transaction.AccountFromID, transaction.AccountToID},
 		})
 		if err != nil {
 			return err
