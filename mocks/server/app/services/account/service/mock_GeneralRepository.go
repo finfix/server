@@ -6,6 +6,8 @@ import (
 	context "context"
 	checker "server/app/services/generalRepository/checker"
 
+	decimal "github.com/shopspring/decimal"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -120,23 +122,23 @@ func (_c *MockGeneralRepository_GetAvailableAccountGroups_Call) RunAndReturn(run
 }
 
 // GetCurrencies provides a mock function with given fields: _a0
-func (_m *MockGeneralRepository) GetCurrencies(_a0 context.Context) (map[string]float64, error) {
+func (_m *MockGeneralRepository) GetCurrencies(_a0 context.Context) (map[string]decimal.Decimal, error) {
 	ret := _m.Called(_a0)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetCurrencies")
 	}
 
-	var r0 map[string]float64
+	var r0 map[string]decimal.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (map[string]float64, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) (map[string]decimal.Decimal, error)); ok {
 		return rf(_a0)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) map[string]float64); ok {
+	if rf, ok := ret.Get(0).(func(context.Context) map[string]decimal.Decimal); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[string]float64)
+			r0 = ret.Get(0).(map[string]decimal.Decimal)
 		}
 	}
 
@@ -167,12 +169,12 @@ func (_c *MockGeneralRepository_GetCurrencies_Call) Run(run func(_a0 context.Con
 	return _c
 }
 
-func (_c *MockGeneralRepository_GetCurrencies_Call) Return(_a0 map[string]float64, _a1 error) *MockGeneralRepository_GetCurrencies_Call {
+func (_c *MockGeneralRepository_GetCurrencies_Call) Return(_a0 map[string]decimal.Decimal, _a1 error) *MockGeneralRepository_GetCurrencies_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockGeneralRepository_GetCurrencies_Call) RunAndReturn(run func(context.Context) (map[string]float64, error)) *MockGeneralRepository_GetCurrencies_Call {
+func (_c *MockGeneralRepository_GetCurrencies_Call) RunAndReturn(run func(context.Context) (map[string]decimal.Decimal, error)) *MockGeneralRepository_GetCurrencies_Call {
 	_c.Call.Return(run)
 	return _c
 }

@@ -2,6 +2,7 @@ package endpoint
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -32,8 +33,8 @@ func TestDecodeUpdateReq(t *testing.T) {
 
 	validWant := &model.UpdateTransactionReq{
 		ID:              1,
-		AmountFrom:      pointer.Pointer(1.1),
-		AmountTo:        pointer.Pointer(1.1),
+		AmountFrom:      pointer.Pointer(decimal.NewFromFloat(1.1)),
+		AmountTo:        pointer.Pointer(decimal.NewFromFloat(1.1)),
 		Note:            pointer.Pointer("name"),
 		AccountFromID:   pointer.Pointer(uint32(1)),
 		AccountToID:     pointer.Pointer(uint32(1)),

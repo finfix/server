@@ -7,5 +7,5 @@ services:
     restart: always
     ports:
       - 127.0.0.1:@{service_port}:@{service_port}
-    env_file: .env@{test_suffix}
+    env_file: ../.env@{test_suffix}
     @{network_mode}

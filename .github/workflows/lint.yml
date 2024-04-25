@@ -3,10 +3,6 @@ name: lint
 on:
   workflow_call:
   pull_request:
-    branches:
-      - main
-      - release/*
-      - dev
 
 permissions:
   contents: read

@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - release/*
+    - hotfix/*
 
 env:
   service_name: server-test

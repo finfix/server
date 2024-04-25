@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http"
 	"time"
 
@@ -40,7 +41,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0.3 (build 11)
+// @version 1.0.4 (build 12)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -60,8 +61,8 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
 
-const version = "1.0.3"
-const build = "11"
+const version = "1.0.4"
+const build = "12"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -78,6 +79,8 @@ func main() {
 
 	// Получаем логгер
 	logger := logging.GetLogger()
+
+	decimal.MarshalJSONWithoutQuotes = true
 
 	// Получаем конфиг
 	cfg := config.GetConfig()

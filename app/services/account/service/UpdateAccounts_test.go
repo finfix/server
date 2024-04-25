@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"testing"
 
 	"server/app/pkg/logging"
@@ -40,7 +41,7 @@ func TestService_update(t *testing.T) {
 			},
 			updateReqs: map[uint32]accountRepoModel.UpdateAccountReq{
 				1: {
-					Remainder: pointer.Pointer(1.1),
+					Remainder: pointer.Pointer(decimal.NewFromFloat(1.1)),
 				},
 			},
 			userID: 1,

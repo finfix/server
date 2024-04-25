@@ -38,7 +38,7 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 		}
 
 		// Если счет создался с остатком
-		if accountToCreate.Remainder != 0 {
+		if !accountToCreate.Remainder.IsZero() {
 
 			// Получаем счет
 			accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}})

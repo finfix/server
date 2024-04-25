@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"github.com/shopspring/decimal"
 	"strings"
 
 	"server/app/pkg/logging"
@@ -11,7 +12,7 @@ import (
 )
 
 // UpdateCurrencies обновляет курсы валют в базе данных
-func (repo *Repository) UpdateCurrencies(ctx context.Context, rates map[string]float64) error {
+func (repo *Repository) UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error {
 	var (
 		pattern  = "(?, ?, ?, ?)"
 		tmpQuery = make([]string, 0, len(rates))

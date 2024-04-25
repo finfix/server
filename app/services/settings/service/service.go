@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/shopspring/decimal"
 
 	"server/app/pkg/logging"
 	settingsModel "server/app/services/settings/model"
@@ -16,7 +17,7 @@ var _ SettingsRepository = &settingsRepository.Repository{}
 var _ TgBotService = &tgBotService.Service{}
 
 type SettingsRepository interface {
-	UpdateCurrencies(ctx context.Context, rates map[string]float64) error
+	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
 	GetCurrencies(context.Context) ([]settingsModel.Currency, error)
 	GetIcons(context.Context) ([]settingsModel.Icon, error)
 }
@@ -36,7 +37,7 @@ type Service struct {
 // UpdateCurrencies обновляет курсы валют
 func (s *Service) UpdateCurrencies(ctx context.Context) error {
 
-	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %.2f₽\nBTC: %.0f$"
+	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %v₽\nBTC: %v$"
 
 	var tgMessage tgBotModel.SendMessageReq
 
@@ -63,21 +64,21 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 
 	tgMessage.Message = fmt.Sprintf(
 		updateCurrenciesTemplate,
-		getRate(rates, "USD", "RUB"),
-		getRate(rates, "BTC", "USD"),
+		getRate(rates, "USD", "RUB").Round(2), //nolint:gomnd
+		getRate(rates, "BTC", "USD").Round(0),
 	)
 
 	return nil
 }
 
-func getRate(rates map[string]float64, currency, currencyRelate string) float64 {
+func getRate(rates map[string]decimal.Decimal, currency, currencyRelate string) decimal.Decimal {
 	currencyRate := rates[currency]
 	currencyRelateRate := rates[currencyRelate]
-	if currencyRate > currencyRelateRate {
-		return currencyRate / currencyRelateRate
+	if currencyRate.GreaterThan(currencyRelateRate) {
+		return currencyRate.Div(currencyRelateRate)
 
 	}
-	return currencyRelateRate / currencyRate
+	return currencyRelateRate.Div(currencyRate)
 }
 
 func (s *Service) GetCurrencies(ctx context.Context) ([]settingsModel.Currency, error) {

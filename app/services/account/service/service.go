@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 
 	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
@@ -25,7 +26,7 @@ var _ TransactionRepository = &transactionRepository.TransactionRepository{}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
-	GetCurrencies(context.Context) (map[string]float64, error)
+	GetCurrencies(context.Context) (map[string]decimal.Decimal, error)
 	CheckUserAccessToObjects(context.Context, checker.CheckType, uint32, []uint32) error
 	GetAvailableAccountGroups(userID uint32) []uint32
 }
@@ -36,7 +37,7 @@ type AccountRepository interface {
 	UpdateAccount(context.Context, map[uint32]accountRepoModel.UpdateAccountReq) error
 	DeleteAccount(ctx context.Context, id uint32) error
 
-	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]float64, error)
+	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
 	SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error
 
 	GetAccountGroups(context.Context, accountModel.GetAccountGroupsReq) ([]accountModel.AccountGroup, error)
@@ -57,7 +58,7 @@ type AccountPermissionsService interface {
 }
 
 type AccountService interface {
-	ChangeAccountRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate float64, userID uint32) (accountModel.UpdateAccountRes, error)
+	ChangeAccountRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate decimal.Decimal, userID uint32) (accountModel.UpdateAccountRes, error)
 }
 
 type Service struct {

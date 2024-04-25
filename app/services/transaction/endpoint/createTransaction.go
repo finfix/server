@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"encoding/json"
+	"github.com/shopspring/decimal"
 	"net/http"
 
 	"server/app/pkg/errors"
@@ -55,7 +56,7 @@ func decodeCreateTransactionReq(ctx context.Context, r *http.Request) (req model
 	if err = req.Type.Validate(); err != nil {
 		return req, err
 	}
-	if req.AmountFrom <= 0 || req.AmountTo <= 0 {
+	if req.AmountFrom.LessThanOrEqual(decimal.Zero) || req.AmountTo.LessThanOrEqual(decimal.Zero) {
 		return req, errors.BadRequest.New("amountFrom and amountTo must be greater than 0")
 	}
 

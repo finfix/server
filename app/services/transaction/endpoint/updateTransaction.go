@@ -3,6 +3,7 @@ package endpoint
 import (
 	"context"
 	"encoding/json"
+	"github.com/shopspring/decimal"
 	"net/http"
 
 	"server/app/pkg/errors"
@@ -46,10 +47,10 @@ func decodeUpdateTransactionReq(ctx context.Context, r *http.Request) (req model
 	}
 
 	// Валидируем поля
-	if req.AmountFrom != nil && *req.AmountFrom <= 0 {
+	if req.AmountFrom != nil && req.AmountFrom.LessThanOrEqual(decimal.Zero) {
 		return req, errors.BadRequest.New("amountFrom must be greater than 0")
 	}
-	if req.AmountTo != nil && *req.AmountTo <= 0 {
+	if req.AmountTo != nil && req.AmountTo.LessThanOrEqual(decimal.Zero) {
 		return req, errors.BadRequest.New("amountTo must be greater than 0")
 	}
 

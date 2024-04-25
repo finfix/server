@@ -1,6 +1,8 @@
 package model
 
 import (
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/datetime"
 	"server/app/services/transaction/model/transactionType"
 )
@@ -8,8 +10,8 @@ import (
 type Transaction struct {
 	ID              uint32               `json:"id" db:"id" minimum:"1"`                                                             // Идентификатор транзакции
 	Type            transactionType.Type `json:"type" db:"type_signatura" enums:"consumption,income,transfer"`                       // Тип транзакции
-	AmountFrom      float64              `json:"amountFrom" db:"amount_from" minimum:"1"`                                            // Сумма сделки в первой валюте
-	AmountTo        float64              `json:"amountTo" db:"amount_to" minimum:"1"`                                                // Сумма сделки во второй валюте
+	AmountFrom      decimal.Decimal      `json:"amountFrom" db:"amount_from" minimum:"1"`                                            // Сумма сделки в первой валюте
+	AmountTo        decimal.Decimal      `json:"amountTo" db:"amount_to" minimum:"1"`                                                // Сумма сделки во второй валюте
 	Note            string               `json:"note" db:"note"`                                                                     // Заметка сделки
 	AccountFromID   uint32               `json:"accountFromID" db:"account_from_id" minimum:"1"`                                     // Идентификатор счета списания
 	AccountToID     uint32               `json:"accountToID" db:"account_to_id" minimum:"1"`                                         // Идентификатор счета пополнения

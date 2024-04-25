@@ -2,11 +2,14 @@ package endpoint
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"server/app/pkg/contextKeys"
+	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
 	"server/app/pkg/pointer"
@@ -29,6 +32,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		"accountingInHeader": true,
 		"accountingInCharts": true,
 		"gradualBudgetFilling": true,
+		"datetimeCreate": "2020-01-01T01:01:01+0100",
 		"budget": {
 			"amount": 1.1,
 			"fixedSum": 1.1,
@@ -38,7 +42,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 	}`)
 
 	validWant := &model.CreateAccountReq{
-		Remainder:          1.1,
+		Remainder:          decimal.NewFromFloat(1.1),
 		Name:               "name",
 		IconID:             1,
 		Type:               accountType.Expense,
@@ -46,9 +50,10 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		AccountGroupID:     1,
 		AccountingInHeader: pointer.Pointer(true),
 		AccountingInCharts: pointer.Pointer(true),
+		DatetimeCreate:     datetime.Time{Time: time.Date(2020, 1, 1, 1, 1, 1, 0, time.FixedZone("", 3600))},
 		Budget: model.CreateAccountBudgetReq{
-			Amount:         1.1,
-			FixedSum:       1.1,
+			Amount:         decimal.NewFromFloat(1.1),
+			FixedSum:       decimal.NewFromFloat(1.1),
 			DaysOffset:     1,
 			GradualFilling: pointer.Pointer(true),
 		},
