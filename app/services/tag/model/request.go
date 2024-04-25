@@ -1,8 +1,7 @@
 package model
 
 import (
-	"time"
-
+	"server/app/pkg/datetime"
 	"server/app/services"
 	repoModel "server/app/services/tag/repository/model"
 )
@@ -14,8 +13,9 @@ type DeleteTagReq struct {
 
 type CreateTagReq struct {
 	Necessary      services.NecessaryUserInformation
-	AccountGroupID uint32 `json:"accountGroupID" validate:"required"` // Идентификатор группы счетов
-	Name           string `json:"name" validate:"required"`           // Название подкатегории
+	AccountGroupID uint32        `json:"accountGroupID" validate:"required"` // Идентификатор группы счетов
+	Name           string        `json:"name" validate:"required"`           // Название подкатегории
+	DatetimeCreate datetime.Time `json:"datetimeCreate" validate:"required"` // Дата создания подкатегории
 }
 
 func (s *CreateTagReq) ConvertToRepoReq() repoModel.CreateTagReq {
@@ -23,7 +23,7 @@ func (s *CreateTagReq) ConvertToRepoReq() repoModel.CreateTagReq {
 		Name:            s.Name,
 		AccountGroupID:  s.AccountGroupID,
 		CreatedByUserID: s.Necessary.UserID,
-		DatetimeCreate:  time.Now(),
+		DatetimeCreate:  s.DatetimeCreate.Time,
 	}
 }
 

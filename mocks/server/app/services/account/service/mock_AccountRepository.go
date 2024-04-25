@@ -6,6 +6,8 @@ import (
 	context "context"
 	accountmodel "server/app/services/account/model"
 
+	decimal "github.com/shopspring/decimal"
+
 	mock "github.com/stretchr/testify/mock"
 
 	model "server/app/services/account/repository/model"
@@ -25,23 +27,23 @@ func (_m *MockAccountRepository) EXPECT() *MockAccountRepository_Expecter {
 }
 
 // CalculateRemainderAccounts provides a mock function with given fields: ctx, req
-func (_m *MockAccountRepository) CalculateRemainderAccounts(ctx context.Context, req model.CalculateRemaindersAccountsReq) (map[uint32]float64, error) {
+func (_m *MockAccountRepository) CalculateRemainderAccounts(ctx context.Context, req model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
 	ret := _m.Called(ctx, req)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CalculateRemainderAccounts")
 	}
 
-	var r0 map[uint32]float64
+	var r0 map[uint32]decimal.Decimal
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]float64, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)); ok {
 		return rf(ctx, req)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) map[uint32]float64); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) map[uint32]decimal.Decimal); ok {
 		r0 = rf(ctx, req)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[uint32]float64)
+			r0 = ret.Get(0).(map[uint32]decimal.Decimal)
 		}
 	}
 
@@ -73,12 +75,12 @@ func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) Run(run func(ct
 	return _c
 }
 
-func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) Return(_a0 map[uint32]float64, _a1 error) *MockAccountRepository_CalculateRemainderAccounts_Call {
+func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) Return(_a0 map[uint32]decimal.Decimal, _a1 error) *MockAccountRepository_CalculateRemainderAccounts_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) RunAndReturn(run func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]float64, error)) *MockAccountRepository_CalculateRemainderAccounts_Call {
+func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) RunAndReturn(run func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)) *MockAccountRepository_CalculateRemainderAccounts_Call {
 	_c.Call.Return(run)
 	return _c
 }

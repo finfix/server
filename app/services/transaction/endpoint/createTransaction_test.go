@@ -2,9 +2,11 @@ package endpoint
 
 import (
 	"context"
+	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
@@ -27,19 +29,21 @@ func TestDecodeCreateReq(t *testing.T) {
 		"accountFromID": 1,
 		"accountToID": 1,
 		"dateTransaction": "2020-01-01",
-		"isExecuted": true
+		"isExecuted": true,
+		"datetimeCreate": "2020-01-01T01:01:01+0100"
 	}`)
 
 	validWant := &model.CreateTransactionReq{
 		Type:            "income",
-		AmountFrom:      1.1,
-		AmountTo:        1.1,
+		AmountFrom:      decimal.NewFromFloat(1.1),
+		AmountTo:        decimal.NewFromFloat(1.1),
 		Note:            "name",
 		AccountFromID:   1,
 		AccountToID:     1,
 		DateTransaction: datetime.NewDate(2020, 1, 1),
 		IsExecuted:      pointer.Pointer(true),
 		Necessary:       testingFunc.ValidNecessary,
+		DatetimeCreate:  datetime.Time{Time: time.Date(2020, 1, 1, 1, 1, 1, 0, time.FixedZone("", 3600))},
 	}
 
 	for _, tt := range []struct {

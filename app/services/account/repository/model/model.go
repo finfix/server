@@ -1,6 +1,9 @@
 package model
 
 import (
+	"github.com/shopspring/decimal"
+	"time"
+
 	"server/app/pkg/datetime"
 	"server/app/services/account/model/accountType"
 )
@@ -18,13 +21,13 @@ type CreateAccountReq struct {
 	IsParent           bool
 	ParentAccountID    *uint32
 	UserID             uint32
-	TimeCreate         datetime.Time
+	DatetimeCreate     time.Time
 }
 
 type CreateReqBudget struct {
-	Amount         float64
+	Amount         decimal.Decimal
 	GradualFilling bool
-	FixedSum       float64
+	FixedSum       decimal.Decimal
 	DaysOffset     uint32
 }
 
@@ -49,7 +52,7 @@ type CalculateRemaindersAccountsReq struct {
 }
 
 type UpdateAccountReq struct {
-	Remainder          *float64
+	Remainder          *decimal.Decimal
 	Name               *string
 	IconID             *uint32
 	Visible            *bool
@@ -61,8 +64,8 @@ type UpdateAccountReq struct {
 }
 
 type UpdateAccountBudgetReq struct {
-	Amount         *float64
-	FixedSum       *float64
+	Amount         *decimal.Decimal
+	FixedSum       *decimal.Decimal
 	DaysOffset     *uint32
 	GradualFilling *bool
 }
