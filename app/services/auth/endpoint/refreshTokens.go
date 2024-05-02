@@ -7,6 +7,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/validation"
+	"server/app/services"
 	"server/app/services/auth/model"
 )
 
@@ -27,14 +28,18 @@ func (s *endpoint) refreshTokens(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return s.service.RefreshTokens(ctx, req.Token)
+	return s.service.RefreshTokens(ctx, req)
 }
 
-func decodeRefreshTokensReq(_ context.Context, r *http.Request) (req model.RefreshTokensReq, err error) {
+func decodeRefreshTokensReq(ctx context.Context, r *http.Request) (req model.RefreshTokensReq, err error) {
 
 	// Декодируем тело запроса в структуру
 	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return req, errors.BadRequest.Wrap(err)
+	}
+
+	if req.Necessary, err = services.ExtractNecessaryFromCtx(ctx); err != nil {
+		return req, err
 	}
 
 	// Проверяем обязательные поля на zero value

@@ -33,6 +33,11 @@ func NewEndpoint(logger *logging.Logger, service *authService.Service) http.Hand
 
 	r.Methods("POST").Path(part + "/signIn").Handler(server.NewChain(logger, s.signIn, options...))
 	r.Methods("POST").Path(part + "/signUp").Handler(server.NewChain(logger, s.signUp, options...))
-	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(logger, s.refreshTokens, options...))
+	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(logger, s.refreshTokens, []server.Option{
+		server.Before(middleware.DefaultDeviceIDValidator),
+		server.Before(middleware.ExtractDataFromToken),
+		server.ResponseEncoder(middleware.DefaultResponseEncoder),
+		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+	}...))
 	return r
 }

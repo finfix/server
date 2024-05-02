@@ -1,14 +1,14 @@
 package auth
 
 import (
-	"crypto/rand"
-	"encoding/base32"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 
+	"server/app/config"
 	"server/app/pkg/errors"
+	"server/app/pkg/hasher"
 )
 
 type MyCustomClaims struct {
@@ -16,7 +16,13 @@ type MyCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func NewJWT(userID uint32, signingKey string, deviceID string, ttl time.Duration) (string, error) {
+func NewJWT(userID uint32, deviceID string) (string, error) {
+
+	signingKey := config.GetConfig().Token.SigningKey
+	ttl, err := time.ParseDuration(config.GetConfig().Token.AccessTokenTTL)
+	if err != nil {
+		return "", err
+	}
 
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
@@ -42,7 +48,7 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 		return 0, "", errors.Unauthorized.New("JWT-token is empty")
 	}
 
-	token, err := jwt.ParseWithClaims(accessToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) {
+	token, jwtErr := jwt.ParseWithClaims(accessToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.InternalServer.New("Unexpected signing method", errors.Options{
 				Params: map[string]any{"token": token.Header["alg"]},
@@ -51,8 +57,12 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 
 		return []byte(signingKey), nil
 	})
-	if err != nil {
-		return 0, "", errors.Unauthorized.Wrap(err)
+	if jwtErr != nil {
+		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
+			return 0, "", errors.BadRequest.Wrap(jwtErr)
+		} else {
+			jwtErr = errors.Unauthorized.Wrap(jwtErr)
+		}
 	}
 
 	claims, ok := token.Claims.(*MyCustomClaims)
@@ -63,23 +73,29 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 	idStr := claims.Subject
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, "", errors.Unauthorized.Wrap(err, errors.Options{
+		return 0, "", errors.BadRequest.Wrap(err, errors.Options{
 			Params: map[string]any{"ID": idStr},
 		})
 	}
 
-	return uint32(id), claims.DeviceID, nil
-
+	return uint32(id), claims.DeviceID, jwtErr
 }
 
-func NewRefreshToken() (string, error) {
-	const (
-		refreshTokenLength = 64
-		countBytes         = 64
-	)
-	randomBytes := make([]byte, countBytes)
-	if _, err := rand.Read(randomBytes); err != nil {
-		return "", errors.InternalServer.Wrap(err)
+func NewRefreshToken() (string, time.Time, error) {
+
+	const refreshTokenLength = 64
+
+	token, err := hasher.GenerateRandomBytes(refreshTokenLength)
+	if err != nil {
+		return "", time.Now(), err
 	}
-	return base32.StdEncoding.EncodeToString(randomBytes)[:refreshTokenLength], nil
+
+	// Получаем время жизни refresh token
+	refreshDur, err := time.ParseDuration(config.GetConfig().Token.RefreshTokenTTL)
+	if err != nil {
+		return "", time.Now(), err
+	}
+	refreshTokenExpiresAt := time.Now().Add(refreshDur)
+
+	return string(token), refreshTokenExpiresAt, nil
 }

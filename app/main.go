@@ -169,6 +169,8 @@ func main() {
 	authService := authService.New(
 		authRepository,
 		userRepository,
+		generalRepository,
+		[]byte(cfg.GeneralSalt),
 		logger,
 	)
 

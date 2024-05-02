@@ -31,7 +31,7 @@ type Config struct {
 	}
 
 	// Информация для шифрования паролей
-	SHASalt string `env:"SHA_SALT"`
+	GeneralSalt string `env:"SHA_SALT"`
 
 	// Ключи для работы с внешним API
 	APIKeys struct {
