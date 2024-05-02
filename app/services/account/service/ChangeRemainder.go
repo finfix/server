@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
@@ -107,13 +108,15 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 	balancingAccountID, serialNumber, err = s.accountRepository.CreateAccount(ctx, accountRepoModel.CreateAccountReq{
 		Name:               "Балансировочный",
 		Visible:            parentBalancingAccount.Visible,
-		IconID:             0,
+		IconID:             parentBalancingAccount.IconID,
 		Type:               accountType.Balancing,
 		Currency:           account.Currency,
 		AccountGroupID:     parentBalancingAccount.AccountGroupID,
 		AccountingInHeader: parentBalancingAccount.AccountingInHeader,
 		IsParent:           false,
 		ParentAccountID:    &parentBalancingAccount.ID,
+		UserID:             account.CreatedByUserID,
+		DatetimeCreate:     time.Now(),
 	})
 	if err != nil {
 		return balancingAccountID, serialNumber, wasCreate, err

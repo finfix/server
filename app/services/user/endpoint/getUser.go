@@ -25,7 +25,7 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	// Вызываем метод сервиса
-	users, err := s.service.GetTransactions(ctx, req)
+	users, err := s.service.GetUsers(ctx, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}

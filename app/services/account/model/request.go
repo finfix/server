@@ -91,7 +91,7 @@ func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 		IsParent:           *s.IsParent,
 		Visible:            true,
 		ParentAccountID:    s.ParentAccountID,
-		UserID:             s.Necessary.UserID,
+		UserID:             &s.Necessary.UserID,
 		DatetimeCreate:     s.DatetimeCreate.Time,
 	}
 }

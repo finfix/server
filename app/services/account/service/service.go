@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/logging"
@@ -49,7 +50,7 @@ type TransactionRepository interface {
 }
 
 type UserRepository interface {
-	GetTransactions(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
 }
 
 type AccountPermissionsService interface {

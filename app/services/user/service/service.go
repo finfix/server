@@ -16,7 +16,7 @@ var _ GeneralRepository = &generalRepository.Repository{}
 
 type UserRepository interface {
 	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
-	GetTransactions(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
 	LinkUserToAccountGroup(context.Context, uint32, uint32) error
 }
 
@@ -41,9 +41,9 @@ func (s *Service) CreateUser(ctx context.Context, user userModel.CreateReq) (id 
 	return s.user.CreateUser(ctx, user)
 }
 
-// GetTransactions возвращает всех юзеров по фильтрам
-func (s *Service) GetTransactions(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error) {
-	return s.user.GetTransactions(ctx, filters)
+// GetUsers возвращает всех юзеров по фильтрам
+func (s *Service) GetUsers(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error) {
+	return s.user.GetUsers(ctx, filters)
 }
 
 func New(

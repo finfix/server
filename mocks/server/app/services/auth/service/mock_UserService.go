@@ -79,12 +79,12 @@ func (_c *MockUserService_CreateUser_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetTransactions provides a mock function with given fields: _a0, _a1
-func (_m *MockUserService) GetTransactions(_a0 context.Context, _a1 model.GetReq) ([]model.User, error) {
+// GetUsers provides a mock function with given fields: _a0, _a1
+func (_m *MockUserService) GetUsers(_a0 context.Context, _a1 model.GetReq) ([]model.User, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for GetTransactions")
+		panic("no return value specified for GetUsers")
 	}
 
 	var r0 []model.User
@@ -109,31 +109,31 @@ func (_m *MockUserService) GetTransactions(_a0 context.Context, _a1 model.GetReq
 	return r0, r1
 }
 
-// MockUserService_GetTransactions_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetTransactions'
-type MockUserService_GetTransactions_Call struct {
+// MockUserService_GetUsers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUsers'
+type MockUserService_GetUsers_Call struct {
 	*mock.Call
 }
 
-// GetTransactions is a helper method to define mock.On call
+// GetUsers is a helper method to define mock.On call
 //   - _a0 context.Context
 //   - _a1 model.GetReq
-func (_e *MockUserService_Expecter) GetTransactions(_a0 interface{}, _a1 interface{}) *MockUserService_GetTransactions_Call {
-	return &MockUserService_GetTransactions_Call{Call: _e.mock.On("GetTransactions", _a0, _a1)}
+func (_e *MockUserService_Expecter) GetUsers(_a0 interface{}, _a1 interface{}) *MockUserService_GetUsers_Call {
+	return &MockUserService_GetUsers_Call{Call: _e.mock.On("GetUsers", _a0, _a1)}
 }
 
-func (_c *MockUserService_GetTransactions_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockUserService_GetTransactions_Call {
+func (_c *MockUserService_GetUsers_Call) Run(run func(_a0 context.Context, _a1 model.GetReq)) *MockUserService_GetUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(model.GetReq))
 	})
 	return _c
 }
 
-func (_c *MockUserService_GetTransactions_Call) Return(_a0 []model.User, _a1 error) *MockUserService_GetTransactions_Call {
+func (_c *MockUserService_GetUsers_Call) Return(_a0 []model.User, _a1 error) *MockUserService_GetUsers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockUserService_GetTransactions_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]model.User, error)) *MockUserService_GetTransactions_Call {
+func (_c *MockUserService_GetUsers_Call) RunAndReturn(run func(context.Context, model.GetReq) ([]model.User, error)) *MockUserService_GetUsers_Call {
 	_c.Call.Return(run)
 	return _c
 }

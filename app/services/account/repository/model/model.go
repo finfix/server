@@ -1,8 +1,9 @@
 package model
 
 import (
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 
 	"server/app/pkg/datetime"
 	"server/app/services/account/model/accountType"
@@ -20,7 +21,7 @@ type CreateAccountReq struct {
 	AccountingInCharts bool
 	IsParent           bool
 	ParentAccountID    *uint32
-	UserID             uint32
+	UserID             *uint32
 	DatetimeCreate     time.Time
 }
 
