@@ -3,8 +3,10 @@ package generalRepository
 import (
 	"context"
 	"fmt"
-	"github.com/shopspring/decimal"
+	"sync"
 	"time"
+
+	"github.com/shopspring/decimal"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/logging"
@@ -16,7 +18,24 @@ import (
 type Repository struct {
 	db       sql.SQL
 	logger   *logging.Logger
+	accesses accessesMap
+}
+
+type accessesMap struct {
 	accesses map[uint32]map[uint32]struct{}
+	mu       sync.RWMutex
+}
+
+func (am *accessesMap) Get() map[uint32]map[uint32]struct{} {
+	am.mu.RLock()
+	defer am.mu.RUnlock()
+	return am.accesses
+}
+
+func (am *accessesMap) Set(accesses map[uint32]map[uint32]struct{}) {
+	am.mu.Lock()
+	defer am.mu.Unlock()
+	am.accesses = accesses
 }
 
 // WithinTransaction принимает коллбэк, который будет выполнен в рамках транзакции
@@ -149,7 +168,7 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
-			if _, ok := repo.accesses[userID][accountGroupID]; !ok {
+			if _, ok := repo.accesses.Get()[userID][accountGroupID]; !ok {
 				return errors.Forbidden.New("Access denied", errors.Options{
 					Params: map[string]any{
 						"UserID": userID,
@@ -248,8 +267,8 @@ func (repo *Repository) getAccesses(ctx context.Context) (_ map[uint32]map[uint3
 }
 
 func (repo *Repository) GetAvailableAccountGroups(userID uint32) []uint32 {
-	availableAccountGroupIDs := make([]uint32, 0, len(repo.accesses[userID]))
-	for accountGroupID := range repo.accesses[userID] {
+	availableAccountGroupIDs := make([]uint32, 0, len(repo.accesses.Get()[userID]))
+	for accountGroupID := range repo.accesses.Get()[userID] {
 		availableAccountGroupIDs = append(availableAccountGroupIDs, accountGroupID)
 	}
 	return availableAccountGroupIDs
@@ -276,8 +295,8 @@ func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
 
 func (repo *Repository) refreshAccesses(doOnce bool) error {
 	for {
-		var err error
-		repo.accesses, err = repo.getAccesses(context.Background())
+		_accesses, err := repo.getAccesses(context.Background())
+		repo.accesses.Set(_accesses)
 		if doOnce {
 			return err
 		}

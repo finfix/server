@@ -2,6 +2,7 @@ package accountPermissions
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"server/app/pkg/errors"
@@ -21,10 +22,34 @@ type AccountPermissions struct {
 }
 
 type Service struct {
-	db                    sql.SQL
-	logger                *logging.Logger
+	db          sql.SQL
+	logger      *logging.Logger
+	permissions permissions
+}
+
+type permissions struct {
 	typeToPermissions     map[accountType.Type]AccountPermissions
 	isParentToPermissions map[bool]AccountPermissions
+	mu                    sync.RWMutex
+}
+
+func (p *permissions) get() (
+	map[accountType.Type]AccountPermissions,
+	map[bool]AccountPermissions,
+) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return p.typeToPermissions, p.isParentToPermissions
+}
+
+func (p *permissions) set(
+	typeToPermissions map[accountType.Type]AccountPermissions,
+	isParentToPermissions map[bool]AccountPermissions,
+) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	p.typeToPermissions = typeToPermissions
+	p.isParentToPermissions = isParentToPermissions
 }
 
 var generalPermissions = AccountPermissions{
@@ -37,7 +62,12 @@ var generalPermissions = AccountPermissions{
 }
 
 func (s *Service) GetAccountPermissions(account model.Account) AccountPermissions {
-	return joinAccountPermissions(generalPermissions, s.typeToPermissions[account.Type], s.isParentToPermissions[account.IsParent])
+	typeToPermissions, isParentToPermissions := s.permissions.get()
+	return joinAccountPermissions(
+		generalPermissions,
+		typeToPermissions[account.Type],
+		isParentToPermissions[account.IsParent],
+	)
 }
 
 func (s *Service) CheckAccountPermissions(req model.UpdateAccountReq, permissions AccountPermissions) error {
@@ -73,7 +103,8 @@ func joinAccountPermissions(permissions ...AccountPermissions) (joinedPermission
 func (s *Service) refreshAccountPermissions(doOnce bool) error {
 	for {
 		var err error
-		s.typeToPermissions, s.isParentToPermissions, err = s.getAccountPermissions(context.Background())
+		_typeToPermissions, _isParentToPermissions, err := s.getAccountPermissions(context.Background())
+		s.permissions.set(_typeToPermissions, _isParentToPermissions)
 		if doOnce {
 			return err
 		}
