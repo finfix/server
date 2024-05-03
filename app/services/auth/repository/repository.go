@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	authModel "server/app/services/auth/model"
 )
@@ -54,16 +53,14 @@ func (repo *Repository) GetSession(ctx context.Context, req authModel.RefreshTok
 }
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 func New(
 	db sql.SQL,
-	logger *logging.Logger,
+
 ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

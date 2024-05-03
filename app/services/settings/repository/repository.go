@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"strings"
 
-	"server/app/pkg/logging"
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/sql"
 	settingsModel "server/app/services/settings/model"
 )
@@ -47,13 +47,11 @@ func (repo *Repository) GetIcons(ctx context.Context) (icons []settingsModel.Ico
 }
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
-func New(db sql.SQL, logger *logging.Logger) *Repository {
+func New(db sql.SQL, ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

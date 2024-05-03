@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/slice"
 	accountModel "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
@@ -27,7 +26,6 @@ type Service struct {
 	generalRepository     GeneralRepository
 	permissionsService    AccountPermissionsService
 	tagRepository         TagRepository
-	logger                *logging.Logger
 }
 
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
@@ -310,7 +308,7 @@ func New(
 	generalRepository GeneralRepository,
 	accountPermissions AccountPermissionsService,
 	tagRepository TagRepository,
-	logger *logging.Logger,
+
 ) *Service {
 	return &Service{
 		transactionRepository: transactionRepository,
@@ -318,6 +316,5 @@ func New(
 		generalRepository:     generalRepository,
 		permissionsService:    accountPermissions,
 		tagRepository:         tagRepository,
-		logger:                logger,
 	}
 }

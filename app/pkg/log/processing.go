@@ -1,4 +1,4 @@
-package logging
+package log
 
 import (
 	"context"
@@ -84,7 +84,7 @@ func getConsoleLog(values Log) (log string) {
 	if len(values.Params) != 0 {
 		params, err := json.Marshal(values.Params)
 		if err != nil {
-			GetLogger().Error(context.Background(), errors.InternalServer.Wrap(err))
+			Error(context.Background(), errors.InternalServer.Wrap(err))
 		}
 		logComponents = append(logComponents, string(params))
 	}

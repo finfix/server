@@ -7,30 +7,29 @@ import (
 	"gopkg.in/telebot.v3"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 )
 
 type TgBot struct {
-	Bot    *telebot.Bot
-	Chat   *telebot.Chat
-	logger *logging.Logger
-	isOn   bool
+	Bot  *telebot.Bot
+	Chat *telebot.Chat
+
+	isOn bool
 }
 
 func NewTgBot(
 	token string,
 	chatID int64,
 	isOn bool,
-	logger *logging.Logger,
+
 ) (*TgBot, error) {
 
 	if !isOn {
-		logger.Debug(context.Background(), "Telegram bot is off")
+		log.Debug(context.Background(), "Telegram bot is off")
 		return &TgBot{
-			Bot:    nil,
-			Chat:   nil,
-			isOn:   isOn,
-			logger: logger,
+			Bot:  nil,
+			Chat: nil,
+			isOn: isOn,
 		}, nil
 	}
 
@@ -47,10 +46,9 @@ func NewTgBot(
 	}
 
 	return &TgBot{
-		Bot:    bot,
-		Chat:   chat,
-		isOn:   isOn,
-		logger: logger,
+		Bot:  bot,
+		Chat: chat,
+		isOn: isOn,
 	}, nil
 }
 

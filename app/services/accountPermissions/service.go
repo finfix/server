@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/sql"
 	"server/app/services/account/model"
 	"server/app/services/account/model/accountType"
@@ -22,8 +22,8 @@ type AccountPermissions struct {
 }
 
 type Service struct {
-	db          sql.SQL
-	logger      *logging.Logger
+	db sql.SQL
+
 	permissions permissions
 }
 
@@ -109,7 +109,7 @@ func (s *Service) refreshAccountPermissions(doOnce bool) error {
 			return err
 		}
 		if err != nil {
-			s.logger.Error(context.Background(), err)
+			log.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)
@@ -174,15 +174,14 @@ func (s *Service) getAccountPermissions(ctx context.Context) (
 
 func New(
 	db sql.SQL,
-	logger *logging.Logger,
+
 ) (*Service, error) {
 
 	service := &Service{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 
-	logger.Info(context.Background(), "Получаем пермишены на действия со счетами")
+	log.Info(context.Background(), "Получаем пермишены на действия со счетами")
 	err := service.refreshAccountPermissions(true)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package logging
+package log
 
 import (
 	"context"
@@ -11,34 +11,34 @@ import (
 )
 
 // Panic логгирует сообщения при панике
-func (logger *Logger) Panic(ctx context.Context, err error) {
+func Panic(ctx context.Context, err error) {
 	processingErrorLog(ctx, panicLevel, err)
 }
 
 // Error логгирует сообщения для ошибок системы
-func (logger *Logger) Error(ctx context.Context, err error) {
+func Error(ctx context.Context, err error) {
 	processingErrorLog(ctx, errorLevel, err)
 }
 
 // Warning логгирует сообщения для ошибок пользователя
-func (logger *Logger) Warning(ctx context.Context, err error) {
+func Warning(ctx context.Context, err error) {
 	processingErrorLog(ctx, warningLevel, err)
 }
 
 // Info логгирует сообщения для информации
-func (logger *Logger) Info(ctx context.Context, msg string, args ...any) {
+func Info(ctx context.Context, msg string, args ...any) {
 	processingLog(ctx, infoLevel, msg, args...)
 }
 
 // Fatal логгирует сообщения для фатальных ошибок
-func (logger *Logger) Fatal(err error) {
+func Fatal(err error) {
 	processingErrorLog(context.Background(), fatalLevel, err)
 	time.Sleep(1 * time.Second)
 	os.Exit(1)
 }
 
 // Debug логгирует сообщения для дебага
-func (logger *Logger) Debug(ctx context.Context, msg string, args ...any) {
+func Debug(ctx context.Context, msg string, args ...any) {
 	processingLog(ctx, debugLevel, msg, args...)
 }
 

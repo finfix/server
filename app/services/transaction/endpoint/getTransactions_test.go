@@ -11,7 +11,7 @@ import (
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/transaction/model"
@@ -20,7 +20,7 @@ import (
 
 func TestDecodeGetReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validParams := testingFunc.NewParamUpdater(map[string]string{
 		"offset":    "1",

@@ -9,7 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/sql"
 	"server/app/services/action/model/enum"
 	"server/app/services/generalRepository/checker"
@@ -17,7 +17,6 @@ import (
 
 type Repository struct {
 	db       sql.SQL
-	logger   *logging.Logger
 	accesses accessesMap
 }
 
@@ -274,14 +273,13 @@ func (repo *Repository) GetAvailableAccountGroups(userID uint32) []uint32 {
 	return availableAccountGroupIDs
 }
 
-func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
+func New(db sql.SQL) (_ *Repository, err error) {
 
 	repository := &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 
-	logger.Info(context.Background(), "Получаем доступы пользователей к объектам")
+	log.Info(context.Background(), "Получаем доступы пользователей к объектам")
 	err = repository.refreshAccesses(true)
 	if err != nil {
 		return nil, err
@@ -301,7 +299,7 @@ func (repo *Repository) refreshAccesses(doOnce bool) error {
 			return err
 		}
 		if err != nil {
-			repo.logger.Error(context.Background(), err)
+			log.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)

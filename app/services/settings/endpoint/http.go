@@ -8,7 +8,6 @@ import (
 
 	"server/app/config"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	settingsService "server/app/services/settings/service"
@@ -33,7 +32,7 @@ func authorizationWithAdminKey(ctx context.Context, r *http.Request) (context.Co
 	return ctx, nil
 }
 
-func NewEndpoint(logger *logging.Logger, service *settingsService.Service) http.Handler {
+func NewEndpoint(service *settingsService.Service) http.Handler {
 
 	e := &endpoint{
 		service: service,
@@ -53,10 +52,10 @@ func NewEndpoint(logger *logging.Logger, service *settingsService.Service) http.
 
 	r := mux.NewRouter()
 
-	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(logger, e.updateCurrencies, adminMethodsOptions...))
-	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(logger, e.getCurrencies, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(logger, e.getIcons, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(logger, e.getVersion, []server.Option{
+	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(e.updateCurrencies, adminMethodsOptions...))
+	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, userMethodsOptions...))
+	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(e.getIcons, userMethodsOptions...))
+	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(e.getVersion, []server.Option{
 		server.ResponseEncoder(middleware.DefaultResponseEncoder),
 		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}...))

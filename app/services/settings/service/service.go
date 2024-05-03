@@ -6,7 +6,7 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/tgBot"
 	settingsModel "server/app/services/settings/model"
 	"server/app/services/settings/network"
@@ -24,9 +24,9 @@ type SettingsRepository interface {
 type Service struct {
 	settingsRepository SettingsRepository
 	tgBot              *tgBot.TgBot
-	logger             *logging.Logger
-	version            string
-	build              string
+
+	version string
+	build   string
 }
 
 // UpdateCurrencies обновляет курсы валют
@@ -39,7 +39,7 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 	defer func() {
 		err := s.tgBot.SendMessage(ctx, tgMessage)
 		if err != nil {
-			s.logger.Error(ctx, err)
+			log.Error(ctx, err)
 		}
 	}()
 
@@ -91,12 +91,12 @@ func (s *Service) GetVersion() settingsModel.Version {
 	}
 }
 
-func New(rep SettingsRepository, tgBot *tgBot.TgBot, logger *logging.Logger, version, build string) *Service {
+func New(rep SettingsRepository, tgBot *tgBot.TgBot, version, build string) *Service {
 	return &Service{
 		settingsRepository: rep,
 		tgBot:              tgBot,
-		logger:             logger,
-		version:            version,
-		build:              build,
+
+		version: version,
+		build:   build,
 	}
 }

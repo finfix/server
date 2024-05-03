@@ -2,16 +2,17 @@ package endpoint
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
@@ -20,7 +21,7 @@ import (
 
 func TestDecodeAccountCreateReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"remainder": 1.1,

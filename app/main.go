@@ -13,7 +13,7 @@ import (
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/tgBot"
@@ -74,15 +74,12 @@ func main() {
 
 	// Перехватываем панику
 	defer panicRecover.PanicRecover(func(err error) {
-		logging.GetLogger().Panic(mainCtx, err)
+		log.Panic(mainCtx, err)
 	})
 
 	isSetupTelegram := false
 	flag.BoolVar(&isSetupTelegram, "telegram", false, "Включаем ли телеграм бот")
 	flag.Parse()
-
-	// Получаем логгер
-	logger := logging.GetLogger()
 
 	decimal.MarshalJSONWithoutQuotes = true
 
@@ -93,46 +90,42 @@ func main() {
 	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
 
 	// Подключаемся к базе данных
-	logger.Info(mainCtx, "Подключаемся к БД")
+	log.Info(mainCtx, "Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	logger.Info(mainCtx, "Инициализируем телеграм клиента")
-	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, isSetupTelegram, logger)
+	log.Info(mainCtx, "Инициализируем телеграм клиента")
+	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, isSetupTelegram)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 	defer tgBot.Bot.Close()
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.New(db, logger)
+	generalRepository, err := generalRepository.New(db)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
-	accountRepository := accountRepository.New(db, logger)
-	tagRepository := tagRepository.New(db, logger)
-	transactionRepository := transactionRepository.New(db, logger)
-	settingsRepository := settingsRepository.New(db, logger)
-	userRepository := userRepository.New(db, logger)
-	authRepository := authRepository.New(db, logger)
+	accountRepository := accountRepository.New(db)
+	tagRepository := tagRepository.New(db)
+	transactionRepository := transactionRepository.New(db)
+	settingsRepository := settingsRepository.New(db)
+	userRepository := userRepository.New(db)
+	authRepository := authRepository.New(db)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.New(
-		db,
-		logger,
-	)
+	accountPermisssionsService, err := accountPermisssionsService.New(db)
 	if err != nil {
-		logger.Fatal(err)
+		log.Fatal(err)
 	}
 
 	settingsService := settingsService.New(
 		settingsRepository,
 		tgBot,
-		logger,
 		version,
 		build,
 	)
@@ -143,13 +136,11 @@ func main() {
 		transactionRepository,
 		userRepository,
 		accountPermisssionsService,
-		logger,
 	)
 
 	tagService := tagService.New(
 		tagRepository,
 		generalRepository,
-		logger,
 	)
 
 	transactionService := transactionService.New(
@@ -158,14 +149,13 @@ func main() {
 		generalRepository,
 		accountPermisssionsService,
 		tagRepository,
-		logger,
 	)
 
 	userService := userService.New(
 		userRepository,
 		generalRepository,
 		accountRepository,
-		logger,
+
 	)
 
 	authService := authService.New(
@@ -173,33 +163,33 @@ func main() {
 		userRepository,
 		generalRepository,
 		[]byte(cfg.GeneralSalt),
-		logger,
+
 	)
 
-	logger.Info(mainCtx, "Запускаем планировщик")
-	if err = scheduler.NewScheduler(settingsService, logger).Start(); err != nil {
-		logger.Fatal(err)
+	log.Info(mainCtx, "Запускаем планировщик")
+	if err = scheduler.NewScheduler(settingsService).Start(); err != nil {
+		log.Fatal(err)
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/account", accountEndpoint.NewEndpoint(logger, accountService))
-	mux.Handle("/account/", accountEndpoint.NewEndpoint(logger, accountService))
-	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(logger, transactionService))
-	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(logger, transactionService))
-	mux.Handle("/tag/", tagEndpoint.NewEndpoint(logger, tagService))
-	mux.Handle("/tag", tagEndpoint.NewEndpoint(logger, tagService))
-	mux.Handle("/auth/", authEndpoint.NewEndpoint(logger, authService))
-	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(logger, settingsService))
-	mux.Handle("/user/", userEndpoint.NewEndpoint(logger, userService))
+	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
+	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
+	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
+	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
+	mux.Handle("/tag/", tagEndpoint.NewEndpoint(tagService))
+	mux.Handle("/tag", tagEndpoint.NewEndpoint(tagService))
+	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
+	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService))
+	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
 
-	logger.Info(mainCtx, "Запускаем HTTP-сервер")
+	log.Info(mainCtx, "Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
-		logger.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
+		log.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
 	}
-	logger.Info(mainCtx, "Server is listening %v", cfg.HTTP)
+	log.Info(mainCtx, "Server is listening %v", cfg.HTTP)
 
 	go func() {
 		server := &http.Server{
@@ -210,7 +200,7 @@ func main() {
 		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
 	}()
 
-	logger.Fatal(<-errs)
+	log.Fatal(<-errs)
 }
 
 func CORS(handler http.Handler) http.Handler {
@@ -226,7 +216,7 @@ func CORS(handler http.Handler) http.Handler {
 
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
-			logging.GetLogger().Panic(context.Background(), err)
+			log.Panic(context.Background(), err)
 			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 

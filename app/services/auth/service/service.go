@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"server/app/pkg/auth"
-	"server/app/pkg/logging"
 	authModel "server/app/services/auth/model"
 	authRepository "server/app/services/auth/repository"
 	"server/app/services/generalRepository"
@@ -60,7 +59,6 @@ type Service struct {
 	userService       UserService
 	generalRepository GeneralRepository
 	generalSalt       []byte
-	logger            *logging.Logger
 }
 
 func New(
@@ -68,13 +66,12 @@ func New(
 	userService UserService,
 	generalRepository GeneralRepository,
 	generalSalt []byte,
-	logger *logging.Logger,
+
 ) *Service {
 	return &Service{
 		authRepository:    authRepository,
 		userService:       userService,
 		generalRepository: generalRepository,
 		generalSalt:       generalSalt,
-		logger:            logger,
 	}
 }

@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/testingFunc"
 )
 
 func TestAuthorization(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	for _, tt := range []struct {
 		message string

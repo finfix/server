@@ -6,14 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	userModel "server/app/services/user/model"
 )
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 func (repo *Repository) LinkUserToAccountGroup(ctx context.Context, userID uint32, accountGroupID uint32) error {
@@ -90,9 +88,8 @@ func (repo *Repository) GetUsers(ctx context.Context, filters userModel.GetReq) 
 	return user, repo.db.Select(ctx, &user, query, args...)
 }
 
-func New(db sql.SQL, logger *logging.Logger) *Repository {
+func New(db sql.SQL, ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

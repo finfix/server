@@ -7,14 +7,14 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
 )
 
 func TestDecodeGetAccountGroupsReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validWant := &model.GetAccountGroupsReq{
 		Necessary: testingFunc.ValidNecessary,

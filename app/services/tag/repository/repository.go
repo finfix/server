@@ -7,15 +7,13 @@ import (
 	"strings"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	"server/app/services/tag/model"
 	tagRepoModel "server/app/services/tag/repository/model"
 )
 
 type TagRepository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 // CreateTag создает новую подкатегорию
@@ -208,9 +206,8 @@ func (repo *TagRepository) GetTagsToTransactions(ctx context.Context, req model.
 	return res, repo.db.Select(ctx, &res, request, args...)
 }
 
-func New(db sql.SQL, logger *logging.Logger) *TagRepository {
+func New(db sql.SQL, ) *TagRepository {
 	return &TagRepository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

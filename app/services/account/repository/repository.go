@@ -3,19 +3,18 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/shopspring/decimal"
 	"strings"
 
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	"server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 )
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 func (repo *Repository) CreateAccountGroup(ctx context.Context, req model.CreateAccountGroupReq) (uint32, error) {
@@ -428,9 +427,8 @@ func (repo *Repository) SwitchAccountsBetweenThemselves(ctx context.Context, id1
 	)
 }
 
-func New(db sql.SQL, logger *logging.Logger) *Repository {
+func New(db sql.SQL, ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

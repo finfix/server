@@ -5,7 +5,6 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
 	accountRepository "server/app/services/account/repository"
 	accountRepoModel "server/app/services/account/repository/model"
@@ -69,7 +68,6 @@ type Service struct {
 	transaction               TransactionRepository
 	user                      UserRepository
 	accountPermissionsService AccountPermissionsService
-	logger                    *logging.Logger
 }
 
 func New(
@@ -78,7 +76,7 @@ func New(
 	transaction TransactionRepository,
 	user UserRepository,
 	permissionsService AccountPermissionsService,
-	logger *logging.Logger,
+
 ) *Service {
 	s := &Service{
 		accountRepository:         account,
@@ -86,7 +84,6 @@ func New(
 		transaction:               transaction,
 		user:                      user,
 		accountPermissionsService: permissionsService,
-		logger:                    logger,
 	}
 	s.accountService = s
 	return s

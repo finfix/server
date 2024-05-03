@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"testing"
 
-	"server/app/pkg/logging"
+	"github.com/shopspring/decimal"
+
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
@@ -15,7 +16,7 @@ import (
 
 func TestService_update(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	type interfaces struct {
 		accountRepository     *mocks.MockAccountRepository
@@ -89,7 +90,7 @@ func TestService_update(t *testing.T) {
 				user:                      userRepository,
 				accountPermissionsService: accountPermissionService,
 				accountService:            accountService,
-				logger:                    logging.GetLogger(),
+				logger:                    log,
 			}
 			interfaces := interfaces{
 				accountRepository:     accountRepository,

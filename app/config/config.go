@@ -7,7 +7,7 @@ import (
 
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 )
 
 // Config - общая структура конфига
@@ -53,7 +53,7 @@ func GetConfig() *Config {
 	once.Do(func() {
 		instance = &Config{}
 		if err := env.Parse(instance); err != nil {
-			logging.GetLogger().Fatal(errors.InternalServer.Wrap(err))
+			log.Fatal(errors.InternalServer.Wrap(err))
 		}
 	})
 	return instance

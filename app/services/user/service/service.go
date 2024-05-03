@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository"
@@ -33,7 +32,6 @@ type Service struct {
 	user    UserRepository
 	account AccountRepository
 	general GeneralRepository
-	logger  *logging.Logger
 }
 
 // CreateUser создает нового пользователя
@@ -50,12 +48,11 @@ func New(
 	user UserRepository,
 	general GeneralRepository,
 	account AccountRepository,
-	logger *logging.Logger,
+
 ) *Service {
 	return &Service{
 		user:    user,
 		general: general,
 		account: account,
-		logger:  logger,
 	}
 }

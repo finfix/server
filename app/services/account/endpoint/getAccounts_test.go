@@ -10,7 +10,7 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
@@ -19,7 +19,7 @@ import (
 
 func TestDecodeGetAccountsReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validParams := testingFunc.NewParamUpdater(map[string]string{
 		"type":               "expense",
