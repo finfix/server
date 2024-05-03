@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
+	"flag"
 	"net/http"
 	"time"
 
+	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"server/app/config"
@@ -31,7 +32,6 @@ import (
 	tagEndpoint "server/app/services/tag/endpoint"
 	tagRepository "server/app/services/tag/repository"
 	tagService "server/app/services/tag/service"
-	tgBotService "server/app/services/tgBot/service"
 	transactionEndpoint "server/app/services/transaction/endpoint"
 	transactionRepository "server/app/services/transaction/repository"
 	transactionService "server/app/services/transaction/service"
@@ -41,7 +41,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0.4 (build 12)
+// @version 1.1.0 (build 13)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -61,8 +61,8 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
 
-const version = "1.0.4"
-const build = "12"
+const version = "1.1.0"
+const build = "13"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -76,6 +76,10 @@ func main() {
 	defer panicRecover.PanicRecover(func(err error) {
 		logging.GetLogger().Panic(mainCtx, err)
 	})
+
+	isSetupTelegram := false
+	flag.BoolVar(&isSetupTelegram, "telegram", false, "Включаем ли телеграм бот")
+	flag.Parse()
 
 	// Получаем логгер
 	logger := logging.GetLogger()
@@ -98,13 +102,11 @@ func main() {
 
 	// Инициализируем клиента телеграм
 	logger.Info(mainCtx, "Инициализируем телеграм клиента")
-	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, isSetupTelegram, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
-
-	// Регистрируем сервисы
-	tgBotService := tgBotService.New(tgBot, tgChat, logger)
+	defer tgBot.Bot.Close()
 
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db, logger)
@@ -129,7 +131,7 @@ func main() {
 
 	settingsService := settingsService.New(
 		settingsRepository,
-		tgBotService,
+		tgBot,
 		logger,
 		version,
 		build,
