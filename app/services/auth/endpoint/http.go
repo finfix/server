@@ -24,8 +24,6 @@ func NewEndpoint(service *authService.Service) http.Handler {
 
 	options := []server.Option{
 		server.Before(middleware.DefaultDeviceIDValidator),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}
 
 	r := mux.NewRouter()
@@ -35,8 +33,6 @@ func NewEndpoint(service *authService.Service) http.Handler {
 	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(s.refreshTokens, []server.Option{
 		server.Before(middleware.DefaultDeviceIDValidator),
 		server.Before(middleware.ExtractDataFromToken),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}...))
 	return r
 }

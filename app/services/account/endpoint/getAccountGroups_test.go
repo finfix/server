@@ -17,7 +17,8 @@ func TestDecodeGetAccountGroupsReq(t *testing.T) {
 	log.Off()
 
 	validWant := &model.GetAccountGroupsReq{
-		Necessary: testingFunc.ValidNecessary,
+		Necessary:       testingFunc.ValidNecessary,
+		AccountGroupIDs: nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {

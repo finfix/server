@@ -10,6 +10,7 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
+	"server/app/pkg/jwtManager"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 )
@@ -27,8 +28,6 @@ func TestAuthorization(t *testing.T) {
 		userID:   1,
 		deviceID: "wantDeviceID",
 	}
-
-	NewAuthMiddleware("test")
 
 	for _, tt := range []struct {
 		message string
@@ -59,21 +58,30 @@ func TestAuthorization(t *testing.T) {
 		{
 			"3.Невалидный токен",
 			pointer.Pointer("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjUyNTg5ODMyMTEsInN1YiI6IjEifQ.TneMNhesU3VT0XVGb8dGg8zyyObrmPk_x9kdh-aJDwQ"),
-			nil,
+			&createTokenParams{
+				userID:   0,
+				deviceID: "",
+				ttl:      -time.Hour,
+			},
 			errors.Unauthorized.Wrap(jwt.ErrSignatureInvalid),
 		},
 		{
 			"4.Пустой токен",
 			pointer.Pointer(""),
-			nil,
+			&createTokenParams{
+				userID:   0,
+				deviceID: "",
+				ttl:      time.Hour,
+			},
 			errors.Unauthorized.New("JWT-token is empty"),
 		},
 		{
 			"5.Токен без DeviceID",
 			nil,
 			&createTokenParams{
-				userID: validParams.userID,
-				ttl:    validParams.ttl,
+				userID:   validParams.userID,
+				ttl:      validParams.ttl,
+				deviceID: "",
 			},
 			errors.Unauthorized.New("DeviceID is empty"),
 		},
@@ -83,6 +91,7 @@ func TestAuthorization(t *testing.T) {
 			&createTokenParams{
 				deviceID: validParams.deviceID,
 				ttl:      validParams.ttl,
+				userID:   0,
 			},
 			errors.Unauthorized.New("UserID is empty"),
 		},
@@ -91,11 +100,13 @@ func TestAuthorization(t *testing.T) {
 
 			tt := tt
 
+			jwtManager.Init([]byte("test"), tt.params.ttl)
+
 			// Если токен не передан, то создаем его
 			if tt.token == nil {
 
 				// Создаем токен
-				token, err := jwtManager.NewJWT(tt.params.userID, "test", tt.params.deviceID, tt.params.ttl)
+				token, err := jwtManager.NewJWT(tt.params.userID, tt.params.deviceID)
 				if err != nil {
 					t.Fatalf("\nНе смогли создать JWV-токен: %v", err)
 				}

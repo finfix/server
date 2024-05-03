@@ -8,4 +8,4 @@ import (
 
 var ErrNoRows = sql.ErrNoRows
 
-var secondPathDepthOption = errors.Options{PathDepth: errors.SecondPathDepth}
+var secondPathDepthOption = []errors.Option{errors.PathDepthOption(errors.SecondPathDepth)}

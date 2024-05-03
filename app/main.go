@@ -70,12 +70,19 @@ const (
 )
 
 func main() {
+	if err := mainNoExit(); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	mainCtx := context.Background()
+func mainNoExit() error {
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Перехватываем панику
 	defer panicRecover.PanicRecover(func(err error) {
-		log.Panic(mainCtx, err)
+		log.Panic(ctx, err)
 	})
 
 	isSetupTelegram := false
@@ -86,28 +93,31 @@ func main() {
 	cfg := config.GetConfig()
 
 	// Инициализируем все сервисы
-	Init(cfg)
+	err := initServices(cfg)
+	if err != nil {
+		return err
+	}
 
 	// Подключаемся к базе данных
-	log.Info(mainCtx, "Подключаемся к БД")
+	log.Info(ctx, "Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	log.Info(mainCtx, "Инициализируем телеграм клиента")
+	log.Info(ctx, "Инициализируем телеграм клиента")
 	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, isSetupTelegram)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	defer tgBot.Bot.Close()
 
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	accountRepository := accountRepository.New(db)
 	tagRepository := tagRepository.New(db)
@@ -119,7 +129,7 @@ func main() {
 	// Регистрируем сервисы
 	accountPermisssionsService, err := accountPermisssionsService.New(db)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	settingsService := settingsService.New(
@@ -165,9 +175,9 @@ func main() {
 
 	)
 
-	log.Info(mainCtx, "Запускаем планировщик")
+	log.Info(ctx, "Запускаем планировщик")
 	if err = scheduler.NewScheduler(settingsService).Start(); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	mux := http.NewServeMux()
@@ -184,22 +194,33 @@ func main() {
 
 	errs := make(chan error)
 
-	log.Info(mainCtx, "Запускаем HTTP-сервер")
+	log.Info(ctx, "Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
-		log.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
+		return errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана")
 	}
-	log.Info(mainCtx, "Server is listening %v", cfg.HTTP)
+	log.Info(ctx, "Server is listening %v", cfg.HTTP)
 
 	go func() {
 		server := &http.Server{
-			Addr:              cfg.HTTP,
-			Handler:           CORS(mux),
-			ReadHeaderTimeout: readHeaderTimeout,
+			Addr:                         cfg.HTTP,
+			Handler:                      CORS(mux),
+			DisableGeneralOptionsHandler: false,
+			TLSConfig:                    nil,
+			ReadTimeout:                  0,
+			ReadHeaderTimeout:            readHeaderTimeout,
+			WriteTimeout:                 0,
+			IdleTimeout:                  0,
+			MaxHeaderBytes:               0,
+			TLSNextProto:                 nil,
+			ConnState:                    nil,
+			ErrorLog:                     nil,
+			BaseContext:                  nil,
+			ConnContext:                  nil,
 		}
 		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
 	}()
 
-	log.Fatal(<-errs)
+	return <-errs
 }
 
 func CORS(handler http.Handler) http.Handler {
@@ -223,7 +244,7 @@ func CORS(handler http.Handler) http.Handler {
 	})
 }
 
-func Init(cfg *config.Config) error {
+func initServices(cfg *config.Config) error {
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true

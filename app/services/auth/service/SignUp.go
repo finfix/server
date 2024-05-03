@@ -15,15 +15,13 @@ import (
 func (s *Service) SignUp(ctx context.Context, user model.SignUpReq) (accessData model.AuthRes, err error) {
 
 	// Проверяем, есть ли пользователь в бд с таким email
-	if _users, err := s.userService.GetUsers(ctx, userModel.GetReq{Emails: []string{user.Email}}); err != nil {
+	if _users, err := s.userService.GetUsers(ctx, userModel.GetReq{Emails: []string{user.Email}}); err != nil { //nolint:exhaustruct
 		return accessData, err
 	} else if len(_users) != 0 {
-		return accessData, errors.Forbidden.New("User with this email is already registered", errors.Options{
-			HumanText: "Пользователь с таким email уже зарегистрирован",
-			Params: map[string]any{
-				"email": user.Email,
-			},
-		})
+		return accessData, errors.Forbidden.New("User with this email is already registered", []errors.Option{
+			errors.HumanTextOption("Пользователь с таким email уже зарегистрирован"),
+			errors.ParamsOption("email", user.Email),
+		}...)
 	}
 
 	// Получаем хэш пароля пользователя

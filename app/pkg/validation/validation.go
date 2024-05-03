@@ -10,15 +10,15 @@ import (
 func Mail(email string) error {
 	matched, err := regexp.MatchString(`^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$`, email)
 	if err != nil {
-		return errors.InternalServer.Wrap(err, errors.Options{
-			Params: map[string]any{"email": email},
-		})
+		return errors.InternalServer.Wrap(err, []errors.Option{
+			errors.ParamsOption("email", email),
+		}...)
 	}
 	if !matched {
-		return errors.BadRequest.New("Invalid email address provided", errors.Options{
-			Params:    map[string]any{"email": email},
-			HumanText: "Неверно введен адрес электронной почты",
-		})
+		return errors.BadRequest.New("Invalid email address provided", []errors.Option{
+			errors.ParamsOption("email", email),
+			errors.HumanTextOption("Неверно введен адрес электронной почты"),
+		}...)
 	}
 	return nil
 }
@@ -26,10 +26,10 @@ func Mail(email string) error {
 func zeroValue(requestStruct any, tag string, depth int) error {
 
 	if reflect.ValueOf(requestStruct).Kind() != reflect.Struct {
-		return errors.InternalServer.New("Пришедший интерфейс не равен структуре", errors.Options{
-			Params:    map[string]any{"Тип структуры": reflect.ValueOf(requestStruct).Kind().String()},
-			PathDepth: errors.SecondPathDepth,
-		})
+		return errors.InternalServer.New("Пришедший интерфейс не равен структуре", []errors.Option{
+			errors.ParamsOption("Тип структуры", reflect.ValueOf(requestStruct).Kind().String()),
+			errors.PathDepthOption(errors.SecondPathDepth),
+		}...)
 	}
 
 	// Получаем тип данных структуры (ждем обязательно структуру)
@@ -65,10 +65,10 @@ func zeroValue(requestStruct any, tag string, depth int) error {
 				tag += "."
 			}
 
-			return errors.BadRequest.New("Required field is not filled", errors.Options{
-				PathDepth: depth,
-				Params:    map[string]any{"field": tag + jsTag},
-			})
+			return errors.BadRequest.New("Required field is not filled", []errors.Option{
+				errors.PathDepthOption(depth),
+				errors.ParamsOption("field", tag+jsTag),
+			}...)
 		}
 
 		// Если тип поля структура

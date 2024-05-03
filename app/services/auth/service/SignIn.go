@@ -13,14 +13,14 @@ import (
 func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (accessData model.AuthRes, err error) {
 
 	// Получаем пользователя по email
-	users, err := s.userService.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}})
+	users, err := s.userService.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct
 	if err != nil {
 		return accessData, err
 	}
 	if len(users) == 0 {
-		return accessData, errors.NotFound.New("User not found", errors.Options{
-			HumanText: "Пользователь не найден",
-		})
+		return accessData, errors.NotFound.New("User not found", []errors.Option{
+			errors.HumanTextOption("Пользователь не найден"),
+		}...)
 	}
 	user := users[0]
 

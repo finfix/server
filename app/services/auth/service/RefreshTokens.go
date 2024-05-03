@@ -19,16 +19,16 @@ func (s *Service) RefreshTokens(ctx context.Context, req model.RefreshTokensReq)
 
 	// Проверяем, есть ли вообще сессия
 	if session.ID == 0 {
-		return newTokens, errors.Unauthorized.New("Session not found", errors.Options{
-			HumanText: "Сессия не найдена",
-		})
+		return newTokens, errors.Unauthorized.New("Session not found", []errors.Option{
+			errors.HumanTextOption("Сессия не найдена"),
+		}...)
 	}
 
 	// Проверяем, не истекла ли сессия
 	if session.ExpiresAt.Before(time.Now()) {
-		return newTokens, errors.Unauthorized.New("Session ended", errors.Options{
-			HumanText: "Истек строк действия токена авторизации, необходимо авторизоваться снова",
-		})
+		return newTokens, errors.Unauthorized.New("Session ended", []errors.Option{
+			errors.HumanTextOption("Истек строк действия токена авторизации, необходимо авторизоваться снова"),
+		}...)
 	}
 
 	// Удаляем все сессии для пользователя и устройства в бд

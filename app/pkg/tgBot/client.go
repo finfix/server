@@ -34,7 +34,16 @@ func NewTgBot(
 	}
 
 	bot, err := telebot.NewBot(telebot.Settings{
-		Token: token,
+		URL:         "",
+		Token:       token,
+		Updates:     0,
+		Poller:      nil,
+		Synchronous: false,
+		Verbose:     false,
+		ParseMode:   telebot.ModeMarkdownV2,
+		OnError:     nil,
+		Client:      nil,
+		Offline:     false,
 	})
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
@@ -59,13 +68,9 @@ func (s *TgBot) SendMessage(_ context.Context, req SendMessageReq) error {
 		return nil
 	}
 
-	opts := &telebot.SendOptions{
-		ParseMode: telebot.ModeMarkdownV2,
-	}
-
 	req.Message = strings.ReplaceAll(req.Message, ".", "\\.")
 
-	if _, err := s.Bot.Send(s.Chat, req.Message, opts); err != nil {
+	if _, err := s.Bot.Send(s.Chat, req.Message); err != nil {
 		return errors.InternalServer.Wrap(err)
 	}
 

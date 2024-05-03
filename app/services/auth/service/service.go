@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"server/app/pkg/jwtManager"
 	authModel "server/app/services/auth/model"
 	authRepository "server/app/services/auth/repository"
 	"server/app/services/generalRepository"

@@ -38,6 +38,7 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 	}`)
 
 	validWant := &model.UpdateAccountReq{
+		Necessary:          testingFunc.ValidNecessary,
 		ID:                 1,
 		Remainder:          pointer.Pointer(decimal.NewFromFloat(1.1)),
 		Name:               pointer.Pointer("name"),
@@ -45,13 +46,14 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 		Visible:            pointer.Pointer(true),
 		AccountingInHeader: pointer.Pointer(true),
 		AccountingInCharts: pointer.Pointer(true),
+		Currency:           nil,
+		ParentAccountID:    nil,
 		Budget: model.UpdateAccountBudgetReq{
 			Amount:         pointer.Pointer(decimal.NewFromFloat(1.1)),
 			FixedSum:       pointer.Pointer(decimal.NewFromFloat(1.1)),
 			DaysOffset:     pointer.Pointer(uint32(1)),
 			GradualFilling: pointer.Pointer(true),
 		},
-		Necessary: testingFunc.ValidNecessary,
 	}
 
 	for _, tt := range []struct {
@@ -84,8 +86,22 @@ func TestDecodeUpdateAccountReq(t *testing.T) {
 			}`,
 			testingFunc.GeneralCtx.Get(),
 			&model.UpdateAccountReq{
-				ID:        1,
-				Necessary: testingFunc.ValidNecessary,
+				Necessary:          testingFunc.ValidNecessary,
+				ID:                 1,
+				Remainder:          nil,
+				Name:               nil,
+				IconID:             nil,
+				Visible:            nil,
+				AccountingInHeader: nil,
+				AccountingInCharts: nil,
+				Currency:           nil,
+				ParentAccountID:    nil,
+				Budget: model.UpdateAccountBudgetReq{
+					Amount:         nil,
+					FixedSum:       nil,
+					DaysOffset:     nil,
+					GradualFilling: nil,
+				},
 			},
 			nil,
 		},

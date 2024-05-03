@@ -8,9 +8,12 @@ import (
 	"testing"
 
 	"server/app/pkg/errors"
+	"server/app/pkg/log"
 )
 
 func TestEncodeErrorResponse(t *testing.T) {
+
+	log.Off()
 
 	for _, tt := range []struct {
 		name      string
@@ -45,7 +48,7 @@ func TestEncodeErrorResponse(t *testing.T) {
 				t.Fatalf("Полученный httpCode: %v, ожидаемый: %v. Ошибка:%v", w.Code, wantCode, w.Body.String())
 			}
 
-			getCustomErr := errors.CustomError{}
+			getCustomErr := errors.CustomError{} // nolint:exhaustruct
 			if err := json.NewDecoder(w.Body).Decode(&getCustomErr); err != nil {
 				t.Fatalf("Ошибка декодирования: %v", err)
 			}

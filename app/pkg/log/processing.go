@@ -58,7 +58,7 @@ func processingLog(ctx context.Context, level logLevel, msg string, args ...any)
 
 func shareLog(values Log) {
 
-	if logger.isOff {
+	if !logger.isOn {
 		return
 	}
 

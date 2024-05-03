@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"server/app/pkg/log"
+	"server/app/pkg/middleware"
 )
 
 type Chain struct {
@@ -18,7 +19,11 @@ type Chain struct {
 
 func NewChain(send SendFunc, opts ...Option) *Chain {
 	chain := &Chain{
-		send: send,
+		before:      nil,
+		send:        send,
+		after:       nil,
+		encode:      middleware.DefaultResponseEncoder,
+		errorEncode: middleware.DefaultErrorEncoder,
 	}
 	for _, option := range opts {
 		option(chain)
@@ -28,6 +33,7 @@ func NewChain(send SendFunc, opts ...Option) *Chain {
 
 type Option func(*Chain)
 
+/*
 func ResponseEncoder(e EncodeResponseFunc) Option {
 	return func(s *Chain) { s.encode = e }
 }
@@ -35,6 +41,7 @@ func ResponseEncoder(e EncodeResponseFunc) Option {
 func ErrorEncoder(ee EncodeErrorFunc) Option {
 	return func(s *Chain) { s.errorEncode = ee }
 }
+*/
 
 func Before(before ...BeforeFunc) Option {
 	return func(s *Chain) { s.before = append(s.before, before...) }

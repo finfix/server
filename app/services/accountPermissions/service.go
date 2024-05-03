@@ -179,6 +179,11 @@ func New(
 
 	service := &Service{
 		db: db,
+		permissions: permissions{
+			typeToPermissions:     nil,
+			isParentToPermissions: nil,
+			mu:                    sync.RWMutex{},
+		},
 	}
 
 	log.Info(context.Background(), "Получаем пермишены на действия со счетами")

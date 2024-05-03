@@ -41,7 +41,7 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 		if !accountToCreate.Remainder.IsZero() {
 
 			// Получаем счет
-			accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}})
+			accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}}) //nolint:exhaustruct
 			if err != nil {
 				return err
 			}
@@ -51,7 +51,7 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 			account := accounts[0]
 
 			// Меняем остаток счета созданием транзакции
-			updateRes, err := s.accountService.ChangeAccountRemainder(ctxTx, account, accountToCreate.Remainder, accountToCreate.Necessary.UserID)
+			updateRes, err := s.ChangeAccountRemainder(ctxTx, account, accountToCreate.Remainder, accountToCreate.Necessary.UserID)
 			if err != nil {
 				return err
 			}

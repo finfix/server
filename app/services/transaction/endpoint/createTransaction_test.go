@@ -45,6 +45,7 @@ func TestDecodeCreateReq(t *testing.T) {
 		IsExecuted:      pointer.Pointer(true),
 		Necessary:       testingFunc.ValidNecessary,
 		DatetimeCreate:  datetime.Time{Time: time.Date(2020, 1, 1, 1, 1, 1, 0, time.FixedZone("", 3600))},
+		TagIDs:          nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {

@@ -20,7 +20,11 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 
 	// Получаем остаток счета
 	remainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
-		IDs: []uint32{account.ID},
+		IDs:             []uint32{account.ID},
+		AccountGroupIDs: nil,
+		Types:           nil,
+		DateFrom:        nil,
+		DateTo:          nil,
 	})
 	if err != nil {
 		return res, err
@@ -48,6 +52,7 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 		Type:            transactionType.Balancing,
 		AmountFrom:      amount,
 		AmountTo:        amount,
+		Note:            "",
 		AccountToID:     account.ID,
 		AccountFromID:   balancingAccountID,
 		DateTransaction: datetime.Date{Time: time.Now()},
@@ -67,7 +72,7 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Account) (balancingAccountID uint32, serialNumber uint32, wasCreate bool, err error) {
 
 	// Получаем балансировочный счет группы в нужной валюте, чтобы создать для нее транзакцию
-	balancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
+	balancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ //nolint:exhaustruct
 		Types:           []accountType.Type{accountType.Balancing},
 		AccountGroupIDs: []uint32{account.AccountGroupID},
 		Currencies:      []string{account.Currency},
@@ -83,7 +88,7 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 	}
 
 	// Получаем общий балансировочный счет
-	parentBalancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
+	parentBalancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ //nolint:exhaustruct
 		Types:           []accountType.Type{accountType.Balancing},
 		AccountGroupIDs: []uint32{account.AccountGroupID},
 		IsParent:        pointer.Pointer(true),
@@ -96,16 +101,22 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 
 	// Если общий балансировочный счет не найден
 	if len(parentBalancingAccounts) == 0 {
-		return balancingAccountID, serialNumber, wasCreate, errors.InternalServer.New("Родительский балансировочный счет не найден", errors.Options{Params: map[string]any{
-			"accountID":      account,
-			"accountGroupID": account.AccountGroupID,
-		}})
+		return balancingAccountID, serialNumber, wasCreate, errors.InternalServer.New("Родительский балансировочный счет не найден", []errors.Option{errors.ParamsOption(
+			"accountID", account,
+			"accountGroupID", account.AccountGroupID,
+		)}...)
 	}
 
 	parentBalancingAccount = parentBalancingAccounts[0]
 
 	// Создаем балансировочный счет
 	balancingAccountID, serialNumber, err = s.accountRepository.CreateAccount(ctx, accountRepoModel.CreateAccountReq{
+		Budget: accountRepoModel.CreateReqBudget{
+			Amount:         decimal.Zero,
+			GradualFilling: false,
+			FixedSum:       decimal.Zero,
+			DaysOffset:     0,
+		},
 		Name:               "Балансировочный",
 		Visible:            parentBalancingAccount.Visible,
 		IconID:             parentBalancingAccount.IconID,
@@ -113,6 +124,7 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 		Currency:           account.Currency,
 		AccountGroupID:     parentBalancingAccount.AccountGroupID,
 		AccountingInHeader: parentBalancingAccount.AccountingInHeader,
+		AccountingInCharts: true,
 		IsParent:           false,
 		ParentAccountID:    &parentBalancingAccount.ID,
 		UserID:             account.CreatedByUserID,

@@ -24,8 +24,6 @@ func NewEndpoint(service *userService.Service) http.Handler {
 
 	options := []server.Option{
 		server.Before(middleware.DefaultAuthorization),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}
 
 	r := mux.NewRouter()

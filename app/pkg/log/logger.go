@@ -7,7 +7,7 @@ import (
 // Log - Структура лога
 type Log struct {
 	Path    string
-	Params  map[string]any
+	Params  map[string]string
 	Message string
 	Level   logLevel
 	Time    time.Time
@@ -20,17 +20,17 @@ const uuidKey uuidKeyType = "uuid"
 
 // loggerSettings - Конфигурация логгера
 type loggerSettings struct {
-	isOff bool
+	isOn bool
 }
 
-var logger = &loggerSettings{}
+var logger = &loggerSettings{
+	isOn: true,
+}
 
 // Off выключает логгер
 func Off() {
-	logger.isOff = true
+	logger.isOn = false
 }
 
-// init конфигурирует логгер
-func init() {
-	logger = &loggerSettings{}
-}
+// Init конфигурирует логгер
+func Init() {}

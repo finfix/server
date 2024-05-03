@@ -51,7 +51,7 @@ var once sync.Once
 // GetConfig возвращает конфигурацию из .env файла
 func GetConfig() *Config {
 	once.Do(func() {
-		instance = &Config{}
+		instance = &Config{} //nolint:exhaustruct
 		if err := env.Parse(instance); err != nil {
 			log.Fatal(errors.InternalServer.Wrap(err))
 		}

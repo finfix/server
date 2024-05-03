@@ -117,13 +117,9 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 
 	if len(accessedAccountGroupIDs) == 0 {
-		return errors.NotFound.New("Нет доступных объектов", errors.Options{
-			Params: map[string]any{
-				"UserID": userID,
-				"IDs":    ids,
-				"Type":   checkType,
-			},
-		})
+		return errors.NotFound.New("Нет доступных объектов", []errors.Option{
+			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+		}...)
 	}
 
 	var (
@@ -168,14 +164,10 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
 			if _, ok := repo.accesses.Get()[userID][accountGroupID]; !ok {
-				return errors.Forbidden.New("Access denied", errors.Options{
-					Params: map[string]any{
-						"UserID": userID,
-						"IDs":    ids,
-						"Type":   checkType,
-					},
-					HumanText: fmt.Sprintf("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
-				})
+				return errors.Forbidden.New("Access denied", []errors.Option{
+					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
+				}...)
 			}
 		}
 		return nil
@@ -225,14 +217,10 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	// Если количество записей не равно количеству проверяемых идентификаторов, то возвращаем ошибку
 	if countAccess != uint32(len(ids)) {
-		return errors.Forbidden.New("Access denied", errors.Options{
-			Params: map[string]any{
-				"UserID": userID,
-				"IDs":    ids,
-				"Type":   checkType,
-			},
-			HumanText: fmt.Sprintf("Вы не имеете доступа к %s", errString),
-		})
+		return errors.Forbidden.New("Access denied", []errors.Option{
+			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+			errors.HumanTextOption(fmt.Sprintf("Вы не имеете доступа к %s", errString)),
+		}...)
 	}
 
 	return nil
@@ -277,6 +265,10 @@ func New(db sql.SQL) (_ *Repository, err error) {
 
 	repository := &Repository{
 		db: db,
+		accesses: accessesMap{
+			accesses: nil,
+			mu:       sync.RWMutex{},
+		},
 	}
 
 	log.Info(context.Background(), "Получаем доступы пользователей к объектам")

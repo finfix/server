@@ -28,10 +28,17 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 	})
 
 	validWant := &model.GetAccountsReq{
-		Type:               pointer.Pointer(accountType.Expense),
-		AccountGroupIDs:    []uint32{1, 2},
-		AccountingInHeader: pointer.Pointer(true),
 		Necessary:          testingFunc.ValidNecessary,
+		Type:               pointer.Pointer(accountType.Expense),
+		AccountingInHeader: pointer.Pointer(true),
+		AccountingInCharts: nil, // TODO: Проверить
+		AccountGroupIDs:    []uint32{1, 2},
+		DateFrom:           nil, // TODO: Проверить
+		DateTo:             nil, // TODO: Проверить
+		Visible:            nil, // TODO: Проверить
+		Currency:           nil, // TODO: Проверить
+		IsParent:           nil, // TODO: Проверить
+		IDs:                nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {
@@ -69,7 +76,17 @@ func TestDecodeGetAccountsReq(t *testing.T) {
 			nil,
 			testingFunc.GeneralCtx.Get(),
 			&model.GetAccountsReq{
-				Necessary: testingFunc.ValidNecessary,
+				Necessary:          testingFunc.ValidNecessary,
+				Type:               nil,
+				AccountingInHeader: nil,
+				AccountingInCharts: nil,
+				AccountGroupIDs:    nil,
+				DateFrom:           nil,
+				DateTo:             nil,
+				Visible:            nil,
+				Currency:           nil,
+				IsParent:           nil,
+				IDs:                nil,
 			},
 			nil,
 		},

@@ -42,6 +42,7 @@ func TestDecodeUpdateReq(t *testing.T) {
 		DateTransaction: pointer.Pointer(datetime.NewDate(2020, 1, 1)),
 		IsExecuted:      pointer.Pointer(true),
 		Necessary:       testingFunc.ValidNecessary,
+		TagIDs:          nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {
@@ -73,8 +74,16 @@ func TestDecodeUpdateReq(t *testing.T) {
 			}`,
 			testingFunc.GeneralCtx.Get(),
 			&model.UpdateTransactionReq{
-				ID:        1,
-				Necessary: testingFunc.ValidNecessary,
+				Necessary:       testingFunc.ValidNecessary,
+				ID:              1,
+				AmountFrom:      nil,
+				AmountTo:        nil,
+				Note:            nil,
+				AccountFromID:   nil,
+				AccountToID:     nil,
+				DateTransaction: nil,
+				IsExecuted:      nil,
+				TagIDs:          nil,
 			},
 			nil,
 		},

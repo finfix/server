@@ -19,7 +19,7 @@ import (
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ AccountRepository = &accountRepository.Repository{}
-var _ AccountService = &Service{}
+var _ AccountService = &Service{} //nolint:exhaustruct
 var _ AccountPermissionsService = &accountPermissions.Service{}
 var _ UserRepository = &userRepository.Repository{}
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
@@ -84,6 +84,7 @@ func New(
 		transaction:               transaction,
 		user:                      user,
 		accountPermissionsService: permissionsService,
+		accountService:            nil,
 	}
 	s.accountService = s
 	return s

@@ -3,10 +3,11 @@ package network
 import (
 	"context"
 	"encoding/json"
-	"github.com/shopspring/decimal"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/shopspring/decimal"
 
 	"server/app/config"
 	"server/app/pkg/errors"
@@ -60,9 +61,9 @@ func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
 			return nil, errors.InternalServer.Wrap(err)
 		}
 	default:
-		return nil, errors.BadGateway.New("Error while getting currency rates", errors.Options{
-			Params: map[string]any{"HTTP code": resp.StatusCode},
-		})
+		return nil, errors.BadGateway.New("Error while getting currency rates", []errors.Option{
+			errors.ParamsOption("HTTP code", resp.StatusCode),
+		}...)
 	}
 
 	rates := make(map[string]decimal.Decimal, len(providerModel.Rates))

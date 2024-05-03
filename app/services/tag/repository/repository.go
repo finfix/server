@@ -80,12 +80,9 @@ func (repo *TagRepository) DeleteTag(ctx context.Context, id, userID uint32) err
 
 	// Проверяем, что в базе данных что-то изменилось
 	if rows == 0 {
-		return errors.NotFound.New("No such model found for model", errors.Options{
-			Params: map[string]any{
-				"UserID": userID,
-				"TagID":  id,
-			},
-		})
+		return errors.NotFound.New("No such model found for model", []errors.Option{
+			errors.ParamsOption("UserID", userID, "TagID", id),
+		}...)
 	}
 
 	return nil
