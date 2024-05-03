@@ -1,4 +1,4 @@
-package auth
+package jwtManager
 
 import (
 	"fmt"
@@ -15,7 +15,7 @@ func TestNewRefreshToken(t *testing.T) {
 
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {
-			token, err := NewRefreshToken()
+			token, _, err := NewRefreshToken()
 			if testingFunc.CheckError(t, nil, err) {
 				return
 			}

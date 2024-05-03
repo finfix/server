@@ -90,7 +90,6 @@ func TestService_update(t *testing.T) {
 				user:                      userRepository,
 				accountPermissionsService: accountPermissionService,
 				accountService:            accountService,
-				logger:                    log,
 			}
 			interfaces := interfaces{
 				accountRepository:     accountRepository,

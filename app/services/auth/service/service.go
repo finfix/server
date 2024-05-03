@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	"server/app/pkg/auth"
 	authModel "server/app/services/auth/model"
 	authRepository "server/app/services/auth/repository"
 	"server/app/services/generalRepository"
@@ -34,13 +33,13 @@ type GeneralRepository interface {
 func (s *Service) createSession(ctx context.Context, userID uint32, deviceID string) (accessToken, refreshToken string, err error) {
 
 	// Создаем Access token
-	accessToken, err = auth.NewJWT(userID, deviceID)
+	accessToken, err = jwtManager.NewJWT(userID, deviceID)
 	if err != nil {
 		return "", "", err
 	}
 
 	// Создаем refresh token
-	refreshToken, refreshTokenExpiresAt, err := auth.NewRefreshToken()
+	refreshToken, refreshTokenExpiresAt, err := jwtManager.NewRefreshToken()
 	if err != nil {
 		return "", "", err
 	}

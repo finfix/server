@@ -13,6 +13,7 @@ import (
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
+	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
 	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
@@ -81,13 +82,11 @@ func main() {
 	flag.BoolVar(&isSetupTelegram, "telegram", false, "Включаем ли телеграм бот")
 	flag.Parse()
 
-	decimal.MarshalJSONWithoutQuotes = true
-
 	// Получаем конфиг
 	cfg := config.GetConfig()
 
-	// Передаем в middleware авторизации ключ
-	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
+	// Инициализируем все сервисы
+	Init(cfg)
 
 	// Подключаемся к базе данных
 	log.Info(mainCtx, "Подключаемся к БД")
@@ -222,4 +221,19 @@ func CORS(handler http.Handler) http.Handler {
 
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func Init(cfg *config.Config) error {
+
+	// Конфигурируем decimal, чтобы в JSON не было кавычек
+	decimal.MarshalJSONWithoutQuotes = true
+
+	// Инициализируем JWT-менеджер
+	accessTokenTTL, err := time.ParseDuration(cfg.Token.AccessTokenTTL)
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL)
+
+	return nil
 }

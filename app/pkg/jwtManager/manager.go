@@ -1,4 +1,4 @@
-package auth
+package jwtManager
 
 import (
 	"strconv"
@@ -11,6 +11,20 @@ import (
 	"server/app/pkg/hasher"
 )
 
+type JWTManager struct {
+	signingKey []byte
+	ttl        time.Duration
+}
+
+var jwtManager JWTManager
+
+func Init(signingKey []byte, ttl time.Duration) {
+	jwtManager = JWTManager{
+		signingKey: signingKey,
+		ttl:        ttl,
+	}
+}
+
 type MyCustomClaims struct {
 	DeviceID string `json:"deviceID"`
 	jwt.StandardClaims
@@ -18,23 +32,17 @@ type MyCustomClaims struct {
 
 func NewJWT(userID uint32, deviceID string) (string, error) {
 
-	signingKey := config.GetConfig().Token.SigningKey
-	ttl, err := time.ParseDuration(config.GetConfig().Token.AccessTokenTTL)
-	if err != nil {
-		return "", err
-	}
-
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(ttl).Unix(),
+			ExpiresAt: time.Now().Add(jwtManager.ttl).Unix(),
 			Subject:   strconv.Itoa(int(userID)),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenStr, err := token.SignedString([]byte(signingKey))
+	tokenStr, err := token.SignedString(jwtManager.signingKey)
 	if err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
@@ -42,7 +50,7 @@ func NewJWT(userID uint32, deviceID string) (string, error) {
 	return tokenStr, nil
 }
 
-func Parse(accessToken, signingKey string) (uint32, string, error) {
+func Parse(accessToken string) (uint32, string, error) {
 
 	if accessToken == "" {
 		return 0, "", errors.Unauthorized.New("JWT-token is empty")
@@ -55,7 +63,7 @@ func Parse(accessToken, signingKey string) (uint32, string, error) {
 			})
 		}
 
-		return []byte(signingKey), nil
+		return jwtManager.signingKey, nil
 	})
 	if jwtErr != nil {
 		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
