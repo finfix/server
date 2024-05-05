@@ -3,18 +3,17 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"github.com/shopspring/decimal"
 
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
+	"server/app/pkg/tgBot"
 	settingsModel "server/app/services/settings/model"
 	"server/app/services/settings/network"
 	settingsRepository "server/app/services/settings/repository"
-	tgBotModel "server/app/services/tgBot/model"
-	tgBotService "server/app/services/tgBot/service"
 )
 
 var _ SettingsRepository = &settingsRepository.Repository{}
-var _ TgBotService = &tgBotService.Service{}
 
 type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
@@ -22,16 +21,20 @@ type SettingsRepository interface {
 	GetIcons(context.Context) ([]settingsModel.Icon, error)
 }
 
-type TgBotService interface {
-	SendMessage(context.Context, tgBotModel.SendMessageReq) error
+type Credentials struct {
+	CurrencyProviderAPIKey string
+}
+
+type Version struct {
+	Version string
+	Build   string
 }
 
 type Service struct {
 	settingsRepository SettingsRepository
-	tgBotService       TgBotService
-	logger             *logging.Logger
-	version            string
-	build              string
+	tgBot              *tgBot.TgBot
+	credentials        Credentials
+	version            Version
 }
 
 // UpdateCurrencies обновляет курсы валют
@@ -39,17 +42,17 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 
 	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %v₽\nBTC: %v$"
 
-	var tgMessage tgBotModel.SendMessageReq
+	var tgMessage tgBot.SendMessageReq
 
 	defer func() {
-		err := s.tgBotService.SendMessage(ctx, tgMessage)
+		err := s.tgBot.SendMessage(ctx, tgMessage)
 		if err != nil {
-			s.logger.Error(ctx, err)
+			log.Error(ctx, err)
 		}
 	}()
 
 	// Получаем курсы валют от провайдера данных
-	rates, err := network.GetCurrencyRates(ctx)
+	rates, err := network.GetCurrencyRates(ctx, s.credentials.CurrencyProviderAPIKey)
 	if err != nil {
 		tgMessage.Message += fmt.Sprintf("Не смогли получить курсы валют от провайдера\n\n%v", err.Error())
 		return err
@@ -91,17 +94,16 @@ func (s *Service) GetIcons(ctx context.Context) ([]settingsModel.Icon, error) {
 
 func (s *Service) GetVersion() settingsModel.Version {
 	return settingsModel.Version{
-		Version: s.version,
-		Build:   s.build,
+		Version: s.version.Version,
+		Build:   s.version.Build,
 	}
 }
 
-func New(rep SettingsRepository, tgBotService TgBotService, logger *logging.Logger, version, build string) *Service {
+func New(rep SettingsRepository, tgBot *tgBot.TgBot, version Version, credentials Credentials) *Service {
 	return &Service{
 		settingsRepository: rep,
-		tgBotService:       tgBotService,
-		logger:             logger,
+		tgBot:              tgBot,
+		credentials:        credentials,
 		version:            version,
-		build:              build,
 	}
 }

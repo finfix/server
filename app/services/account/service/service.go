@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
+
 	"github.com/shopspring/decimal"
 
-	"server/app/pkg/logging"
 	accountModel "server/app/services/account/model"
 	accountRepository "server/app/services/account/repository"
 	accountRepoModel "server/app/services/account/repository/model"
@@ -19,7 +19,7 @@ import (
 
 var _ GeneralRepository = &generalRepository.Repository{}
 var _ AccountRepository = &accountRepository.Repository{}
-var _ AccountService = &Service{}
+var _ AccountService = &Service{} //nolint:exhaustruct
 var _ AccountPermissionsService = &accountPermissions.Service{}
 var _ UserRepository = &userRepository.Repository{}
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
@@ -49,7 +49,7 @@ type TransactionRepository interface {
 }
 
 type UserRepository interface {
-	GetTransactions(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
 }
 
 type AccountPermissionsService interface {
@@ -68,7 +68,6 @@ type Service struct {
 	transaction               TransactionRepository
 	user                      UserRepository
 	accountPermissionsService AccountPermissionsService
-	logger                    *logging.Logger
 }
 
 func New(
@@ -77,7 +76,7 @@ func New(
 	transaction TransactionRepository,
 	user UserRepository,
 	permissionsService AccountPermissionsService,
-	logger *logging.Logger,
+
 ) *Service {
 	s := &Service{
 		accountRepository:         account,
@@ -85,7 +84,7 @@ func New(
 		transaction:               transaction,
 		user:                      user,
 		accountPermissionsService: permissionsService,
-		logger:                    logger,
+		accountService:            nil,
 	}
 	s.accountService = s
 	return s

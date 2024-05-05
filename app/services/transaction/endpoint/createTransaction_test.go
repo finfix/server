@@ -2,16 +2,17 @@ package endpoint
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/transaction/model"
@@ -19,7 +20,7 @@ import (
 
 func TestDecodeCreateReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"type": "income",
@@ -44,6 +45,7 @@ func TestDecodeCreateReq(t *testing.T) {
 		IsExecuted:      pointer.Pointer(true),
 		Necessary:       testingFunc.ValidNecessary,
 		DatetimeCreate:  datetime.Time{Time: time.Date(2020, 1, 1, 1, 1, 1, 0, time.FixedZone("", 3600))},
+		TagIDs:          nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {

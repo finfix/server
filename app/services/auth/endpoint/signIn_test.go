@@ -8,14 +8,14 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/testingFunc"
 	"server/app/services/auth/model"
 )
 
 func TestDecodeAuthReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"email": "qwerty@berubox.com",

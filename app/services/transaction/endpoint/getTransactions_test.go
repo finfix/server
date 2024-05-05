@@ -11,7 +11,7 @@ import (
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/transaction/model"
@@ -20,7 +20,7 @@ import (
 
 func TestDecodeGetReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validParams := testingFunc.NewParamUpdater(map[string]string{
 		"offset":    "1",
@@ -32,13 +32,15 @@ func TestDecodeGetReq(t *testing.T) {
 	})
 
 	validWant := &model.GetTransactionsReq{
-		Offset:    pointer.Pointer(uint32(1)),
-		Limit:     pointer.Pointer(uint32(100)),
-		AccountID: pointer.Pointer(uint32(1)),
-		Type:      pointer.Pointer(transactionType.Income),
-		DateFrom:  pointer.Pointer(datetime.NewDate(2020, 1, 1)),
-		DateTo:    pointer.Pointer(datetime.NewDate(2020, 1, 2)),
-		Necessary: testingFunc.ValidNecessary,
+		Necessary:       testingFunc.ValidNecessary,
+		IDs:             nil, // TODO: Проверить
+		AccountID:       pointer.Pointer(uint32(1)),
+		Type:            pointer.Pointer(transactionType.Income),
+		DateFrom:        pointer.Pointer(datetime.NewDate(2020, 1, 1)),
+		DateTo:          pointer.Pointer(datetime.NewDate(2020, 1, 2)),
+		Offset:          pointer.Pointer(uint32(1)),
+		Limit:           pointer.Pointer(uint32(100)),
+		AccountGroupIDs: nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {
@@ -70,7 +72,15 @@ func TestDecodeGetReq(t *testing.T) {
 			nil,
 			testingFunc.GeneralCtx.Get(),
 			&model.GetTransactionsReq{
-				Necessary: testingFunc.ValidNecessary,
+				Necessary:       testingFunc.ValidNecessary,
+				IDs:             nil,
+				AccountID:       nil,
+				Type:            nil,
+				DateFrom:        nil,
+				DateTo:          nil,
+				Offset:          nil,
+				Limit:           nil,
+				AccountGroupIDs: nil,
 			},
 			nil,
 		},

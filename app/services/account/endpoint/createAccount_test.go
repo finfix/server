@@ -2,16 +2,17 @@ package endpoint
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/datetime"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
@@ -20,7 +21,7 @@ import (
 
 func TestDecodeAccountCreateReq(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	validJSON := testingFunc.NewJSONUpdater(t, `{
 		"remainder": 1.1,
@@ -42,7 +43,7 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 	}`)
 
 	validWant := &model.CreateAccountReq{
-		Remainder:          decimal.NewFromFloat(1.1),
+		Necessary:          testingFunc.ValidNecessary,
 		Name:               "name",
 		IconID:             1,
 		Type:               accountType.Expense,
@@ -51,13 +52,16 @@ func TestDecodeAccountCreateReq(t *testing.T) {
 		AccountingInHeader: pointer.Pointer(true),
 		AccountingInCharts: pointer.Pointer(true),
 		DatetimeCreate:     datetime.Time{Time: time.Date(2020, 1, 1, 1, 1, 1, 0, time.FixedZone("", 3600))},
+		Remainder:          decimal.NewFromFloat(1.1),
 		Budget: model.CreateAccountBudgetReq{
 			Amount:         decimal.NewFromFloat(1.1),
 			FixedSum:       decimal.NewFromFloat(1.1),
 			DaysOffset:     1,
 			GradualFilling: pointer.Pointer(true),
 		},
-		Necessary: testingFunc.ValidNecessary,
+		IsParent:        nil, // TODO: Проверить
+		ParentAccountID: nil, // TODO: Проверить
+		Visible:         nil, // TODO: Проверить
 	}
 
 	for _, tt := range []struct {

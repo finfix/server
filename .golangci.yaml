@@ -23,6 +23,8 @@ linters:
     - errname # error variable name
     - execinquery # check for exec in query
     - exhaustive # exhaustivestruct
+    - exhaustivestruct # check for missing fields in struct literals
+    - exhaustruct # check for missing fields in struct literals
     - exportloopref # check for loop variable captured by a closure
     - forbidigo # check for forbidden imports
     - forcetypeassert # check for forced type assertions
@@ -72,8 +74,6 @@ linters:
     - cyclop # cyclomatic complexity
     - depguard # check for missing build tags
     - errorlint # error variable name
-    - exhaustivestruct # check for missing fields in struct literals
-    - exhaustruct # check for missing fields in struct literals
     - funlen # function length
     - gci # check for common mistakes in Go code
     - gochecknoglobals # check for global variables

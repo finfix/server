@@ -25,15 +25,15 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	// Вызываем метод сервиса
-	users, err := s.service.GetTransactions(ctx, req)
+	users, err := s.service.GetUsers(ctx, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
 	if len(users) == 0 {
-		return nil, errors.InternalServer.New("Пользователь не найден", errors.Options{Params: map[string]any{
-			"UserID": req.Necessary.UserID,
-		}})
+		return nil, errors.InternalServer.New("Пользователь не найден", []errors.Option{
+			errors.ParamsOption("UserID", req.Necessary.UserID),
+		}...)
 	}
 
 	// Конвертируем ответ во внутреннюю структуру

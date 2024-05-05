@@ -5,20 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"maps"
-	"net/http"
 	"runtime"
-)
-
-const (
-	LogicError     = ErrorType(1)
-	BadRequest     = ErrorType(http.StatusBadRequest)
-	NotFound       = ErrorType(http.StatusNotFound)
-	Teapot         = ErrorType(http.StatusTeapot)
-	InternalServer = ErrorType(http.StatusInternalServerError)
-	Forbidden      = ErrorType(http.StatusForbidden)
-	Unauthorized   = ErrorType(http.StatusUnauthorized)
-	ClientReject   = ErrorType(http.StatusNotAcceptable)
-	BadGateway     = ErrorType(http.StatusBadGateway)
+	"strings"
 )
 
 const (
@@ -27,17 +15,15 @@ const (
 	ThirdPathDepth   = 3
 )
 
-type ErrorType uint32
-
 type CustomError struct {
 	ErrorType    `json:"-"`
-	HumanText    string         `json:"humanTextError"`
-	DevelopText  string         `json:"developerTextError"`
-	InitialError error          `json:"-"`
-	Path         string         `json:"path"`
-	Params       map[string]any `json:"parameters,omitempty" validate:"required"`
-	TaskID       *string        `json:"taskID,omitempty"`
-	LogAs        LogOption      `json:"-"`
+	HumanText    string            `json:"humanTextError"`
+	DevelopText  string            `json:"developerTextError"`
+	InitialError error             `json:"-"`
+	Path         []string          `json:"path"`
+	Params       map[string]string `json:"parameters,omitempty" validate:"required"`
+	TaskID       *string           `json:"taskID,omitempty"`
+	LogAs        LogOption         `json:"-"`
 }
 
 func (err CustomError) Error() string {
@@ -50,22 +36,6 @@ const (
 	LogAsError LogOption = iota
 	LogAsWarning
 )
-
-type Options struct {
-	// Дополнительные данные для ошибки
-	Params map[string]any
-	// Параметры
-	PathDepth int
-	// Тип логирования
-	LogAs *LogOption
-	// Текст для пользователя
-	HumanText string
-
-	// Затирать путь
-	ErasePath bool
-	// Дополнительный текст к исходной ошибке
-	ErrMessage string
-}
 
 var TypeToLogOption = map[ErrorType]LogOption{
 	LogicError:     LogAsError,
@@ -80,45 +50,39 @@ var TypeToLogOption = map[ErrorType]LogOption{
 }
 
 // New создает новую ошибку
-func (typ ErrorType) New(msg string, opts ...Options) error {
+func (typ ErrorType) New(msg string, opts ...Option) error {
 
-	var options Options
-	if len(opts) > 0 {
-		options = opts[0]
-	}
+	options := mergeOptions(opts...)
 
 	skip := defaultPathDepth
-
-	// Если передана глубина пути, то используем ее
-	if options.PathDepth != 0 {
-		skip = options.PathDepth
+	if options.pathDepth != nil {
+		skip = *options.pathDepth
 	}
 
 	// Создаем новую ошибку
 	customErr := CustomError{
 		ErrorType:    typ,
-		InitialError: errors.New(msg),
-		Path:         getPath(skip),
-		Params:       options.Params,
 		HumanText:    options.HumanText,
+		DevelopText:  msg,
+		InitialError: errors.New(msg),
+		Path:         GetPath(skip + 1),
+		Params:       options.params,
+		TaskID:       nil,
 		LogAs:        TypeToLogOption[typ],
 	}
 
 	// Если передан тип логирования, то добавляем его
-	if options.LogAs != nil {
-		customErr.LogAs = *options.LogAs
+	if options.logAs != nil {
+		customErr.LogAs = *options.logAs
 	}
 
 	return customErr
 }
 
 // Wrap оборачивает ошибку
-func (typ ErrorType) Wrap(err error, opts ...Options) error {
+func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
-	var options Options
-	if len(opts) > 0 {
-		options = opts[0]
-	}
+	options := mergeOptions(opts...)
 
 	skip := defaultPathDepth
 
@@ -135,17 +99,17 @@ func (typ ErrorType) Wrap(err error, opts ...Options) error {
 		}
 
 		// Затираем путь, если передано в опциях
-		if options.ErasePath {
+		if options.erasePath {
 			// Если передана глубина пути, то используем ее
-			if options.PathDepth != 0 {
-				skip = options.PathDepth
+			if options.pathDepth != nil {
+				skip = *options.pathDepth
 			}
-			customErr.Path = getPath(skip)
+			customErr.Path = GetPath(skip)
 		}
 
 		// Если передан текст ошибки, то добавляем его к исходной ошибке
-		if options.ErrMessage != "" {
-			customErr.InitialError = fmt.Errorf("%v: %v", options.ErrMessage, customErr.InitialError)
+		if options.errMessage != nil {
+			customErr.InitialError = fmt.Errorf("%v: %v", options.errMessage, customErr.InitialError)
 		}
 
 		customErr.ErrorType = typ
@@ -153,32 +117,34 @@ func (typ ErrorType) Wrap(err error, opts ...Options) error {
 	} else { // Если это не обернутая ошибка
 
 		// Если передана глубина пути, то используем ее
-		if options.PathDepth != 0 {
-			skip = options.PathDepth
+		if options.pathDepth != nil {
+			skip = *options.pathDepth
 		}
 
 		// Если это не обернутая ошибка, то создаем новую
 		customErr = CustomError{
 			ErrorType:    typ,
-			InitialError: err,
-			Path:         getPath(skip),
-			Params:       options.Params,
 			HumanText:    options.HumanText,
+			DevelopText:  err.Error(),
+			InitialError: err,
+			Path:         GetPath(skip + 1),
+			Params:       options.params,
+			TaskID:       nil,
 			LogAs:        TypeToLogOption[typ],
 		}
 
-		if options.ErrMessage != "" {
-			customErr.InitialError = fmt.Errorf("%v: %v", options.ErrMessage, err)
+		if options.errMessage != nil {
+			customErr.InitialError = fmt.Errorf("%v: %v", options.errMessage, err)
 		} else {
 			customErr.InitialError = err
 		}
 	}
 
 	// Добавляем параметры
-	maps.Copy(customErr.Params, options.Params)
+	maps.Copy(customErr.Params, options.params)
 
-	if options.LogAs != nil {
-		customErr.LogAs = *options.LogAs
+	if options.logAs != nil {
+		customErr.LogAs = *options.logAs
 	}
 
 	return customErr
@@ -188,24 +154,29 @@ func CastError(err error) CustomError {
 
 	customErr, ok := err.(CustomError)
 	if !ok {
-		err = InternalServer.Wrap(err, Options{
-			ErrMessage: "Ошибка не обернута, путь неверный",
-			PathDepth:  SecondPathDepth,
-		})
+		err = InternalServer.Wrap(errors.New("Ошибка не обернута, путь неверный"), []Option{
+			PathDepthOption(SecondPathDepth),
+		}...)
 		customErr, _ = err.(CustomError)
 	}
 	return customErr
 }
 
-func getPath(skip int) string {
-	_, file, line, _ := runtime.Caller(skip + 1)
-	return fmt.Sprintf("%v:%v", file, line)
+func GetPath(skip int) []string {
+	var pcs [32]uintptr
+	n := runtime.Callers(skip, pcs[:])
+	var path []string
+	for i := skip; i < n; i++ {
+		_, file, line, _ := runtime.Caller(i)
+		if strings.Contains(file, "coin") || strings.Contains(file, "Coin") {
+			path = append(path, fmt.Sprintf("%v:%v", file, line))
+		}
+	}
+	return path
 }
 
 // JSON преобразует ошибку в json
 func JSON(err CustomError) ([]byte, error) {
-
-	err.DevelopText = err.Error()
 
 	byt, e := json.Marshal(err)
 	if e != nil {

@@ -1,8 +1,6 @@
-#dir: "app/mocks/{{.InterfaceDir}}"
-#outpkg: "{{.PackageName}}"
-#inpackage: True
 packages:
   server/app:
     config:
       recursive: true
-      all: true
+      exclude-regex: ".*[Oo]ption"
+      include-regex: ".*"

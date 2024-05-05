@@ -3,16 +3,16 @@ package network
 import (
 	"context"
 	"encoding/json"
-	"github.com/shopspring/decimal"
 	"net/http"
 	"net/url"
 	"time"
 
-	"server/app/config"
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/errors"
 )
 
-func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
+func GetCurrencyRates(ctx context.Context, apiKey string) (map[string]decimal.Decimal, error) {
 	var providerModel struct {
 		Meta struct {
 			LastUpdatedAt time.Time `json:"last_updated_at"`
@@ -28,7 +28,7 @@ func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
 	urlString := "https://api.currencyapi.com/v3/latest"
 
 	// Параметры запроса
-	urlValues.Add("apikey", config.GetConfig().APIKeys.CurrencyProvider)
+	urlValues.Add("apikey", apiKey)
 
 	uri, err := url.ParseRequestURI(urlString)
 	if err != nil {
@@ -60,9 +60,9 @@ func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
 			return nil, errors.InternalServer.Wrap(err)
 		}
 	default:
-		return nil, errors.BadGateway.New("Error while getting currency rates", errors.Options{
-			Params: map[string]any{"HTTP code": resp.StatusCode},
-		})
+		return nil, errors.BadGateway.New("Error while getting currency rates", []errors.Option{
+			errors.ParamsOption("HTTP code", resp.StatusCode),
+		}...)
 	}
 
 	rates := make(map[string]decimal.Decimal, len(providerModel.Rates))

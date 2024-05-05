@@ -6,9 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"server/app/config"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/middleware"
 	"server/app/pkg/server"
 	settingsService "server/app/services/settings/service"
@@ -17,49 +15,45 @@ import (
 var part = "/settings"
 
 type endpoint struct {
-	service *settingsService.Service
+	service  *settingsService.Service
+	adminKey string
 }
 
-func authorizationWithAdminKey(ctx context.Context, r *http.Request) (context.Context, error) {
-
-	if r.Header.Get("AdminSecretKey") != config.GetConfig().AdminSecretKey {
-		return ctx, errors.Forbidden.New("MySecretKey is incorrect", errors.Options{
-			Params: map[string]any{
-				"IP address": r.Header.Get("X-Real-IP"),
-			},
-		})
+func authorizationWithAdminKey(adminKey string) func(ctx context.Context, r *http.Request) (context.Context, error) {
+	return func(ctx context.Context, r *http.Request) (context.Context, error) {
+		if r.Header.Get("AdminSecretKey") != adminKey {
+			return ctx, errors.Forbidden.New("MySecretKey is incorrect", []errors.Option{
+				errors.ParamsOption("IP address", r.Header.Get("X-Real-IP")),
+			}...)
+		}
+		return ctx, nil
 	}
-
-	return ctx, nil
 }
 
-func NewEndpoint(logger *logging.Logger, service *settingsService.Service) http.Handler {
+func NewEndpoint(
+	service *settingsService.Service,
+	adminKey string,
+) http.Handler {
 
 	e := &endpoint{
-		service: service,
+		service:  service,
+		adminKey: adminKey,
 	}
 
 	adminMethodsOptions := []server.Option{
-		server.Before(authorizationWithAdminKey),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
+		server.Before(authorizationWithAdminKey(adminKey)),
 	}
 
 	userMethodsOptions := []server.Option{
 		server.Before(middleware.DefaultAuthorization),
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
 	}
 
 	r := mux.NewRouter()
 
-	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(logger, e.updateCurrencies, adminMethodsOptions...))
-	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(logger, e.getCurrencies, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(logger, e.getIcons, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(logger, e.getVersion, []server.Option{
-		server.ResponseEncoder(middleware.DefaultResponseEncoder),
-		server.ErrorEncoder(middleware.DefaultErrorEncoder),
-	}...))
+	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(e.updateCurrencies, adminMethodsOptions...))
+	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, userMethodsOptions...))
+	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(e.getIcons, userMethodsOptions...))
+	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(e.getVersion))
 
 	return r
 }

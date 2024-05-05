@@ -22,16 +22,14 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	}
 
 	// Получаем счет
-	accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{updateReq.ID}})
+	accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{updateReq.ID}}) //nolint:exhaustruct
 	if err != nil {
 		return res, err
 	}
 	if len(accounts) == 0 {
-		return res, errors.NotFound.New("Счет не найден", errors.Options{
-			Params: map[string]any{
-				"accountID": updateReq.ID,
-			},
-		})
+		return res, errors.NotFound.New("Счет не найден", []errors.Option{
+			errors.ParamsOption("accountID", updateReq.ID),
+		}...)
 	}
 	account := accounts[0]
 
@@ -60,7 +58,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	// Получаем дочерние счета
 	var childrenAccounts []model.Account
 	if account.IsParent {
-		childrenAccounts, err = s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ParentAccountIDs: []uint32{updateReq.ID}})
+		childrenAccounts, err = s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ParentAccountIDs: []uint32{updateReq.ID}}) //nolint:exhaustruct
 		if err != nil {
 			return res, err
 		}
@@ -69,7 +67,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	// Получаем родительский счет
 	var parentAccount *model.Account
 	if account.ParentAccountID != nil {
-		parentAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{*account.ParentAccountID}})
+		parentAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{*account.ParentAccountID}}) //nolint:exhaustruct
 		if err != nil {
 			return res, err
 		}

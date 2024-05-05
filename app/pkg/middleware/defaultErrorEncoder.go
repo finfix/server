@@ -5,28 +5,26 @@ import (
 	"net/http"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 )
 
 func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 
 	if er == nil {
-		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", errors.Options{
-			PathDepth: errors.SecondPathDepth,
-		})
+		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", []errors.Option{
+			errors.PathDepthOption(errors.SecondPathDepth),
+		}...)
 	}
 
 	err := errors.CastError(er)
 	err.HumanText = humanTextByLevel[err.ErrorType]
-	err.TaskID = logging.ExtractTaskID(ctx)
-
-	logger := logging.GetLogger()
+	err.TaskID = log.ExtractTaskID(ctx)
 
 	switch err.LogAs {
 	case errors.LogAsError:
-		logger.Error(ctx, err)
+		log.Error(ctx, err)
 	case errors.LogAsWarning:
-		logger.Warning(ctx, err)
+		log.Warning(ctx, err)
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -34,7 +32,7 @@ func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 
 	byt, er := errors.JSON(err)
 	if er != nil {
-		logging.GetLogger().Error(ctx, er)
+		log.Error(ctx, er)
 		w.WriteHeader(http.StatusInternalServerError)
 		_, _ = w.Write([]byte(er.Error()))
 	}

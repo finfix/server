@@ -1,15 +1,17 @@
 package model
 
 import (
-	"server/app/pkg/datetime"
+	"time"
+
 	"server/app/services"
 )
 
 type CreateReq struct {
 	Name            string
 	Email           string
-	PasswordHash    string
-	TimeCreate      datetime.Time
+	PasswordHash    []byte
+	PasswordSalt    []byte
+	TimeCreate      time.Time
 	DefaultCurrency string
 }
 

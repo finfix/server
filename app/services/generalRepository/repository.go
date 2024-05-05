@@ -3,11 +3,13 @@ package generalRepository
 import (
 	"context"
 	"fmt"
-	"github.com/shopspring/decimal"
+	"sync"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/sql"
 	"server/app/services/action/model/enum"
 	"server/app/services/generalRepository/checker"
@@ -15,8 +17,24 @@ import (
 
 type Repository struct {
 	db       sql.SQL
-	logger   *logging.Logger
+	accesses accessesMap
+}
+
+type accessesMap struct {
 	accesses map[uint32]map[uint32]struct{}
+	mu       sync.RWMutex
+}
+
+func (am *accessesMap) Get() map[uint32]map[uint32]struct{} {
+	am.mu.RLock()
+	defer am.mu.RUnlock()
+	return am.accesses
+}
+
+func (am *accessesMap) Set(accesses map[uint32]map[uint32]struct{}) {
+	am.mu.Lock()
+	defer am.mu.Unlock()
+	am.accesses = accesses
 }
 
 // WithinTransaction принимает коллбэк, который будет выполнен в рамках транзакции
@@ -99,13 +117,9 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 
 	if len(accessedAccountGroupIDs) == 0 {
-		return errors.NotFound.New("Нет доступных объектов", errors.Options{
-			Params: map[string]any{
-				"UserID": userID,
-				"IDs":    ids,
-				"Type":   checkType,
-			},
-		})
+		return errors.NotFound.New("Нет доступных объектов", []errors.Option{
+			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+		}...)
 	}
 
 	var (
@@ -149,15 +163,11 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
-			if _, ok := repo.accesses[userID][accountGroupID]; !ok {
-				return errors.Forbidden.New("Access denied", errors.Options{
-					Params: map[string]any{
-						"UserID": userID,
-						"IDs":    ids,
-						"Type":   checkType,
-					},
-					HumanText: fmt.Sprintf("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
-				})
+			if _, ok := repo.accesses.Get()[userID][accountGroupID]; !ok {
+				return errors.Forbidden.New("Access denied", []errors.Option{
+					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
+				}...)
 			}
 		}
 		return nil
@@ -207,14 +217,10 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	// Если количество записей не равно количеству проверяемых идентификаторов, то возвращаем ошибку
 	if countAccess != uint32(len(ids)) {
-		return errors.Forbidden.New("Access denied", errors.Options{
-			Params: map[string]any{
-				"UserID": userID,
-				"IDs":    ids,
-				"Type":   checkType,
-			},
-			HumanText: fmt.Sprintf("Вы не имеете доступа к %s", errString),
-		})
+		return errors.Forbidden.New("Access denied", []errors.Option{
+			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
+			errors.HumanTextOption(fmt.Sprintf("Вы не имеете доступа к %s", errString)),
+		}...)
 	}
 
 	return nil
@@ -248,21 +254,24 @@ func (repo *Repository) getAccesses(ctx context.Context) (_ map[uint32]map[uint3
 }
 
 func (repo *Repository) GetAvailableAccountGroups(userID uint32) []uint32 {
-	availableAccountGroupIDs := make([]uint32, 0, len(repo.accesses[userID]))
-	for accountGroupID := range repo.accesses[userID] {
+	availableAccountGroupIDs := make([]uint32, 0, len(repo.accesses.Get()[userID]))
+	for accountGroupID := range repo.accesses.Get()[userID] {
 		availableAccountGroupIDs = append(availableAccountGroupIDs, accountGroupID)
 	}
 	return availableAccountGroupIDs
 }
 
-func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
+func New(db sql.SQL) (_ *Repository, err error) {
 
 	repository := &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
+		accesses: accessesMap{
+			accesses: nil,
+			mu:       sync.RWMutex{},
+		},
 	}
 
-	logger.Info(context.Background(), "Получаем доступы пользователей к объектам")
+	log.Info(context.Background(), "Получаем доступы пользователей к объектам")
 	err = repository.refreshAccesses(true)
 	if err != nil {
 		return nil, err
@@ -276,13 +285,13 @@ func New(db sql.SQL, logger *logging.Logger) (_ *Repository, err error) {
 
 func (repo *Repository) refreshAccesses(doOnce bool) error {
 	for {
-		var err error
-		repo.accesses, err = repo.getAccesses(context.Background())
+		_accesses, err := repo.getAccesses(context.Background())
+		repo.accesses.Set(_accesses)
 		if doOnce {
 			return err
 		}
 		if err != nil {
-			repo.logger.Error(context.Background(), err)
+			log.Error(context.Background(), err)
 		}
 
 		time.Sleep(time.Minute)

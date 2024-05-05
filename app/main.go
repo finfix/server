@@ -2,17 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
+	"flag"
 	"net/http"
 	"time"
 
+	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	"server/app/config"
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/jwtManager"
+	"server/app/pkg/log"
 	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/tgBot"
@@ -31,7 +32,6 @@ import (
 	tagEndpoint "server/app/services/tag/endpoint"
 	tagRepository "server/app/services/tag/repository"
 	tagService "server/app/services/tag/service"
-	tgBotService "server/app/services/tgBot/service"
 	transactionEndpoint "server/app/services/transaction/endpoint"
 	transactionRepository "server/app/services/transaction/repository"
 	transactionService "server/app/services/transaction/service"
@@ -41,7 +41,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.0.4 (build 12)
+// @version 1.1.0 (build 13)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -61,78 +61,97 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
 
-const version = "1.0.4"
-const build = "12"
+const version = "1.1.0"
+const build = "13"
 
 const (
 	readHeaderTimeout = 10 * time.Second
 )
 
 func main() {
+	if err := mainNoExit(); err != nil {
+		log.Fatal(context.Background(), err)
+	}
+}
 
-	mainCtx := context.Background()
+func mainNoExit() error {
 
-	// Перехватываем панику
+	// Создаем контекст с отменой по вызову функции
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Перехватываем возможную панику
 	defer panicRecover.PanicRecover(func(err error) {
-		logging.GetLogger().Panic(mainCtx, err)
+		log.Fatal(ctx, err)
 	})
 
-	// Получаем логгер
-	logger := logging.GetLogger()
+	// Парсим флаги
+	isSetupTelegram := flag.Bool("telegram", false, "Enabling telegram bot\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
+	logFormat := flag.String("log-format", string(log.JSONFormat), "text - Human readable string\njson - JSON format")
+	flag.Parse()
 
-	decimal.MarshalJSONWithoutQuotes = true
+	// Инициализируем логгер
+	if err := log.Init(log.LogFormat(*logFormat)); err != nil {
+		return err
+	}
 
 	// Получаем конфиг
-	cfg := config.GetConfig()
+	log.Info(ctx, "Получаем конфиг")
+	cfg, err := GetConfig()
+	if err != nil {
+		return err
+	}
 
-	// Передаем в middleware авторизации ключ
-	middleware.NewAuthMiddleware(cfg.Token.SigningKey)
+	// Инициализируем все сервисы
+	log.Info(ctx, "Инициализируем сервисы")
+	if err = initServices(cfg); err != nil {
+		return err
+	}
 
 	// Подключаемся к базе данных
-	logger.Info(mainCtx, "Подключаемся к БД")
+	log.Info(ctx, "Подключаемся к БД")
 	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 	defer db.Close()
 
 	// Инициализируем клиента телеграм
-	logger.Info(mainCtx, "Инициализируем телеграм клиента")
-	tgBot, tgChat, err := tgBot.Init(cfg.Telegram.Token, cfg.Telegram.ChatID)
+	log.Info(ctx, "Инициализируем телеграм клиента")
+	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, *isSetupTelegram)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
-
-	// Регистрируем сервисы
-	tgBotService := tgBotService.New(tgBot, tgChat, logger)
+	defer tgBot.Bot.Close()
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.New(db, logger)
+	generalRepository, err := generalRepository.New(db)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
-	accountRepository := accountRepository.New(db, logger)
-	tagRepository := tagRepository.New(db, logger)
-	transactionRepository := transactionRepository.New(db, logger)
-	settingsRepository := settingsRepository.New(db, logger)
-	userRepository := userRepository.New(db, logger)
-	authRepository := authRepository.New(db, logger)
+	accountRepository := accountRepository.New(db)
+	tagRepository := tagRepository.New(db)
+	transactionRepository := transactionRepository.New(db)
+	settingsRepository := settingsRepository.New(db)
+	userRepository := userRepository.New(db)
+	authRepository := authRepository.New(db)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.New(
-		db,
-		logger,
-	)
+	accountPermisssionsService, err := accountPermisssionsService.New(db)
 	if err != nil {
-		logger.Fatal(err)
+		return err
 	}
 
 	settingsService := settingsService.New(
 		settingsRepository,
-		tgBotService,
-		logger,
-		version,
-		build,
+		tgBot,
+		settingsService.Version{
+			Version: version,
+			Build:   build,
+		},
+		settingsService.Credentials{
+			CurrencyProviderAPIKey: cfg.APIKeys.CurrencyProvider,
+		},
 	)
 
 	accountService := accountService.New(
@@ -141,13 +160,11 @@ func main() {
 		transactionRepository,
 		userRepository,
 		accountPermisssionsService,
-		logger,
 	)
 
 	tagService := tagService.New(
 		tagRepository,
 		generalRepository,
-		logger,
 	)
 
 	transactionService := transactionService.New(
@@ -156,57 +173,69 @@ func main() {
 		generalRepository,
 		accountPermisssionsService,
 		tagRepository,
-		logger,
 	)
 
 	userService := userService.New(
 		userRepository,
 		generalRepository,
 		accountRepository,
-		logger,
+
 	)
 
 	authService := authService.New(
 		authRepository,
 		userRepository,
-		logger,
+		generalRepository,
+		[]byte(cfg.GeneralSalt),
+
 	)
 
-	logger.Info(mainCtx, "Запускаем планировщик")
-	if err = scheduler.NewScheduler(settingsService, logger).Start(); err != nil {
-		logger.Fatal(err)
+	log.Info(ctx, "Запускаем планировщик")
+	if err = scheduler.NewScheduler(settingsService).Start(); err != nil {
+		return err
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/account", accountEndpoint.NewEndpoint(logger, accountService))
-	mux.Handle("/account/", accountEndpoint.NewEndpoint(logger, accountService))
-	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(logger, transactionService))
-	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(logger, transactionService))
-	mux.Handle("/tag/", tagEndpoint.NewEndpoint(logger, tagService))
-	mux.Handle("/tag", tagEndpoint.NewEndpoint(logger, tagService))
-	mux.Handle("/auth/", authEndpoint.NewEndpoint(logger, authService))
-	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(logger, settingsService))
-	mux.Handle("/user/", userEndpoint.NewEndpoint(logger, userService))
+	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
+	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
+	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
+	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
+	mux.Handle("/tag/", tagEndpoint.NewEndpoint(tagService))
+	mux.Handle("/tag", tagEndpoint.NewEndpoint(tagService))
+	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
+	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
+	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
 
-	logger.Info(mainCtx, "Запускаем HTTP-сервер")
+	log.Info(ctx, "Запускаем HTTP-сервер")
 	if cfg.HTTP == "" {
-		logger.Fatal(errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана"))
+		return errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана")
 	}
-	logger.Info(mainCtx, "Server is listening %v", cfg.HTTP)
+	log.Info(ctx, "Server is listening %v", cfg.HTTP)
 
 	go func() {
 		server := &http.Server{
-			Addr:              cfg.HTTP,
-			Handler:           CORS(mux),
-			ReadHeaderTimeout: readHeaderTimeout,
+			Addr:                         cfg.HTTP,
+			Handler:                      CORS(mux),
+			DisableGeneralOptionsHandler: false,
+			TLSConfig:                    nil,
+			ReadTimeout:                  0,
+			ReadHeaderTimeout:            readHeaderTimeout,
+			WriteTimeout:                 0,
+			IdleTimeout:                  0,
+			MaxHeaderBytes:               0,
+			TLSNextProto:                 nil,
+			ConnState:                    nil,
+			ErrorLog:                     nil,
+			BaseContext:                  nil,
+			ConnContext:                  nil,
 		}
 		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
 	}()
 
-	logger.Fatal(<-errs)
+	return <-errs
 }
 
 func CORS(handler http.Handler) http.Handler {
@@ -222,10 +251,29 @@ func CORS(handler http.Handler) http.Handler {
 
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
-			logging.GetLogger().Panic(context.Background(), err)
+			log.Panic(context.Background(), err)
 			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 
 		handler.ServeHTTP(w, r)
 	})
+}
+
+func initServices(cfg config) error {
+
+	// Конфигурируем decimal, чтобы в JSON не было кавычек
+	decimal.MarshalJSONWithoutQuotes = true
+
+	// Инициализируем JWT-менеджер
+	accessTokenTTL, err := time.ParseDuration(cfg.Token.AccessTokenTTL)
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+	refreshTokenTTL, err := time.ParseDuration(cfg.Token.RefreshTokenTTL)
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL, refreshTokenTTL)
+
+	return nil
 }

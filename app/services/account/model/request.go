@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/datetime"
@@ -62,18 +64,26 @@ type CreateAccountReq struct {
 func (s *CreateAccountReq) ContertToAccount() Account {
 	return Account{
 		ID:                 0,
+		Remainder:          s.Remainder,
 		Name:               s.Name,
 		IconID:             s.IconID,
 		Type:               s.Type,
 		Currency:           s.Currency,
+		Visible:            true,
 		AccountGroupID:     s.AccountGroupID,
 		AccountingInHeader: *s.AccountingInHeader,
-		AccountingInCharts: *s.AccountingInCharts,
-		Remainder:          s.Remainder,
-		IsParent:           *s.IsParent,
-		Visible:            true,
 		ParentAccountID:    s.ParentAccountID,
+		SerialNumber:       0,
+		IsParent:           *s.IsParent,
 		CreatedByUserID:    &s.Necessary.UserID,
+		DatetimeCreate:     datetime.Time{Time: time.Now()},
+		AccountingInCharts: *s.AccountingInCharts,
+		AccountBudget: AccountBudget{
+			Amount:         s.Budget.Amount,
+			FixedSum:       s.Budget.FixedSum,
+			DaysOffset:     s.Budget.DaysOffset,
+			GradualFilling: *s.Budget.GradualFilling,
+		},
 	}
 }
 
@@ -91,7 +101,7 @@ func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 		IsParent:           *s.IsParent,
 		Visible:            true,
 		ParentAccountID:    s.ParentAccountID,
-		UserID:             s.Necessary.UserID,
+		UserID:             &s.Necessary.UserID,
 		DatetimeCreate:     s.DatetimeCreate.Time,
 	}
 }

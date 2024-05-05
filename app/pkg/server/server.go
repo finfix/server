@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"time"
 
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
+	"server/app/pkg/middleware"
 )
 
 type Chain struct {
-	logger      *logging.Logger
 	before      []BeforeFunc
 	send        SendFunc
 	after       []AfterFunc
@@ -17,10 +17,13 @@ type Chain struct {
 	errorEncode EncodeErrorFunc
 }
 
-func NewChain(logger *logging.Logger, send SendFunc, opts ...Option) *Chain {
+func NewChain(send SendFunc, opts ...Option) *Chain {
 	chain := &Chain{
-		logger: logger,
-		send:   send,
+		before:      nil,
+		send:        send,
+		after:       nil,
+		encode:      middleware.DefaultResponseEncoder,
+		errorEncode: middleware.DefaultErrorEncoder,
 	}
 	for _, option := range opts {
 		option(chain)
@@ -30,6 +33,7 @@ func NewChain(logger *logging.Logger, send SendFunc, opts ...Option) *Chain {
 
 type Option func(*Chain)
 
+/*
 func ResponseEncoder(e EncodeResponseFunc) Option {
 	return func(s *Chain) { s.encode = e }
 }
@@ -37,6 +41,7 @@ func ResponseEncoder(e EncodeResponseFunc) Option {
 func ErrorEncoder(ee EncodeErrorFunc) Option {
 	return func(s *Chain) { s.errorEncode = ee }
 }
+*/
 
 func Before(before ...BeforeFunc) Option {
 	return func(s *Chain) { s.before = append(s.before, before...) }
@@ -66,10 +71,10 @@ func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		res       any
 	)
 
-	ctx = logging.SetTaskID(ctx)
+	ctx = log.SetTaskID(ctx)
 
 	defer func() {
-		s.logger.Info(ctx, "Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime))
+		log.Info(ctx, "Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime))
 	}()
 
 	for _, f := range s.before {

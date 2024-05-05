@@ -6,5 +6,5 @@ type AuthRes struct {
 }
 
 type RefreshTokensRes struct {
-	Token `json:"token"` // Токены доступа
+	Token // Токены доступа
 }

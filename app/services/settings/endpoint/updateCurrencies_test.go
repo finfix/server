@@ -7,13 +7,13 @@ import (
 	"testing"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	"server/app/pkg/testingFunc"
 )
 
 func TestAuthorization(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	for _, tt := range []struct {
 		message string
@@ -39,7 +39,7 @@ func TestAuthorization(t *testing.T) {
 				r.Header.Set(k, v)
 			}
 
-			_, err := authorizationWithAdminKey(context.Background(), r)
+			_, err := authorizationWithAdminKey("authorizationKey")(context.Background(), r)
 			if testingFunc.CheckError(t, tt.err, err) {
 				return
 			}
