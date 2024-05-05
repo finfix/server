@@ -9,7 +9,6 @@ import (
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	"server/app/config"
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
@@ -71,23 +70,30 @@ const (
 
 func main() {
 	if err := mainNoExit(); err != nil {
-		log.Fatal(err)
+		log.Fatal(context.Background(), err)
 	}
 }
 
 func mainNoExit() error {
 
+	// Создаем контекст с отменой по вызову функции
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Перехватываем панику
+	// Перехватываем возможную панику
 	defer panicRecover.PanicRecover(func(err error) {
-		log.Panic(ctx, err)
+		log.Fatal(ctx, err)
 	})
 
-	isSetupTelegram := false
-	flag.BoolVar(&isSetupTelegram, "telegram", false, "Включаем ли телеграм бот")
+	// Парсим флаги
+	isSetupTelegram := flag.Bool("telegram", false, "Enabling telegram bot\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
+	logFormat := flag.String("log-format", string(log.JSONFormat), "text - Human readable string\njson - JSON format")
 	flag.Parse()
+
+	// Инициализируем логгер
+	if err := log.Init(log.LogFormat(*logFormat)); err != nil {
+		return err
+	}
 
 	// Получаем конфиг
 	log.Info(ctx, "Получаем конфиг")
@@ -112,7 +118,7 @@ func mainNoExit() error {
 
 	// Инициализируем клиента телеграм
 	log.Info(ctx, "Инициализируем телеграм клиента")
-	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, isSetupTelegram)
+	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, *isSetupTelegram)
 	if err != nil {
 		return err
 	}

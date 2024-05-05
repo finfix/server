@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"maps"
 	"runtime"
+	"strings"
 )
 
 const (
@@ -19,7 +20,7 @@ type CustomError struct {
 	HumanText    string            `json:"humanTextError"`
 	DevelopText  string            `json:"developerTextError"`
 	InitialError error             `json:"-"`
-	Path         string            `json:"path"`
+	Path         []string          `json:"path"`
 	Params       map[string]string `json:"parameters,omitempty" validate:"required"`
 	TaskID       *string           `json:"taskID,omitempty"`
 	LogAs        LogOption         `json:"-"`
@@ -64,7 +65,7 @@ func (typ ErrorType) New(msg string, opts ...Option) error {
 		HumanText:    options.HumanText,
 		DevelopText:  msg,
 		InitialError: errors.New(msg),
-		Path:         getPath(skip),
+		Path:         GetPath(skip + 1),
 		Params:       options.params,
 		TaskID:       nil,
 		LogAs:        TypeToLogOption[typ],
@@ -103,7 +104,7 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 			if options.pathDepth != nil {
 				skip = *options.pathDepth
 			}
-			customErr.Path = getPath(skip)
+			customErr.Path = GetPath(skip)
 		}
 
 		// Если передан текст ошибки, то добавляем его к исходной ошибке
@@ -126,7 +127,7 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 			HumanText:    options.HumanText,
 			DevelopText:  err.Error(),
 			InitialError: err,
-			Path:         getPath(skip),
+			Path:         GetPath(skip + 1),
 			Params:       options.params,
 			TaskID:       nil,
 			LogAs:        TypeToLogOption[typ],
@@ -153,8 +154,7 @@ func CastError(err error) CustomError {
 
 	customErr, ok := err.(CustomError)
 	if !ok {
-		err = InternalServer.Wrap(err, []Option{
-			ErrMessageOption("Ошибка не обернута, путь неверный"),
+		err = InternalServer.Wrap(errors.New("Ошибка не обернута, путь неверный"), []Option{
 			PathDepthOption(SecondPathDepth),
 		}...)
 		customErr, _ = err.(CustomError)
@@ -162,9 +162,17 @@ func CastError(err error) CustomError {
 	return customErr
 }
 
-func getPath(skip int) string {
-	_, file, line, _ := runtime.Caller(skip + 1)
-	return fmt.Sprintf("%v:%v", file, line)
+func GetPath(skip int) []string {
+	var pcs [32]uintptr
+	n := runtime.Callers(skip, pcs[:])
+	var path []string
+	for i := skip; i < n; i++ {
+		_, file, line, _ := runtime.Caller(i)
+		if strings.Contains(file, "coin") || strings.Contains(file, "Coin") {
+			path = append(path, fmt.Sprintf("%v:%v", file, line))
+		}
+	}
+	return path
 }
 
 // JSON преобразует ошибку в json

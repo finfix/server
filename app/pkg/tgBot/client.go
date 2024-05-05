@@ -25,7 +25,7 @@ func NewTgBot(
 ) (*TgBot, error) {
 
 	if !isOn {
-		log.Debug(context.Background(), "Telegram bot is off")
+		log.Info(context.Background(), "Telegram bot is off")
 		return &TgBot{
 			Bot:  nil,
 			Chat: nil,

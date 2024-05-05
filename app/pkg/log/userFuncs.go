@@ -31,7 +31,7 @@ func Info(ctx context.Context, msg string, args ...any) {
 }
 
 // Fatal логгирует сообщения для фатальных ошибок
-func Fatal(err error) {
+func Fatal(ctx context.Context, err error) {
 	processingErrorLog(context.Background(), fatalLevel, err)
 	time.Sleep(1 * time.Second)
 	os.Exit(1)
