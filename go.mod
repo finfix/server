@@ -1,6 +1,6 @@
 module server
 
-go 1.21
+go 1.22
 
 require (
 	github.com/caarlos0/env/v7 v7.1.0
