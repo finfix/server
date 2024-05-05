@@ -9,6 +9,7 @@ import (
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
+	"server/app/config"
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
@@ -97,7 +98,7 @@ func mainNoExit() error {
 
 	// Получаем конфиг
 	log.Info(ctx, "Получаем конфиг")
-	cfg, err := GetConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		return err
 	}
@@ -259,7 +260,7 @@ func CORS(handler http.Handler) http.Handler {
 	})
 }
 
-func initServices(cfg config) error {
+func initServices(cfg config.Config) error {
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true

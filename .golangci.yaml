@@ -23,7 +23,6 @@ linters:
     - errname # error variable name
     - execinquery # check for exec in query
     - exhaustive # exhaustivestruct
-    - exhaustivestruct # check for missing fields in struct literals
     - exhaustruct # check for missing fields in struct literals
     - exportloopref # check for loop variable captured by a closure
     - forbidigo # check for forbidden imports
@@ -38,10 +37,8 @@ linters:
     - gosimple # check for common mistakes in Go code
     - govet # go vet
     - grouper # check for common mistakes in Go code
-    - ifshort # check for if statement with a short body
     - importas # check for aliasing imports
     - ineffassign # check for unused assignments
-    - interfacer  # check for interface bloat
     - loggercheck # check for common mistakes in Go code
     - maintidx # check for common mistakes in Go code
     - makezero # check for zeroing allocations
@@ -58,7 +55,6 @@ linters:
     - rowserrcheck # check for rows.Err() errors
     - sqlclosecheck # check for missing sql.Close
     - staticcheck # check for static errors
-    - structcheck # check for struct tags
     - tenv # check for common mistakes in Go code
     - testableexamples # check for testable examples
     - tparallel # check for parallel tests
@@ -66,7 +62,6 @@ linters:
     - unconvert # check for redundant type conversions
     - unparam # check for unused function parameters
     - usestdlibvars # check for common mistakes in Go code
-    - varcheck # check for unused variables
     - wastedassign # check for wasted assignments
   disable:
     - containedctx # context should be the first argument of a function
@@ -106,3 +101,10 @@ linters:
     - wrapcheck # check for common mistakes in Go code
     - whitespace # check for leading whitespace
     - varnamelen # check for long variable names
+
+    # Deprecated linters
+    - exhaustivestruct # check for missing fields in struct literals
+    - ifshort # check for if statement with a short body
+    - interfacer  # check for interface bloat
+    - structcheck # check for struct tags
+    - varcheck # check for unused variables
