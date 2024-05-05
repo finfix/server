@@ -6,22 +6,27 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"server/app/config"
 	"server/app/pkg/errors"
 	"server/app/pkg/hasher"
 )
 
 type JWTManager struct {
-	signingKey []byte
-	ttl        time.Duration
+	accessTokenSigningKey []byte
+	accessTokenTTL        time.Duration
+	refreshTokenTTL       time.Duration
 }
 
-var jwtManager JWTManager
+var jwtManager *JWTManager
 
-func Init(signingKey []byte, ttl time.Duration) {
-	jwtManager = JWTManager{
-		signingKey: signingKey,
-		ttl:        ttl,
+func Init(
+	accessTokenSigningKey []byte,
+	accessTokenTTL time.Duration,
+	refreshTokenTTL time.Duration,
+) {
+	jwtManager = &JWTManager{
+		accessTokenSigningKey: accessTokenSigningKey,
+		accessTokenTTL:        accessTokenTTL,
+		refreshTokenTTL:       refreshTokenTTL,
 	}
 }
 
@@ -32,11 +37,15 @@ type MyCustomClaims struct {
 
 func NewJWT(userID uint32, deviceID string) (string, error) {
 
+	if jwtManager == nil {
+		return "", errors.InternalServer.New("JWTManager is not initialized")
+	}
+
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  "",
-			ExpiresAt: time.Now().Add(jwtManager.ttl).Unix(),
+			ExpiresAt: time.Now().Add(jwtManager.accessTokenTTL).Unix(),
 			Id:        "",
 			IssuedAt:  0,
 			Issuer:    "",
@@ -47,7 +56,7 @@ func NewJWT(userID uint32, deviceID string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenStr, err := token.SignedString(jwtManager.signingKey)
+	tokenStr, err := token.SignedString(jwtManager.accessTokenSigningKey)
 	if err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
@@ -56,6 +65,10 @@ func NewJWT(userID uint32, deviceID string) (string, error) {
 }
 
 func Parse(accessToken string) (uint32, string, error) {
+
+	if jwtManager == nil {
+		return 0, "", errors.InternalServer.New("JWTManager is not initialized")
+	}
 
 	if accessToken == "" {
 		return 0, "", errors.Unauthorized.New("JWT-token is empty")
@@ -68,13 +81,15 @@ func Parse(accessToken string) (uint32, string, error) {
 			}...)
 		}
 
-		return jwtManager.signingKey, nil
+		return jwtManager.accessTokenSigningKey, nil
 	})
 	if jwtErr != nil {
 		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
 			return 0, "", errors.BadRequest.Wrap(jwtErr)
 		} else {
-			jwtErr = errors.Unauthorized.Wrap(jwtErr)
+			jwtErr = errors.Unauthorized.Wrap(jwtErr, []errors.Option{
+				errors.PathDepthOption(errors.SecondPathDepth),
+			}...)
 		}
 	}
 
@@ -96,6 +111,10 @@ func Parse(accessToken string) (uint32, string, error) {
 
 func NewRefreshToken() (string, time.Time, error) {
 
+	if jwtManager == nil {
+		return "", time.Now(), errors.InternalServer.New("JWTManager is not initialized")
+	}
+
 	const refreshTokenLength = 64
 
 	token, err := hasher.GenerateRandomBytes(refreshTokenLength)
@@ -104,7 +123,7 @@ func NewRefreshToken() (string, time.Time, error) {
 	}
 
 	// Получаем время жизни refresh token
-	refreshDur, err := time.ParseDuration(config.GetConfig().Token.RefreshTokenTTL)
+	refreshDur, err := time.ParseDuration(jwtManager.refreshTokenTTL.String())
 	if err != nil {
 		return "", time.Now(), err
 	}

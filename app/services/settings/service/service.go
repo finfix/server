@@ -21,12 +21,20 @@ type SettingsRepository interface {
 	GetIcons(context.Context) ([]settingsModel.Icon, error)
 }
 
+type Credentials struct {
+	CurrencyProviderAPIKey string
+}
+
+type Version struct {
+	Version string
+	Build   string
+}
+
 type Service struct {
 	settingsRepository SettingsRepository
 	tgBot              *tgBot.TgBot
-
-	version string
-	build   string
+	credentials        Credentials
+	version            Version
 }
 
 // UpdateCurrencies обновляет курсы валют
@@ -44,7 +52,7 @@ func (s *Service) UpdateCurrencies(ctx context.Context) error {
 	}()
 
 	// Получаем курсы валют от провайдера данных
-	rates, err := network.GetCurrencyRates(ctx)
+	rates, err := network.GetCurrencyRates(ctx, s.credentials.CurrencyProviderAPIKey)
 	if err != nil {
 		tgMessage.Message += fmt.Sprintf("Не смогли получить курсы валют от провайдера\n\n%v", err.Error())
 		return err
@@ -86,17 +94,16 @@ func (s *Service) GetIcons(ctx context.Context) ([]settingsModel.Icon, error) {
 
 func (s *Service) GetVersion() settingsModel.Version {
 	return settingsModel.Version{
-		Version: s.version,
-		Build:   s.build,
+		Version: s.version.Version,
+		Build:   s.version.Build,
 	}
 }
 
-func New(rep SettingsRepository, tgBot *tgBot.TgBot, version, build string) *Service {
+func New(rep SettingsRepository, tgBot *tgBot.TgBot, version Version, credentials Credentials) *Service {
 	return &Service{
 		settingsRepository: rep,
 		tgBot:              tgBot,
-
-		version: version,
-		build:   build,
+		credentials:        credentials,
+		version:            version,
 	}
 }

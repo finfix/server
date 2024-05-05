@@ -1,17 +1,14 @@
-package config
+package main
 
 import (
-	"sync"
-
 	"github.com/caarlos0/env/v7"
 
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
-	"server/app/pkg/log"
 )
 
 // Config - общая структура конфига
-type Config struct {
+type config struct {
 
 	// Адрес для http-сервера
 	HTTP string `env:"LISTEN_HTTP"`
@@ -45,16 +42,10 @@ type Config struct {
 	}
 }
 
-var instance *Config
-var once sync.Once
-
 // GetConfig возвращает конфигурацию из .env файла
-func GetConfig() *Config {
-	once.Do(func() {
-		instance = &Config{} //nolint:exhaustruct
-		if err := env.Parse(instance); err != nil {
-			log.Fatal(errors.InternalServer.Wrap(err))
-		}
-	})
-	return instance
+func GetConfig() (config config, err error) {
+	if err := env.Parse(&config); err != nil {
+		return config, errors.InternalServer.Wrap(err)
+	}
+	return config, nil
 }

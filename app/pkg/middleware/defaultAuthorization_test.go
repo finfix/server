@@ -100,7 +100,7 @@ func TestAuthorization(t *testing.T) {
 
 			tt := tt
 
-			jwtManager.Init([]byte("test"), tt.params.ttl)
+			jwtManager.Init([]byte("test"), tt.params.ttl, 0)
 
 			// Если токен не передан, то создаем его
 			if tt.token == nil {

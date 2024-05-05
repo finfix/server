@@ -6,7 +6,6 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"server/app/config"
 	"server/app/pkg/errors"
 	"server/app/pkg/middleware"
 	"server/app/pkg/server"
@@ -16,28 +15,33 @@ import (
 var part = "/settings"
 
 type endpoint struct {
-	service *settingsService.Service
+	service  *settingsService.Service
+	adminKey string
 }
 
-func authorizationWithAdminKey(ctx context.Context, r *http.Request) (context.Context, error) {
-
-	if r.Header.Get("AdminSecretKey") != config.GetConfig().AdminSecretKey {
-		return ctx, errors.Forbidden.New("MySecretKey is incorrect", []errors.Option{
-			errors.ParamsOption("IP address", r.Header.Get("X-Real-IP")),
-		}...)
+func authorizationWithAdminKey(adminKey string) func(ctx context.Context, r *http.Request) (context.Context, error) {
+	return func(ctx context.Context, r *http.Request) (context.Context, error) {
+		if r.Header.Get("AdminSecretKey") != adminKey {
+			return ctx, errors.Forbidden.New("MySecretKey is incorrect", []errors.Option{
+				errors.ParamsOption("IP address", r.Header.Get("X-Real-IP")),
+			}...)
+		}
+		return ctx, nil
 	}
-
-	return ctx, nil
 }
 
-func NewEndpoint(service *settingsService.Service) http.Handler {
+func NewEndpoint(
+	service *settingsService.Service,
+	adminKey string,
+) http.Handler {
 
 	e := &endpoint{
-		service: service,
+		service:  service,
+		adminKey: adminKey,
 	}
 
 	adminMethodsOptions := []server.Option{
-		server.Before(authorizationWithAdminKey),
+		server.Before(authorizationWithAdminKey(adminKey)),
 	}
 
 	userMethodsOptions := []server.Option{

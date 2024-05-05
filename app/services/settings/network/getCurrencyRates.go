@@ -9,11 +9,10 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"server/app/config"
 	"server/app/pkg/errors"
 )
 
-func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
+func GetCurrencyRates(ctx context.Context, apiKey string) (map[string]decimal.Decimal, error) {
 	var providerModel struct {
 		Meta struct {
 			LastUpdatedAt time.Time `json:"last_updated_at"`
@@ -29,7 +28,7 @@ func GetCurrencyRates(ctx context.Context) (map[string]decimal.Decimal, error) {
 	urlString := "https://api.currencyapi.com/v3/latest"
 
 	// Параметры запроса
-	urlValues.Add("apikey", config.GetConfig().APIKeys.CurrencyProvider)
+	urlValues.Add("apikey", apiKey)
 
 	uri, err := url.ParseRequestURI(urlString)
 	if err != nil {

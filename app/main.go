@@ -90,11 +90,15 @@ func mainNoExit() error {
 	flag.Parse()
 
 	// Получаем конфиг
-	cfg := config.GetConfig()
+	log.Info(ctx, "Получаем конфиг")
+	cfg, err := GetConfig()
+	if err != nil {
+		return err
+	}
 
 	// Инициализируем все сервисы
-	err := initServices(cfg)
-	if err != nil {
+	log.Info(ctx, "Инициализируем сервисы")
+	if err = initServices(cfg); err != nil {
 		return err
 	}
 
@@ -135,8 +139,13 @@ func mainNoExit() error {
 	settingsService := settingsService.New(
 		settingsRepository,
 		tgBot,
-		version,
-		build,
+		settingsService.Version{
+			Version: version,
+			Build:   build,
+		},
+		settingsService.Credentials{
+			CurrencyProviderAPIKey: cfg.APIKeys.CurrencyProvider,
+		},
 	)
 
 	accountService := accountService.New(
@@ -188,7 +197,7 @@ func mainNoExit() error {
 	mux.Handle("/tag/", tagEndpoint.NewEndpoint(tagService))
 	mux.Handle("/tag", tagEndpoint.NewEndpoint(tagService))
 	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
-	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService))
+	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
 	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
@@ -244,7 +253,7 @@ func CORS(handler http.Handler) http.Handler {
 	})
 }
 
-func initServices(cfg *config.Config) error {
+func initServices(cfg config) error {
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true
@@ -254,7 +263,11 @@ func initServices(cfg *config.Config) error {
 	if err != nil {
 		return errors.InternalServer.Wrap(err)
 	}
-	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL)
+	refreshTokenTTL, err := time.ParseDuration(cfg.Token.RefreshTokenTTL)
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL, refreshTokenTTL)
 
 	return nil
 }
