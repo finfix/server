@@ -4,9 +4,9 @@ type logLevel string
 
 // Уровни логов
 const (
-	warningLevel = logLevel("WARN ")
-	errorLevel   = logLevel("ERROR")
-	infoLevel    = logLevel("INFO ")
-	fatalLevel   = logLevel("FATAL")
-	debugLevel   = logLevel("DEBUG")
+	warningLevel = logLevel("warn")
+	errorLevel   = logLevel("error")
+	infoLevel    = logLevel("info")
+	fatalLevel   = logLevel("fatal")
+	debugLevel   = logLevel("debug")
 )

@@ -93,8 +93,14 @@ func getConsoleLog(values Log) string {
 		parameters = append(parameters, fmt.Sprintf(colorTemplates[values.Level], key)+" = "+value)
 	}
 
+	levelText := string(values.Level)
+	if values.Level == infoLevel || values.Level == warningLevel {
+		levelText += spacer
+	}
+	levelText = strings.ToUpper(levelText)
+
 	logComponents := []string{
-		fmt.Sprintf(colorTemplates[values.Level], string(values.Level)), // Цветной заголовок с уровнем лога
+		fmt.Sprintf(colorTemplates[values.Level], levelText), // Цветной заголовок с уровнем лога
 		values.Path[0], // Путь к месту, где был вызван лог (или где была создана ошибка)
 		values.Message, // Сообщение лога
 		strings.Join(parameters, spacer),
