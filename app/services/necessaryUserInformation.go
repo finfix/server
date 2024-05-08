@@ -13,16 +13,16 @@ type NecessaryUserInformation struct {
 }
 
 func ExtractNecessaryFromCtx(ctx context.Context) (necessary NecessaryUserInformation, err error) {
-	userID, ok := ctx.Value(contextKeys.UserIDKey).(uint32)
-	if !ok {
+	userID := contextKeys.GetUserID(ctx)
+	if userID == nil {
 		return necessary, errors.BadRequest.New("user id not found or not uint32")
 	}
-	deviceID, ok := ctx.Value(contextKeys.DeviceIDKey).(string)
-	if !ok {
+	deviceID := contextKeys.GetDeviceID(ctx)
+	if deviceID == nil {
 		return necessary, errors.BadRequest.New("device id not found or not string")
 	}
 	return NecessaryUserInformation{
-		UserID:   userID,
-		DeviceID: deviceID,
+		UserID:   *userID,
+		DeviceID: *deviceID,
 	}, nil
 }

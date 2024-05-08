@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -74,7 +75,13 @@ func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = log.SetTaskID(ctx)
 
 	defer func() {
-		log.Info(ctx, "Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime))
+		log.Info(ctx, fmt.Sprintf("Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime)), []log.Option{
+			log.ParamsOption(
+				"method", r.Method,
+				"path", r.URL.Path,
+				"duration", time.Since(startTime),
+			),
+		}...)
 	}()
 
 	for _, f := range s.before {

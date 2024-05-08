@@ -1,12 +1,6 @@
-package slice
+package slices
 
-func MapToSlice[K comparable, V any](mapa map[K]V) []V {
-	slice := make([]V, 0, len(mapa))
-	for _, v := range mapa {
-		slice = append(slice, v)
-	}
-	return slice
-}
+import "server/app/pkg/maps"
 
 // ToMap возращает map, где ключом является поле структуры, а значением сама структура
 // Example:
@@ -20,7 +14,7 @@ func ToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
 }
 
 func GetUniqueByField[K comparable, V any](slice []V, field func(V) K) []V {
-	return MapToSlice(ToMap(slice, field))
+	return maps.ToSlice(ToMap(slice, field))
 }
 
 func GetFields[K comparable, V any](slice []V, field func(V) K) []K {

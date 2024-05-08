@@ -3,13 +3,13 @@ package log
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"os"
 	"strings"
 
 	"server/app/pkg/errors"
+	"server/app/pkg/maps"
 )
 
 const (
@@ -32,23 +32,25 @@ func processingErrorLog(ctx context.Context, level logLevel, err error) {
 	customErr := errors.CastError(err)
 
 	shareLog(Log{
-		Path:    customErr.Path,
-		Params:  customErr.Params,
-		Message: customErr.Error(),
-		Level:   level,
-		TaskID:  ExtractTaskID(ctx),
+		Path:             customErr.Path,
+		Params:           customErr.Params,
+		Message:          customErr.Error(),
+		Level:            level,
+		AdditionalFields: maps.Join(logger.additionalFields, ExtractAdditionalInfo(ctx)),
 	})
 }
 
 // processingLog обрабатывает входные данные для логгирования
-func processingLog(ctx context.Context, level logLevel, msg string, args ...any) {
+func processingLog(ctx context.Context, level logLevel, msg string, opts ...Option) {
+
+	options := mergeOptions(opts...)
 
 	shareLog(Log{
-		Path:    errors.GetPath(errors.ThirdPathDepth),
-		Params:  nil,
-		Message: fmt.Sprintf(msg, args...),
-		Level:   level,
-		TaskID:  ExtractTaskID(ctx),
+		Path:             errors.GetPath(errors.ThirdPathDepth),
+		Params:           options.params,
+		Message:          msg,
+		Level:            level,
+		AdditionalFields: maps.Join(logger.additionalFields, ExtractAdditionalInfo(ctx)),
 	})
 }
 
