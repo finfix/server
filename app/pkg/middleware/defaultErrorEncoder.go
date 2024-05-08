@@ -18,7 +18,7 @@ func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 
 	err := errors.CastError(er)
 	err.HumanText = humanTextByLevel[err.ErrorType]
-	err.TaskID = log.ExtractTaskID(ctx)
+	err.AdditionalInfo = log.ExtractAdditionalInfo(ctx)
 
 	switch err.LogAs {
 	case errors.LogAsError:

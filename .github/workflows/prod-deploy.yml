@@ -11,5 +11,5 @@ jobs:
     with:
       service_port: 8081
       service_name: server-test
-      command_args: -log-format=json -telegram=true
+      command_args: -log-format=json -telegram=true -env-mode=prod
     secrets: inherit

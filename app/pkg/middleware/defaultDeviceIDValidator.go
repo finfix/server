@@ -9,8 +9,9 @@ import (
 )
 
 func DefaultDeviceIDValidator(ctx context.Context, r *http.Request) (context.Context, error) {
-	if r.Header.Get("DeviceID") == "" {
+	deviceID := r.Header.Get("DeviceID")
+	if deviceID == "" {
 		return ctx, errors.BadRequest.New("DeviceID is empty")
 	}
-	return context.WithValue(ctx, contextKeys.DeviceIDKey, r.Header.Get("DeviceID")), nil
+	return contextKeys.SetDeviceID(ctx, deviceID), nil
 }

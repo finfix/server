@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/slice"
+	"server/app/pkg/slices"
 	accountModel "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	accountRepository "server/app/services/account/repository"
@@ -76,7 +76,7 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 	if err != nil {
 		return id, err
 	}
-	accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
+	accountsMap := slices.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 	// Проверяем, может ли пользователь использовать счета
 	if err = s.transactionAndAccountTypesValidation(
@@ -191,7 +191,7 @@ func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel
 		if err != nil {
 			return err
 		}
-		accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
+		accountsMap := slices.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 		// Проверяем соответствие типов счета и типа транзакции
 		if err = s.transactionAndAccountTypesValidation(
@@ -225,16 +225,16 @@ func (s *Service) transactionAndAccountTypesValidation(accountFrom, accountTo ac
 	// Проверяем, что типы счетов выбраны правильно для этой транзакции
 	switch tranType {
 	case transactionType.Income:
-		isAccess = accountFrom.Type == accountType.Earnings && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = accountFrom.Type == accountType.Earnings && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "Earnings -> [Regular, Debt]"
 	case transactionType.Transfer:
-		isAccess = slice.In(accountFrom.Type, accountType.Regular, accountType.Debt) && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = slices.In(accountFrom.Type, accountType.Regular, accountType.Debt) && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "[Regular, Debt] -> [Regular, Debt]"
 	case transactionType.Consumption:
-		isAccess = slice.In(accountFrom.Type, accountType.Regular, accountType.Debt) && accountTo.Type == accountType.Expense
+		isAccess = slices.In(accountFrom.Type, accountType.Regular, accountType.Debt) && accountTo.Type == accountType.Expense
 		accesses = "[Regular, Debt] -> Expense"
 	case transactionType.Balancing:
-		isAccess = accountFrom.Type == accountType.Balancing && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = accountFrom.Type == accountType.Balancing && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "Balancing -> [Regular, Debt]"
 	}
 
@@ -268,9 +268,9 @@ func (s *Service) updateTransactionTags(ctx context.Context, userID, transaction
 		return err
 	}
 
-	existTagIDs := slice.GetFields(transactionTags, func(tag tagModel.TagToTransaction) uint32 { return tag.TagID })
+	existTagIDs := slices.GetFields(transactionTags, func(tag tagModel.TagToTransaction) uint32 { return tag.TagID })
 
-	toDelete, toCreate := slice.JoinExclusive(existTagIDs, tagIDs)
+	toDelete, toCreate := slices.JoinExclusive(existTagIDs, tagIDs)
 
 	if len(toDelete) > 0 {
 		// Удаляем связи тегов с транзакцией

@@ -16,14 +16,14 @@ const (
 )
 
 type CustomError struct {
-	ErrorType    `json:"-"`
-	HumanText    string            `json:"humanTextError"`
-	DevelopText  string            `json:"developerTextError"`
-	InitialError error             `json:"-"`
-	Path         []string          `json:"path"`
-	Params       map[string]string `json:"parameters,omitempty" validate:"required"`
-	TaskID       *string           `json:"taskID,omitempty"`
-	LogAs        LogOption         `json:"-"`
+	ErrorType      `json:"-"`
+	HumanText      string            `json:"humanTextError"`
+	DevelopText    string            `json:"developerTextError"`
+	InitialError   error             `json:"-"`
+	Path           []string          `json:"path"`
+	Params         map[string]string `json:"parameters,omitempty" validate:"required"`
+	AdditionalInfo map[string]string `json:"additionalInfo,omitempty"`
+	LogAs          LogOption         `json:"-"`
 }
 
 func (err CustomError) Error() string {
@@ -61,14 +61,14 @@ func (typ ErrorType) New(msg string, opts ...Option) error {
 
 	// Создаем новую ошибку
 	customErr := CustomError{
-		ErrorType:    typ,
-		HumanText:    options.HumanText,
-		DevelopText:  msg,
-		InitialError: errors.New(msg),
-		Path:         GetPath(skip + 1),
-		Params:       options.params,
-		TaskID:       nil,
-		LogAs:        TypeToLogOption[typ],
+		ErrorType:      typ,
+		HumanText:      options.HumanText,
+		DevelopText:    msg,
+		InitialError:   errors.New(msg),
+		Path:           GetPath(skip + 1),
+		Params:         options.params,
+		AdditionalInfo: nil,
+		LogAs:          TypeToLogOption[typ],
 	}
 
 	// Если передан тип логирования, то добавляем его
@@ -123,14 +123,14 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
 		// Если это не обернутая ошибка, то создаем новую
 		customErr = CustomError{
-			ErrorType:    typ,
-			HumanText:    options.HumanText,
-			DevelopText:  err.Error(),
-			InitialError: err,
-			Path:         GetPath(skip + 1),
-			Params:       options.params,
-			TaskID:       nil,
-			LogAs:        TypeToLogOption[typ],
+			ErrorType:      typ,
+			HumanText:      options.HumanText,
+			DevelopText:    err.Error(),
+			InitialError:   err,
+			Path:           GetPath(skip + 1),
+			Params:         options.params,
+			AdditionalInfo: nil,
+			LogAs:          TypeToLogOption[typ],
 		}
 
 		if options.errMessage != nil {

@@ -4,11 +4,11 @@ import "server/app/pkg/errors"
 
 // Log - Структура лога
 type Log struct {
-	Level   logLevel          `json:"level"`
-	Message string            `json:"message"`
-	Path    []string          `json:"path"`
-	Params  map[string]string `json:"params,omitempty"`
-	TaskID  *string           `json:"taskID,omitempty"`
+	Level            logLevel          `json:"level"`
+	Message          string            `json:"message"`
+	Path             []string          `json:"path"`
+	Params           map[string]string `json:"params,omitempty"`
+	AdditionalFields map[string]string `json:"additionalFields,omitempty"`
 }
 
 type LogFormat string
@@ -27,19 +27,17 @@ func validateLogFormat(format LogFormat) error {
 	}
 }
 
-type uuidKeyType string
-
-const uuidKey uuidKeyType = "uuid"
-
 // loggerSettings - Конфигурация логгера
 type loggerSettings struct {
-	isOn      bool
-	logFormat LogFormat
+	isOn             bool
+	logFormat        LogFormat
+	additionalFields map[string]string
 }
 
 var logger = &loggerSettings{
-	isOn:      true,
-	logFormat: JSONFormat,
+	isOn:             true,
+	logFormat:        JSONFormat,
+	additionalFields: make(map[string]string),
 }
 
 // Off выключает логгер
@@ -48,12 +46,16 @@ func Off() {
 }
 
 // Init конфигурирует логгер
-func Init(logFormat LogFormat) error {
+func Init(
+	logFormat LogFormat,
+	additionalFields map[string]string,
+) error {
 
 	if err := validateLogFormat(logFormat); err != nil {
 		return err
 	}
 	logger.logFormat = logFormat
+	logger.additionalFields = additionalFields
 
 	return nil
 }

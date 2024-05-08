@@ -40,7 +40,11 @@ func decodeSignInReq(ctx context.Context, r *http.Request) (req model.SignInReq,
 	}
 
 	// Заполняем поля из контекста
-	req.DeviceID, _ = ctx.Value(contextKeys.DeviceIDKey).(string)
+	if deviceID := contextKeys.GetDeviceID(ctx); deviceID != nil {
+		req.DeviceID = *deviceID
+	} else {
+		return req, errors.BadRequest.New("device id not found or not string")
+	}
 
 	// Валидируем поля
 	if err = validation.Mail(req.Email); err != nil {
