@@ -12,11 +12,6 @@ import (
 	"server/app/pkg/errors"
 )
 
-// Panic логгирует сообщения при панике
-func Panic(ctx context.Context, err error) {
-	processingErrorLog(ctx, panicLevel, err)
-}
-
 // Error логгирует сообщения для ошибок системы
 func Error(ctx context.Context, err error) {
 	processingErrorLog(ctx, errorLevel, err)

@@ -25,6 +25,15 @@ type GetAccountsReq struct {
 	IDs                []uint32          `json:"-" schema:"-"`
 }
 
+func (s GetAccountsReq) Validate() error {
+	return s.Type.Validate()
+}
+
+func (s GetAccountsReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
+}
+
 // TODO: Переписать
 func (s *GetAccountsReq) ConvertToRepoReq() repoModel.GetAccountsReq {
 	var req repoModel.GetAccountsReq
@@ -61,7 +70,16 @@ type CreateAccountReq struct {
 	Visible            *bool                  `json:"-"`                                                                                 // Видимость счета
 }
 
-func (s *CreateAccountReq) ContertToAccount() Account {
+func (s CreateAccountReq) Validate() error {
+	return s.Type.Validate()
+}
+
+func (s CreateAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
+}
+
+func (s CreateAccountReq) ContertToAccount() Account {
 	return Account{
 		ID:                 0,
 		Remainder:          s.Remainder,
@@ -88,7 +106,7 @@ func (s *CreateAccountReq) ContertToAccount() Account {
 }
 
 // TODO: Переписать
-func (s *CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
+func (s CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 	return repoModel.CreateAccountReq{
 		Name:               s.Name,
 		IconID:             s.IconID,
@@ -137,6 +155,13 @@ type UpdateAccountReq struct {
 	Budget             UpdateAccountBudgetReq `json:"budget"`                             // Месячный бюджет
 }
 
+func (s UpdateAccountReq) Validate() error { return nil }
+
+func (s UpdateAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
+}
+
 func (s *UpdateAccountReq) ConvertToRepoReq() repoModel.UpdateAccountReq {
 	return repoModel.UpdateAccountReq{
 		Remainder:          s.Remainder,
@@ -172,15 +197,36 @@ type DeleteAccountReq struct {
 	ID        uint32 `json:"id" schema:"id" validate:"required" minimum:"1"` // Идентификатор счета
 }
 
+func (s DeleteAccountReq) Validate() error { return nil }
+
+func (s DeleteAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
+}
+
 type SwitchAccountBetweenThemselvesReq struct {
 	Necessary services.NecessaryUserInformation
 	ID1       uint32 `json:"id1" validate:"required" minimum:"1"` // Идентификатор первого счета
 	ID2       uint32 `json:"id2" validate:"required" minimum:"1"` // Идентификатор второго счета
 }
 
+func (s SwitchAccountBetweenThemselvesReq) Validate() error { return nil }
+
+func (s SwitchAccountBetweenThemselvesReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
+}
+
 type GetAccountGroupsReq struct {
 	Necessary       services.NecessaryUserInformation
 	AccountGroupIDs []uint32 `json:"accountGroupIDs" schema:"accountGroupIDs" minimum:"1"` // Идентификаторы групп счетов
+}
+
+func (s GetAccountGroupsReq) Validate() error { return nil }
+
+func (s GetAccountGroupsReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	s.Necessary = necessary
+	return s
 }
 
 type CreateAccountGroupReq struct {

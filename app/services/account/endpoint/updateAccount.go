@@ -2,12 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/account/model"
 )
 
@@ -24,34 +21,11 @@ import (
 func (s *endpoint) updateAccount(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос
-	req, err := decodeUpdateAccountReq(ctx, r)
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.UpdateAccountReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return s.service.Update(ctx, req)
-}
-
-func decodeUpdateAccountReq(ctx context.Context, r *http.Request) (req model.UpdateAccountReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	if req.Name != nil {
-		if *req.Name == "" {
-			return req, errors.BadRequest.New("Field 'name' must be not empty")
-		}
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

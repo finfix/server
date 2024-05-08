@@ -3,6 +3,7 @@ package log
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -16,13 +17,12 @@ const (
 	spacer = " "
 )
 
-var logHeaders = map[logLevel]string{
-	errorLevel:   "\x1b[31mERROR\x1b[0m",
-	fatalLevel:   "\x1b[35mFATAL\x1b[0m",
-	infoLevel:    "\x1b[34mINFO \x1b[0m",
-	debugLevel:   "\x1b[36mDEBUG\x1b[0m",
-	warningLevel: "\x1b[33mWARN \x1b[0m",
-	panicLevel:   "\x1b[32mPANIC\x1b[0m",
+var colorTemplates = map[logLevel]string{
+	errorLevel:   "\x1b[31m%v\x1b[0m",
+	fatalLevel:   "\x1b[35m%v\x1b[0m",
+	infoLevel:    "\x1b[34m%v\x1b[0m",
+	debugLevel:   "\x1b[36m%v\x1b[0m",
+	warningLevel: "\x1b[33m%v\x1b[0m",
 }
 
 // processingErrorLog обрабатывает ошибки для логгирования
@@ -73,7 +73,7 @@ func shareLog(values Log) {
 	// Определяем в какой поток писать лог
 	var writer io.Writer
 	switch values.Level {
-	case errorLevel, fatalLevel, warningLevel, panicLevel:
+	case errorLevel, fatalLevel, warningLevel:
 		writer = os.Stderr
 	case infoLevel, debugLevel:
 		writer = os.Stdout
@@ -88,10 +88,16 @@ func shareLog(values Log) {
 // getConsoleLog возвращает цветной лог из входных данных
 func getConsoleLog(values Log) string {
 
+	parameters := make([]string, 0, len(values.Params))
+	for key, value := range values.Params {
+		parameters = append(parameters, fmt.Sprintf(colorTemplates[values.Level], key)+" = "+value)
+	}
+
 	logComponents := []string{
-		logHeaders[values.Level], // Цветной заголовок с уровнем лога
-		values.Path[0],           // Путь к месту, где был вызван лог (или где была создана ошибка)
-		values.Message,           // Сообщение лога
+		fmt.Sprintf(colorTemplates[values.Level], string(values.Level)), // Цветной заголовок с уровнем лога
+		values.Path[0], // Путь к месту, где был вызван лог (или где была создана ошибка)
+		values.Message, // Сообщение лога
+		strings.Join(parameters, spacer),
 	}
 
 	return strings.Join(logComponents, spacer)

@@ -4,11 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gorilla/schema"
-
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/account/model"
 )
 
@@ -24,28 +20,11 @@ import (
 func (s *endpoint) deleteAccount(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос
-	req, err := decodeDeleteAccountReq(ctx, r)
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.DeleteAccountReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return nil, s.service.DeleteAccount(ctx, req)
-}
-
-func decodeDeleteAccountReq(ctx context.Context, r *http.Request) (req model.DeleteAccountReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = schema.NewDecoder().Decode(&req, r.URL.Query()); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

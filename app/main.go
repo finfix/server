@@ -16,8 +16,8 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
-	"server/app/pkg/middleware"
 	"server/app/pkg/panicRecover"
+	"server/app/pkg/server/middleware"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
@@ -261,7 +261,7 @@ func CORS(handler http.Handler) http.Handler {
 
 		// Обрабатываем панику, если она случилась
 		defer panicRecover.PanicRecover(func(err error) {
-			log.Panic(context.Background(), err)
+			log.Error(context.Background(), err)
 			middleware.DefaultErrorEncoder(context.Background(), w, err)
 		})
 
