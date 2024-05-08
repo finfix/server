@@ -6,36 +6,12 @@ on:
     - release/*
     - hotfix/*
 
-env:
-  service_name: server-test
-  service_port: 8081
-
 jobs:
-
-  # Проверяем код линтером
-  go-lint:
-    uses: ./.github/workflows/lint.yml
-
-  # Тестируем код
-  go-test:
-    uses: ./.github/workflows/go-test.yml
-
-  # Генерируем Dockerfile и docker-compose.yml
-  build-configs:
-    uses: ./.github/workflows/prepare.yml
+  general-deploy-pipeline:
+    uses: ./.github/workflows/reusable-deploy.yml
     with:
       service_port: 8081
       service_name: server-test
       test_suffix: -test
-
-  # Собираем и пушим Docker-образ, разворачиваем на сервере
-  deploy:
-    needs:
-      - build-configs
-      - go-test
-    uses: ./.github/workflows/deploy.yml
-    with:
-      service_name: server-test
-      service_port: 8081
-
+      command_args: -log-format=json -telegram=false -env-mode=test
     secrets: inherit

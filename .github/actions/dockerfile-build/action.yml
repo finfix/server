@@ -19,6 +19,8 @@ runs:
           < "./.github/actions/dockerfile-build/Dockerfile-template" \
           > "Dockerfile"
 
-    - name: Print Dockerfile
-      shell: bash
-      run: cat Dockerfile
+    - name: Upload Dockerfile to artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: Dockerfile
+        path: Dockerfile

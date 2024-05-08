@@ -5,6 +5,7 @@ services:
     image: @{image_name}
     container_name: coin-@{project_name}
     restart: always
+    command: ./main @{command_args}
     ports:
       - 127.0.0.1:@{service_port}:@{service_port}
     env_file: ../.env@{test_suffix}

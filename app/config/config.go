@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"github.com/caarlos0/env/v7"
@@ -8,7 +8,7 @@ import (
 )
 
 // Config - общая структура конфига
-type config struct {
+type Config struct {
 
 	// Адрес для http-сервера
 	HTTP string `env:"LISTEN_HTTP"`
@@ -43,8 +43,8 @@ type config struct {
 }
 
 // GetConfig возвращает конфигурацию из .env файла
-func GetConfig() (config config, err error) {
-	if err := env.Parse(&config); err != nil {
+func GetConfig() (config Config, err error) {
+	if err = env.Parse(&config); err != nil {
 		return config, errors.InternalServer.Wrap(err)
 	}
 	return config, nil

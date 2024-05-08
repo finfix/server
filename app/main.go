@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
+	"server/app/config"
 	_ "server/app/docs"
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
@@ -41,7 +43,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.1.0 (build 13)
+// @version 1.1.0 (build 14)
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -62,7 +64,7 @@ import (
 //go:generate swag init -o docs --parseInternal
 
 const version = "1.1.0"
-const build = "13"
+const build = "14"
 
 const (
 	readHeaderTimeout = 10 * time.Second
@@ -88,16 +90,24 @@ func mainNoExit() error {
 	// Парсим флаги
 	isSetupTelegram := flag.Bool("telegram", false, "Enabling telegram bot\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
 	logFormat := flag.String("log-format", string(log.JSONFormat), "text - Human readable string\njson - JSON format")
+	envMode := flag.String("env-mode", "local", "Environment mode for log label: test, prod")
 	flag.Parse()
 
 	// Инициализируем логгер
-	if err := log.Init(log.LogFormat(*logFormat)); err != nil {
+	if err := log.Init(
+		log.LogFormat(*logFormat),
+		map[string]string{
+			"env":     *envMode,
+			"version": version,
+			"build":   build,
+		},
+	); err != nil {
 		return err
 	}
 
 	// Получаем конфиг
 	log.Info(ctx, "Получаем конфиг")
-	cfg, err := GetConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		return err
 	}
@@ -213,7 +223,7 @@ func mainNoExit() error {
 	if cfg.HTTP == "" {
 		return errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана")
 	}
-	log.Info(ctx, "Server is listening %v", cfg.HTTP)
+	log.Info(ctx, fmt.Sprintf("Server is listening %v", cfg.HTTP))
 
 	go func() {
 		server := &http.Server{
@@ -259,7 +269,7 @@ func CORS(handler http.Handler) http.Handler {
 	})
 }
 
-func initServices(cfg config) error {
+func initServices(cfg config.Config) error {
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true
