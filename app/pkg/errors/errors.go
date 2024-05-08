@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	defaultPathDepth = 1
-	SecondPathDepth  = 2
-	ThirdPathDepth   = 3
+	defaultPathDepth = iota + 1
+	SecondPathDepth
+	ThirdPathDepth
+	FourthPathDepth
 )
 
 type CustomError struct {

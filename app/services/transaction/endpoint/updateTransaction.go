@@ -2,13 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"encoding/json"
-	"github.com/shopspring/decimal"
 	"net/http"
 
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/transaction/model"
 )
 
@@ -23,37 +19,12 @@ import (
 // @Router /transaction [patch]
 func (s *endpoint) updateTransaction(ctx context.Context, r *http.Request) (any, error) {
 
-	// Декодируем параметры запроса в структуру
-	req, err := decodeUpdateTransactionReq(ctx, r)
+	// Декодируем запрос
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.UpdateTransactionReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return nil, s.service.UpdateTransaction(ctx, req)
-}
-
-func decodeUpdateTransactionReq(ctx context.Context, r *http.Request) (req model.UpdateTransactionReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Валидируем поля
-	if req.AmountFrom != nil && req.AmountFrom.LessThanOrEqual(decimal.Zero) {
-		return req, errors.BadRequest.New("amountFrom must be greater than 0")
-	}
-	if req.AmountTo != nil && req.AmountTo.LessThanOrEqual(decimal.Zero) {
-		return req, errors.BadRequest.New("amountTo must be greater than 0")
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

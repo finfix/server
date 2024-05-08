@@ -4,8 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/tag/model"
 )
 
@@ -19,24 +18,12 @@ import (
 // @Router /tag/to_transactions [get]
 func (s *endpoint) getTagsToTransaction(ctx context.Context, r *http.Request) (any, error) {
 
-	// Декодируем параметры запроса в структуру
-	req, err := decodeGetTagsToTransactionReq(ctx, r)
+	// Декодируем запрос
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.GetTagsToTransactionsReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return s.service.GetTagsToTransactions(ctx, req)
-}
-
-func decodeGetTagsToTransactionReq(ctx context.Context, _ *http.Request) (req model.GetTagsToTransactionsReq, err error) {
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

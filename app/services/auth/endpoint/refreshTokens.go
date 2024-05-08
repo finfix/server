@@ -2,12 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/auth/model"
 )
 
@@ -22,26 +19,11 @@ import (
 func (s *endpoint) refreshTokens(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос
-	req, err := decodeRefreshTokensReq(ctx, r)
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.RefreshTokensReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return s.service.RefreshTokens(ctx, req)
-}
-
-func decodeRefreshTokensReq(ctx context.Context, r *http.Request) (req model.RefreshTokensReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	if req.Necessary, err = services.ExtractNecessaryFromCtx(ctx); err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

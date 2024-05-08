@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"server/app/pkg/middleware"
 	"server/app/pkg/server"
+	"server/app/pkg/server/middleware"
 	tagService "server/app/services/tag/service"
 )
 

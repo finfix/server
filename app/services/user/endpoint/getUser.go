@@ -5,8 +5,7 @@ import (
 	"net/http"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	userModel "server/app/services/user/model"
 )
 
@@ -19,7 +18,8 @@ import (
 // @Router /user/ [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
-	req, err := decodeGetUserReq(ctx, r)
+	// Декодируем запрос
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, userModel.GetReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
@@ -38,16 +38,4 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
 	// Конвертируем ответ во внутреннюю структуру
 	return users[0], nil
-}
-
-func decodeGetUserReq(ctx context.Context, _ *http.Request) (req userModel.GetReq, err error) {
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

@@ -4,8 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/account/model"
 )
 
@@ -20,23 +19,11 @@ import (
 func (s *endpoint) getAccountGroups(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос
-	req, err := decodeGetAccountGroupsReq(ctx, r)
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.GetAccountGroupsReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return s.service.GetAccountGroups(ctx, req)
-}
-
-func decodeGetAccountGroupsReq(ctx context.Context, _ *http.Request) (req model.GetAccountGroupsReq, err error) {
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

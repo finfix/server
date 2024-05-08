@@ -13,5 +13,6 @@ func DefaultDeviceIDValidator(ctx context.Context, r *http.Request) (context.Con
 	if deviceID == "" {
 		return ctx, errors.BadRequest.New("DeviceID is empty")
 	}
+	ctx = contextKeys.SetUserID(ctx, 0)
 	return contextKeys.SetDeviceID(ctx, deviceID), nil
 }

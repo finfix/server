@@ -27,7 +27,7 @@ func zeroValue(requestStruct any, tag string, depth int) error {
 
 	if reflect.ValueOf(requestStruct).Kind() != reflect.Struct {
 		return errors.InternalServer.New("Пришедший интерфейс не равен структуре", []errors.Option{
-			errors.ParamsOption("Тип структуры", reflect.ValueOf(requestStruct).Kind().String()),
+			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(requestStruct).Kind().String()),
 			errors.PathDepthOption(errors.SecondPathDepth),
 		}...)
 	}
@@ -97,5 +97,5 @@ func zeroValue(requestStruct any, tag string, depth int) error {
 }
 
 func ZeroValue(requestStruct any) error {
-	return zeroValue(requestStruct, "", errors.ThirdPathDepth)
+	return zeroValue(requestStruct, "", errors.FourthPathDepth)
 }
