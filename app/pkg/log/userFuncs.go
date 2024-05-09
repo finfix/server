@@ -2,7 +2,6 @@ package log
 
 import (
 	"context"
-	"crypto/rand"
 	"fmt"
 	"os"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
+	"server/app/pkg/hasher"
 )
 
 // Error логгирует сообщения для ошибок системы
@@ -50,12 +50,12 @@ func SetTaskID(ctx context.Context) context.Context {
 }
 
 func generateTaskID() (string, error) {
-	length := 4
-	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
+	var length uint32 = 4
+	bytes, err := hasher.GenerateRandomBytes(length)
+	if err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
-	return fmt.Sprintf("%x", b[:4]), nil
+	return fmt.Sprintf("%x", bytes[:4]), nil
 }
 
 // ExtractAdditionalInfo извлекает дополнительную информацию из контекста

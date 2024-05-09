@@ -1,6 +1,7 @@
 package jwtManager
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 
@@ -117,7 +118,7 @@ func NewRefreshToken() (string, time.Time, error) {
 
 	const refreshTokenLength = 64
 
-	token, err := hasher.GenerateRandomBytes(refreshTokenLength)
+	bytes, err := hasher.GenerateRandomBytes(refreshTokenLength)
 	if err != nil {
 		return "", time.Now(), err
 	}
@@ -129,5 +130,5 @@ func NewRefreshToken() (string, time.Time, error) {
 	}
 	refreshTokenExpiresAt := time.Now().Add(refreshDur)
 
-	return string(token), refreshTokenExpiresAt, nil
+	return fmt.Sprintf("%x", bytes[:refreshTokenLength]), refreshTokenExpiresAt, nil
 }
