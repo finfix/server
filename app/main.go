@@ -43,7 +43,7 @@ import (
 )
 
 // @title COIN Server Documentation
-// @version 1.1.0 (build @{build})
+// @version @{version} (build @{build})
 // @description API Documentation for Coin
 // @contact.name Ilia Ivanov
 // @contact.email bonavii@icloud.com
@@ -63,7 +63,7 @@ import (
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
 
-const version = "1.1.0"
+const version = "@{version}"
 const build = "@{build}"
 
 const (

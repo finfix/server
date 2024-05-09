@@ -3,7 +3,7 @@ FROM golang:1.22 AS builder
 RUN apt install ca-certificates
 ADD . /coin
 WORKDIR /coin
-RUN sed -i 's|@{build}|@{build_number}|g' app/main.go
+RUN sed -i -e 's|@{build}|@{build_number}|g' -e 's|@{version}|@{version_number}|g' app/main.go
 RUN go generate ./...
 RUN go build app/main.go
 
