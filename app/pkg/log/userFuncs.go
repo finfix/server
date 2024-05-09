@@ -71,7 +71,7 @@ func ExtractAdditionalInfo(ctx context.Context) map[string]string {
 		additionalInfo["taskID"] = *taskID
 	}
 
-	if userID := contextKeys.GetUserID(ctx); userID != nil {
+	if userID := contextKeys.GetUserID(ctx); userID != nil && *userID != 0 {
 		additionalInfo["userID"] = strconv.Itoa(int(*userID))
 	}
 

@@ -56,6 +56,8 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 				return err
 			}
 			res.BalancingTransactionID = updateRes.BalancingTransactionID
+			res.BalancingAccountID = updateRes.BalancingAccountID
+			res.BalancingAccountSerialNumber = updateRes.BalancingAccountSerialNumber
 		}
 
 		return nil
