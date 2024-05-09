@@ -67,5 +67,13 @@ func DefaultDecoder[T Decodable](
 	}
 	reqAny := req.SetNecessary(necessaryInformation)
 
-	return req, validation.ZeroValue(reqAny)
+	var ok bool
+	if req, ok = reqAny.(T); !ok {
+		return req, errors.InternalServer.New("Не удалось привести интерфейс к структуре", []errors.Option{
+			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(reqAny).Kind().String()),
+			errors.PathDepthOption(errors.SecondPathDepth),
+		}...)
+	}
+
+	return req, validation.ZeroValue(req)
 }
