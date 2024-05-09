@@ -4,6 +4,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/datetime"
+	"server/app/pkg/errors"
 	"server/app/services"
 	"server/app/services/transaction/model/transactionType"
 	repoModel "server/app/services/transaction/repository/model"
@@ -12,6 +13,13 @@ import (
 type DeleteTransactionReq struct {
 	Necessary services.NecessaryUserInformation
 	ID        uint32 `json:"id" validate:"required" minimum:"1"` // Идентификатор транзакции
+}
+
+func (s DeleteTransactionReq) Validate() error { return nil }
+
+func (s DeleteTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
+	s.Necessary = information
+	return s
 }
 
 type CreateTransactionReq struct {
@@ -26,6 +34,22 @@ type CreateTransactionReq struct {
 	IsExecuted      *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
 	TagIDs          []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
 	DatetimeCreate  datetime.Time        `json:"datetimeCreate" validate:"required"`                                               // Дата создания транзакции
+}
+
+func (s CreateTransactionReq) Validate() error {
+	// Валидируем поля
+	if err := s.Type.Validate(); err != nil {
+		return err
+	}
+	if s.AmountFrom.LessThanOrEqual(decimal.Zero) || s.AmountTo.LessThanOrEqual(decimal.Zero) {
+		return errors.BadRequest.New("amountFrom and amountTo must be greater than 0")
+	}
+	return nil
+}
+
+func (s CreateTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
+	s.Necessary = information
+	return s
 }
 
 func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
@@ -56,6 +80,21 @@ type UpdateTransactionReq struct {
 	TagIDs          *[]uint32        `json:"tagIDs"`                                                       // Идентификаторы тегов
 }
 
+func (s UpdateTransactionReq) Validate() error {
+	if s.AmountFrom != nil && s.AmountFrom.LessThanOrEqual(decimal.Zero) {
+		return errors.BadRequest.New("amountFrom must be greater than 0")
+	}
+	if s.AmountTo != nil && s.AmountTo.LessThanOrEqual(decimal.Zero) {
+		return errors.BadRequest.New("amountTo must be greater than 0")
+	}
+	return nil
+}
+
+func (s UpdateTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
+	s.Necessary = information
+	return s
+}
+
 type GetTransactionsReq struct {
 	Necessary       services.NecessaryUserInformation
 	IDs             []uint32              `json:"-"`                                                                       // Идентификаторы транзакций
@@ -66,4 +105,21 @@ type GetTransactionsReq struct {
 	Offset          *uint32               `json:"offset" schema:"offset" minimum:"0"`                                      // Смещение относительно начала списка для пагинации
 	Limit           *uint32               `json:"limit" schema:"limit" minimum:"1"`                                        // Количество транзакций в списке для пагинации
 	AccountGroupIDs []uint32              // Идентификаторы групп счетов
+}
+
+func (s GetTransactionsReq) Validate() error {
+	if err := s.Type.Validate(); err != nil {
+		return err
+	}
+	if s.DateFrom != nil && s.DateTo != nil {
+		if s.DateFrom.After(s.DateTo.Time) || s.DateFrom.Equal(s.DateTo.Time) {
+			return errors.BadRequest.New("date_from must be less than date_to")
+		}
+	}
+	return nil
+}
+
+func (s GetTransactionsReq) SetNecessary(information services.NecessaryUserInformation) any {
+	s.Necessary = information
+	return s
 }

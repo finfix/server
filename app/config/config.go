@@ -1,13 +1,10 @@
 package config
 
 import (
-	"sync"
-
 	"github.com/caarlos0/env/v7"
 
 	"server/app/pkg/database"
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 )
 
 // Config - общая структура конфига
@@ -31,7 +28,7 @@ type Config struct {
 	}
 
 	// Информация для шифрования паролей
-	SHASalt string `env:"SHA_SALT"`
+	GeneralSalt string `env:"SHA_SALT"`
 
 	// Ключи для работы с внешним API
 	APIKeys struct {
@@ -45,16 +42,10 @@ type Config struct {
 	}
 }
 
-var instance *Config
-var once sync.Once
-
 // GetConfig возвращает конфигурацию из .env файла
-func GetConfig() *Config {
-	once.Do(func() {
-		instance = &Config{}
-		if err := env.Parse(instance); err != nil {
-			logging.GetLogger().Fatal(errors.InternalServer.Wrap(err))
-		}
-	})
-	return instance
+func GetConfig() (config Config, err error) {
+	if err = env.Parse(&config); err != nil {
+		return config, errors.InternalServer.Wrap(err)
+	}
+	return config, nil
 }

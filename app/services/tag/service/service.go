@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"server/app/pkg/logging"
 	"server/app/services/generalRepository"
 	"server/app/services/generalRepository/checker"
 	tagModel "server/app/services/tag/model"
@@ -14,7 +13,6 @@ import (
 type Service struct {
 	tagRepository     TagRepository
 	generalRepository GeneralRepository
-	logger            *logging.Logger
 }
 
 var _ TagRepository = &tagRepository.TagRepository{}
@@ -108,11 +106,10 @@ func (s *Service) GetTagsToTransactions(ctx context.Context, req tagModel.GetTag
 func New(
 	tagRepository TagRepository,
 	generalRepository GeneralRepository,
-	logger *logging.Logger,
+
 ) *Service {
 	return &Service{
 		tagRepository:     tagRepository,
 		generalRepository: generalRepository,
-		logger:            logger,
 	}
 }

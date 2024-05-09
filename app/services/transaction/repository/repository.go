@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	"server/app/services/transaction/model"
 	transactionRepoModel "server/app/services/transaction/repository/model"
@@ -125,12 +124,9 @@ func (repo *TransactionRepository) DeleteTransaction(ctx context.Context, id, us
 
 	// Проверяем, что в базе данных что-то изменилось
 	if rows == 0 {
-		return errors.NotFound.New("No such model found for model", errors.Options{
-			Params: map[string]any{
-				"UserID":        userID,
-				"TransactionID": id,
-			},
-		})
+		return errors.NotFound.New("No such model found for model", []errors.Option{
+			errors.ParamsOption("UserID", userID, "TransactionID", id),
+		}...)
 	}
 
 	return nil
@@ -212,13 +208,11 @@ func (repo *TransactionRepository) GetTransactions(ctx context.Context, req mode
 }
 
 type TransactionRepository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
-func New(db sql.SQL, logger *logging.Logger) *TransactionRepository {
+func New(db sql.SQL, ) *TransactionRepository {
 	return &TransactionRepository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

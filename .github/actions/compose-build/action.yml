@@ -16,6 +16,9 @@ inputs:
   test_suffix:
     required: false
     description: "Suffix for .env file"
+  command_args:
+    required: false
+    description: "Command line arguments for setup container"
 runs:
   using: composite
   steps:
@@ -23,15 +26,18 @@ runs:
       shell: bash
       run: |
         sed \
-          -e "s|@{project_name}|${{ inputs.project_name }}|" \
-          -e "s|@{service_port}|${{ inputs.service_port }}|" \
-          -e "s|@{service_port}|${{ inputs.service_port }}|" \
-          -e "s|@{image_name}|${{ inputs.image_name }}|" \
-          -e "s|@{network_mode}|${{ inputs.network_mode_host }}|" \
-          -e "s|@{test_suffix}|${{ inputs.test_suffix }}|" \
+          -e "s|@{project_name}|${{ inputs.project_name }}|g" \
+          -e "s|@{service_port}|${{ inputs.service_port }}|g" \
+          -e "s|@{image_name}|${{ inputs.image_name }}|g" \
+          -e "s|@{network_mode}|${{ inputs.network_mode_host }}|g" \
+          -e "s|@{test_suffix}|${{ inputs.test_suffix }}|g" \
+          -e "s|@{command_args}|${{ inputs.command_args }}|g" \
           < "./.github/actions/compose-build/docker-compose-template.yml" \
           > "./docker-compose.yml"
 
-    - name: Print docker-compose.yml
-      shell: bash
-      run: cat docker-compose.yml
+    # Загружаем docker-compose.yml в артефакты
+    - name: Upload docker-compose.yml
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-compose.yml
+        path: docker-compose.yml

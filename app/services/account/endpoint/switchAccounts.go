@@ -2,12 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/account/model"
 )
 
@@ -24,28 +21,11 @@ import (
 func (s *endpoint) switchAccounts(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос
-	req, err := decodeSwitchAccountsReq(ctx, r)
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SwitchAccountBetweenThemselvesReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return nil, s.service.SwitchAccountBetweenThemselves(ctx, req)
-}
-
-func decodeSwitchAccountsReq(ctx context.Context, r *http.Request) (req model.SwitchAccountBetweenThemselvesReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

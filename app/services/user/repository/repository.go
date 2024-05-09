@@ -4,15 +4,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
 	userModel "server/app/services/user/model"
 )
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 func (repo *Repository) LinkUserToAccountGroup(ctx context.Context, userID uint32, accountGroupID uint32) error {
@@ -25,7 +24,7 @@ func (repo *Repository) LinkUserToAccountGroup(ctx context.Context, userID uint3
 		accountGroupID)
 }
 
-// Create Создает нового пользователя
+// CreateUser Создает нового пользователя
 func (repo *Repository) CreateUser(ctx context.Context, user userModel.CreateReq) (uint32, error) {
 
 	return repo.db.ExecWithLastInsertID(ctx, `
@@ -34,17 +33,26 @@ func (repo *Repository) CreateUser(ctx context.Context, user userModel.CreateReq
 			  email, 
 			  password_hash, 
 			  time_create, 
-			  default_currency_signatura
-			) VALUES (?, ?, ?, ?, ?)`,
+			  verification_email_code,
+			  fcm_token,
+			  default_currency_signatura,
+			  last_sync,
+			  password_salt
+			) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		user.Name,
 		user.Email,
 		user.PasswordHash,
 		user.TimeCreate,
-		user.DefaultCurrency)
+		"",
+		"",
+		user.DefaultCurrency,
+		time.Now(),
+		user.PasswordSalt,
+	)
 }
 
-// GetTransactions Возвращает пользователя по фильтрам
-func (repo *Repository) GetTransactions(ctx context.Context, filters userModel.GetReq) (user []userModel.User, err error) {
+// GetUsers Возвращает пользователей по фильтрам
+func (repo *Repository) GetUsers(ctx context.Context, filters userModel.GetReq) (user []userModel.User, err error) {
 
 	query := `
 			SELECT *
@@ -80,9 +88,8 @@ func (repo *Repository) GetTransactions(ctx context.Context, filters userModel.G
 	return user, repo.db.Select(ctx, &user, query, args...)
 }
 
-func New(db sql.SQL, logger *logging.Logger) *Repository {
+func New(db sql.SQL, ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

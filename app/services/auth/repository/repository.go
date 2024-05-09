@@ -4,99 +4,63 @@ import (
 	"context"
 	"time"
 
-	"server/app/config"
-	"server/app/pkg/auth"
-	"server/app/pkg/datetime"
-	"server/app/pkg/errors"
-	"server/app/pkg/logging"
 	"server/app/pkg/sql"
+	authModel "server/app/services/auth/model"
 )
 
 // CreateSession Создает новую сессию для пользователя и добавляет ее в БД
-func (repo *Repository) CreateSession(ctx context.Context, id uint32, deviceID string) (refreshToken string, err error) {
-
-	// TODO: Будто бы это должно быть не тут
-	// Создаем refresh token
-	refreshToken, err = auth.NewRefreshToken()
-	if err != nil {
-		return "", err
-	}
-
-	// Получаем время жизни refresh token
-	refreshDur, err := time.ParseDuration(config.GetConfig().Token.RefreshTokenTTL)
-	if err != nil {
-		return "", err
-	}
+func (repo *Repository) CreateSession(ctx context.Context, token string, timeExpiry time.Time, deviceID string, userID uint32) error {
 
 	// Добавляем сессию в БД
-	return refreshToken, repo.db.Exec(ctx, `
+	return repo.db.Exec(ctx, `
 			INSERT INTO coin.sessions (
 			  refresh_token, 
 			  expires_at, 
 			  device_id, 
 			  user_id
         	) VALUES (?, ?, ?, ?)`,
-		refreshToken,
-		time.Now().Add(refreshDur),
+		token,
+		timeExpiry,
 		deviceID,
-		id)
+		userID)
 }
 
 // DeleteSession Удаляет сессию пользователя
-func (repo *Repository) DeleteSession(ctx context.Context, oldRefreshToken string) error {
+func (repo *Repository) DeleteSession(ctx context.Context, userID uint32, deviceID string) error {
 	return repo.db.Exec(ctx, `
-			DELETE coin.sessions 
-			WHERE refresh_token = ?`,
-		oldRefreshToken,
+			DELETE 
+			FROM coin.sessions 
+			WHERE user_id = ? 
+			  AND device_ID = ?`,
+		userID,
+		deviceID,
 	)
 }
 
-// GetSession Возвращает сессию пользователя по refresh token
-func (repo *Repository) GetSession(ctx context.Context, refreshToken string) (id uint32, deviceID string, err error) {
-
-	var session struct {
-		ExpiresAt datetime.Time `db:"expires_at"`
-		ID        uint32        `db:"id"`
-		DeviceID  string        `db:"device_id"`
-	}
-
-	// Получаем данные сессии
-	err = repo.db.Get(ctx, &session, `
-			SELECT user_id, expires_at, device_id 
+// GetSession Возвращает сессию пользователя
+func (repo *Repository) GetSession(ctx context.Context, req authModel.RefreshTokensReq) (session authModel.Session, err error) {
+	return session, repo.db.Get(ctx, &session, `
+			SELECT *
 			FROM coin.sessions 
-			WHERE refresh_token = ? 
+			WHERE user_id = ?
+			  AND device_id = ?
+			  AND refresh_token = ?
 			LIMIT 1`,
-		refreshToken,
+		req.Necessary.UserID,
+		req.Necessary.DeviceID,
+		req.Token,
 	)
-	if err != nil {
-		if errors.As(err, sql.ErrNoRows) {
-			return 0, "", errors.Unauthorized.New("Session not found", errors.Options{
-				HumanText: "Необходимо пройти процедуру авторизации",
-			})
-		}
-	}
-
-	// Проверяем, не истекла ли сессия
-	if session.ExpiresAt.Before(time.Now()) {
-		return 0, "", errors.Unauthorized.New("Session ended", errors.Options{
-			HumanText: "Истек строк действия токена авторизации, необходимо авторизоваться снова",
-		})
-	}
-
-	return session.ID, session.DeviceID, nil
 }
 
 type Repository struct {
-	db     sql.SQL
-	logger *logging.Logger
+	db sql.SQL
 }
 
 func New(
 	db sql.SQL,
-	logger *logging.Logger,
+
 ) *Repository {
 	return &Repository{
-		db:     db,
-		logger: logger,
+		db: db,
 	}
 }

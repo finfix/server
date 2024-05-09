@@ -2,6 +2,7 @@
   <configuration default="false" name="run" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="Server" />
     <working_directory value="$PROJECT_DIR$" />
+    <parameters value="-log-format=text -env-mode=local" />
     <EXTENSION ID="net.ashald.envfile">
       <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />

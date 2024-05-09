@@ -7,24 +7,22 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
+	"server/app/pkg/log"
 	settingsService "server/app/services/settings/service"
 )
 
 type Scheduler struct {
 	cron            *cron.Cron
 	settingsService *settingsService.Service
-	logger          *logging.Logger
 }
 
 func NewScheduler(
 	settingsService *settingsService.Service,
-	logger *logging.Logger,
+
 ) *Scheduler {
 	return &Scheduler{
 		cron:            cron.New(),
 		settingsService: settingsService,
-		logger:          logger,
 	}
 }
 
@@ -35,7 +33,7 @@ func (s *Scheduler) Start() error {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
 		if err := s.settingsService.UpdateCurrencies(ctx); err != nil {
-			s.logger.Error(context.Background(), err)
+			log.Error(context.Background(), err)
 		}
 	})
 	if err != nil {

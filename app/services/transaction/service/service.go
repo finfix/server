@@ -4,8 +4,7 @@ import (
 	"context"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/logging"
-	"server/app/pkg/slice"
+	"server/app/pkg/slices"
 	accountModel "server/app/services/account/model"
 	"server/app/services/account/model/accountType"
 	accountRepository "server/app/services/account/repository"
@@ -27,7 +26,6 @@ type Service struct {
 	generalRepository     GeneralRepository
 	permissionsService    AccountPermissionsService
 	tagRepository         TagRepository
-	logger                *logging.Logger
 }
 
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
@@ -72,13 +70,13 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 	}
 
 	// Получаем счета
-	_accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
+	_accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ //nolint:exhaustruct
 		IDs: []uint32{transaction.AccountFromID, transaction.AccountToID},
 	})
 	if err != nil {
 		return id, err
 	}
-	accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
+	accountsMap := slices.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 	// Проверяем, может ли пользователь использовать счета
 	if err = s.transactionAndAccountTypesValidation(
@@ -95,24 +93,22 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 
 	// Проверяем, что счета можно использовать для создания транзакции
 	if !permissionsAccountFrom.CreateTransaction || !permissionsAccountTo.CreateTransaction {
-		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов", errors.Options{
-			Params: map[string]any{
-				"AccountFromID":      transaction.AccountFromID,
-				"AccountGroupFromID": accountsMap[transaction.AccountFromID].AccountGroupID,
-				"AccountToID":        transaction.AccountToID,
-				"AccountGroupToID":   accountsMap[transaction.AccountToID].AccountGroupID,
-			},
-		})
+		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов", []errors.Option{
+			errors.ParamsOption(
+				"AccountFromID", transaction.AccountFromID,
+				"AccountGroupFromID", accountsMap[transaction.AccountFromID].AccountGroupID,
+				"AccountToID", transaction.AccountToID,
+				"AccountGroupToID", accountsMap[transaction.AccountToID].AccountGroupID,
+			)}...)
 	}
 
 	// Проверяем, что счета находятся в одной группе
 	if accountsMap[transaction.AccountFromID].AccountGroupID != accountsMap[transaction.AccountToID].AccountGroupID {
-		return id, errors.BadRequest.New("Счета находятся в разных группах", errors.Options{
-			Params: map[string]any{
-				"AccountFromID": transaction.AccountFromID,
-				"AccountToID":   transaction.AccountToID,
-			},
-		})
+		return id, errors.BadRequest.New("Счета находятся в разных группах", []errors.Option{
+			errors.ParamsOption(
+				"AccountFromID", transaction.AccountFromID,
+				"AccountToID", transaction.AccountToID,
+			)}...)
 	}
 
 	return id, s.generalRepository.WithinTransaction(ctx, func(ctxTx context.Context) error {
@@ -161,16 +157,16 @@ func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel
 	}
 
 	// Получаем транзакцию
-	transactions, err := s.transactionRepository.GetTransactions(ctx, transactionModel.GetTransactionsReq{
+	transactions, err := s.transactionRepository.GetTransactions(ctx, transactionModel.GetTransactionsReq{ //nolint:exhaustruct
 		IDs: []uint32{fields.ID},
 	})
 	if err != nil {
 		return err
 	}
 	if len(transactions) == 0 {
-		return errors.NotFound.New("Транзакция не найдена", errors.Options{
-			Params: map[string]any{"ID": fields.ID},
-		})
+		return errors.NotFound.New("Транзакция не найдена", []errors.Option{
+			errors.ParamsOption("ID", fields.ID),
+		}...)
 	}
 	transaction := transactions[0]
 
@@ -189,13 +185,13 @@ func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel
 		}
 
 		// Получаем счета
-		_accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{
+		_accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ //nolint:exhaustruct
 			IDs: []uint32{transaction.AccountFromID, transaction.AccountToID},
 		})
 		if err != nil {
 			return err
 		}
-		accountsMap := slice.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
+		accountsMap := slices.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 		// Проверяем соответствие типов счета и типа транзакции
 		if err = s.transactionAndAccountTypesValidation(
@@ -229,28 +225,27 @@ func (s *Service) transactionAndAccountTypesValidation(accountFrom, accountTo ac
 	// Проверяем, что типы счетов выбраны правильно для этой транзакции
 	switch tranType {
 	case transactionType.Income:
-		isAccess = accountFrom.Type == accountType.Earnings && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = accountFrom.Type == accountType.Earnings && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "Earnings -> [Regular, Debt]"
 	case transactionType.Transfer:
-		isAccess = slice.In(accountFrom.Type, accountType.Regular, accountType.Debt) && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = slices.In(accountFrom.Type, accountType.Regular, accountType.Debt) && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "[Regular, Debt] -> [Regular, Debt]"
 	case transactionType.Consumption:
-		isAccess = slice.In(accountFrom.Type, accountType.Regular, accountType.Debt) && accountTo.Type == accountType.Expense
+		isAccess = slices.In(accountFrom.Type, accountType.Regular, accountType.Debt) && accountTo.Type == accountType.Expense
 		accesses = "[Regular, Debt] -> Expense"
 	case transactionType.Balancing:
-		isAccess = accountFrom.Type == accountType.Balancing && slice.In(accountTo.Type, accountType.Regular, accountType.Debt)
+		isAccess = accountFrom.Type == accountType.Balancing && slices.In(accountTo.Type, accountType.Regular, accountType.Debt)
 		accesses = "Balancing -> [Regular, Debt]"
 	}
 
 	if !isAccess {
-		return errors.BadRequest.New("Неверно выбраны типы счетов", errors.Options{
-			Params: map[string]any{
-				"TransactionType": tranType,
-				"AccountFromID":   accountFrom.ID,
-				"AccountToID":     accountTo.ID,
-				"Accesses":        accesses,
-			},
-		})
+		return errors.BadRequest.New("Неверно выбраны типы счетов", []errors.Option{
+			errors.ParamsOption(
+				"TransactionType", tranType,
+				"AccountFromID", accountFrom.ID,
+				"AccountToID", accountTo.ID,
+				"Accesses", accesses,
+			)}...)
 	}
 
 	return nil
@@ -266,16 +261,16 @@ func (s *Service) updateTransactionTags(ctx context.Context, userID, transaction
 	}
 
 	// Получаем все теги, привязанные к транзакции
-	transactionTags, err := s.tagRepository.GetTagsToTransactions(ctx, tagModel.GetTagsToTransactionsReq{
+	transactionTags, err := s.tagRepository.GetTagsToTransactions(ctx, tagModel.GetTagsToTransactionsReq{ //nolint:exhaustruct
 		TransactionIDs: []uint32{transactionID},
 	})
 	if err != nil {
 		return err
 	}
 
-	existTagIDs := slice.GetFields(transactionTags, func(tag tagModel.TagToTransaction) uint32 { return tag.TagID })
+	existTagIDs := slices.GetFields(transactionTags, func(tag tagModel.TagToTransaction) uint32 { return tag.TagID })
 
-	toDelete, toCreate := slice.JoinExclusive(existTagIDs, tagIDs)
+	toDelete, toCreate := slices.JoinExclusive(existTagIDs, tagIDs)
 
 	if len(toDelete) > 0 {
 		// Удаляем связи тегов с транзакцией
@@ -310,7 +305,7 @@ func New(
 	generalRepository GeneralRepository,
 	accountPermissions AccountPermissionsService,
 	tagRepository TagRepository,
-	logger *logging.Logger,
+
 ) *Service {
 	return &Service{
 		transactionRepository: transactionRepository,
@@ -318,6 +313,5 @@ func New(
 		generalRepository:     generalRepository,
 		permissionsService:    accountPermissions,
 		tagRepository:         tagRepository,
-		logger:                logger,
 	}
 }

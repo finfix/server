@@ -2,10 +2,13 @@ package service
 
 import (
 	"context"
-	"github.com/shopspring/decimal"
 	"testing"
+	"time"
 
-	"server/app/pkg/logging"
+	"github.com/shopspring/decimal"
+
+	"server/app/pkg/datetime"
+	"server/app/pkg/log"
 	"server/app/pkg/pointer"
 	"server/app/pkg/testingFunc"
 	"server/app/services/account/model"
@@ -15,7 +18,7 @@ import (
 
 func TestService_update(t *testing.T) {
 
-	logging.Off()
+	log.Off()
 
 	type interfaces struct {
 		accountRepository     *mocks.MockAccountRepository
@@ -37,11 +40,44 @@ func TestService_update(t *testing.T) {
 		defaultArgs = args{
 			ctx: context.Background(),
 			account: model.Account{
-				ID: 1,
+				ID:                 1,
+				Remainder:          decimal.Zero,
+				Name:               "",
+				IconID:             0,
+				Type:               "",
+				Currency:           "",
+				Visible:            false,
+				AccountGroupID:     0,
+				AccountingInHeader: false,
+				ParentAccountID:    nil,
+				SerialNumber:       0,
+				IsParent:           false,
+				CreatedByUserID:    nil,
+				DatetimeCreate:     datetime.Time{Time: time.Now()},
+				AccountingInCharts: false,
+				AccountBudget: model.AccountBudget{
+					Amount:         decimal.Zero,
+					FixedSum:       decimal.Zero,
+					DaysOffset:     0,
+					GradualFilling: false,
+				},
 			},
 			updateReqs: map[uint32]accountRepoModel.UpdateAccountReq{
 				1: {
-					Remainder: pointer.Pointer(decimal.NewFromFloat(1.1)),
+					Remainder:          pointer.Pointer(decimal.NewFromFloat(1.1)),
+					Name:               nil,
+					IconID:             nil,
+					Visible:            nil,
+					AccountingInHeader: nil,
+					AccountingInCharts: nil,
+					Currency:           nil,
+					ParentAccountID:    nil,
+					Budget: accountRepoModel.UpdateAccountBudgetReq{
+						Amount:         nil,
+						FixedSum:       nil,
+						DaysOffset:     nil,
+						GradualFilling: nil,
+					},
 				},
 			},
 			userID: 1,
@@ -89,7 +125,6 @@ func TestService_update(t *testing.T) {
 				user:                      userRepository,
 				accountPermissionsService: accountPermissionService,
 				accountService:            accountService,
-				logger:                    logging.GetLogger(),
 			}
 			interfaces := interfaces{
 				accountRepository:     accountRepository,

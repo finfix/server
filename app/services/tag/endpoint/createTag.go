@@ -2,12 +2,9 @@ package endpoint
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/tag/model"
 )
 
@@ -23,8 +20,8 @@ import (
 // @Router /tag [post]
 func (s *endpoint) createTag(ctx context.Context, r *http.Request) (any, error) {
 
-	// Декодируем тело запроса в структуру
-	req, err := decodeCreateTagReq(ctx, r)
+	// Декодируем запрос
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.CreateTagReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
@@ -36,21 +33,4 @@ func (s *endpoint) createTag(ctx context.Context, r *http.Request) (any, error) 
 	}
 
 	return model.CreateTagRes{ID: id}, nil
-}
-
-func decodeCreateTagReq(ctx context.Context, r *http.Request) (req model.CreateTagReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err = json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Проверяем обязательные поля на zero value
-	return req, validation.ZeroValue(req)
 }

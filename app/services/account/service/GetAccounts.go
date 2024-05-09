@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/errors"
@@ -50,7 +51,7 @@ func (s *Service) GetAccounts(ctx context.Context, filters model.GetAccountsReq)
 func (s *Service) calculateRemainders(ctx context.Context, filters model.GetAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	// Считаем балансы обычных и долговых счетов
-	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
+	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
 		AccountGroupIDs: filters.AccountGroupIDs,
 		Types: []accountType.Type{
 			accountType.Debt,
@@ -69,7 +70,7 @@ func (s *Service) calculateRemainders(ctx context.Context, filters model.GetAcco
 		}
 
 		// Считаем расходы и доходы за указанный период или даты
-		earnAndExp, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
+		earnAndExp, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
 			AccountGroupIDs: filters.AccountGroupIDs,
 			Types: []accountType.Type{
 				accountType.Earnings,

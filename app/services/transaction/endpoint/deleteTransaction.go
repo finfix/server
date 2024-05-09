@@ -4,11 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gorilla/schema"
-
-	"server/app/pkg/errors"
-	"server/app/pkg/validation"
-	"server/app/services"
+	"server/app/pkg/server/middleware"
 	"server/app/services/transaction/model"
 )
 
@@ -23,29 +19,12 @@ import (
 // @Router /transaction [delete]
 func (s *endpoint) deleteTransaction(ctx context.Context, r *http.Request) (any, error) {
 
-	// Декодируем параметры запроса в структуру
-	req, err := decodeDeleteTransactionReq(ctx, r)
+	// Декодируем запрос
+	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.DeleteTransactionReq{}) //nolint:exhaustruct
 	if err != nil {
 		return nil, err
 	}
 
 	// Вызываем метод сервиса
 	return nil, s.service.DeleteTransaction(ctx, req)
-}
-
-func decodeDeleteTransactionReq(ctx context.Context, r *http.Request) (req model.DeleteTransactionReq, err error) {
-
-	// Декодируем тело запроса в структуру
-	if err := schema.NewDecoder().Decode(&req, r.URL.Query()); err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	// Заполняем поля из контекста
-	req.Necessary, err = services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-
-	// Валидируем поля
-	return req, validation.ZeroValue(req)
 }
