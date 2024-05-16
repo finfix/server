@@ -3,14 +3,12 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/server"
-	middleware2 "server/app/pkg/server/middleware"
+	"server/app/pkg/server/middleware"
 	authService "server/app/services/auth/service"
 )
-
-var part = "/auth"
 
 type endpoint struct {
 	service *authService.Service
@@ -23,16 +21,16 @@ func NewEndpoint(service *authService.Service) http.Handler {
 	}
 
 	options := []server.Option{
-		server.Before(middleware2.DefaultDeviceIDValidator),
+		server.Before(middleware.DefaultDeviceIDValidator),
 	}
 
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 
-	r.Methods("POST").Path(part + "/signIn").Handler(server.NewChain(s.signIn, options...))
-	r.Methods("POST").Path(part + "/signUp").Handler(server.NewChain(s.signUp, options...))
-	r.Methods("POST").Path(part + "/refreshTokens").Handler(server.NewChain(s.refreshTokens, []server.Option{
-		server.Before(middleware2.DefaultDeviceIDValidator),
-		server.Before(middleware2.ExtractDataFromToken),
+	r.Method("POST", "/signIn", server.NewChain(s.signIn, options...))
+	r.Method("POST", "/signUp", server.NewChain(s.signUp, options...))
+	r.Method("POST", "/refreshTokens", server.NewChain(s.refreshTokens, []server.Option{
+		server.Before(middleware.DefaultDeviceIDValidator),
+		server.Before(middleware.ExtractDataFromToken),
 	}...))
 	return r
 }

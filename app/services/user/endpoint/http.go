@@ -3,14 +3,12 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/server"
 	"server/app/pkg/server/middleware"
 	userService "server/app/services/user/service"
 )
-
-var part = "/user"
 
 type endpoint struct {
 	service *userService.Service
@@ -26,8 +24,8 @@ func NewEndpoint(service *userService.Service) http.Handler {
 		server.Before(middleware.DefaultAuthorization),
 	}
 
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 
-	r.Methods("GET").Path(part + "/").Handler(server.NewChain(e.getUser, options...))
+	r.Method("GET", "/", server.NewChain(e.getUser, options...))
 	return r
 }

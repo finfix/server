@@ -9,6 +9,7 @@ import (
 
 	"server/app/pkg/sql"
 	settingsModel "server/app/services/settings/model"
+	"server/app/services/settings/model/applicationType"
 )
 
 // UpdateCurrencies обновляет курсы валют в базе данных
@@ -44,6 +45,16 @@ func (repo *Repository) GetCurrencies(ctx context.Context) (currencies []setting
 
 func (repo *Repository) GetIcons(ctx context.Context) (icons []settingsModel.Icon, err error) {
 	return icons, repo.db.Select(ctx, &icons, `SELECT * FROM coin.icons`)
+}
+
+func (repo *Repository) GetVersion(ctx context.Context, appType applicationType.Type) (version settingsModel.Version, err error) {
+	return version, repo.db.Get(ctx, &version, `
+			SELECT * 
+			FROM settings.versions 
+			WHERE name = ?
+			LIMIT 1`,
+		appType,
+	)
 }
 
 type Repository struct {

@@ -23,7 +23,7 @@ func Warning(ctx context.Context, err error) {
 }
 
 // Info логгирует сообщения для информации
-func Info(ctx context.Context, msg string, opts ...Option) {
+func Info(ctx context.Context, msg any, opts ...Option) {
 	processingLog(ctx, infoLevel, msg, opts...)
 }
 

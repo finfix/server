@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"server/app/pkg/log"
-	middleware2 "server/app/pkg/server/middleware"
+	"server/app/pkg/panicRecover"
+	"server/app/pkg/server/middleware"
 )
 
 type Chain struct {
@@ -23,8 +24,8 @@ func NewChain(send SendFunc, opts ...Option) *Chain {
 		before:      nil,
 		send:        send,
 		after:       nil,
-		encode:      middleware2.DefaultResponseEncoder,
-		errorEncode: middleware2.DefaultErrorEncoder,
+		encode:      middleware.DefaultResponseEncoder,
+		errorEncode: middleware.DefaultErrorEncoder,
 	}
 	for _, option := range opts {
 		option(chain)
@@ -59,11 +60,13 @@ type EncodeResponseFunc func(context.Context, http.ResponseWriter, any) error
 type EncodeErrorFunc func(context.Context, http.ResponseWriter, error)
 type LoggingFunc func(error)
 
-type ErrorHandler interface {
-	Handle(ctx context.Context, err error)
-}
-
 func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+	// Обрабатываем панику, если она случилась
+	defer panicRecover.PanicRecover(func(err error) {
+		log.Error(context.Background(), err)
+		middleware.DefaultErrorEncoder(context.Background(), w, err)
+	})
 
 	var (
 		startTime = time.Now().Local()
