@@ -6,9 +6,11 @@ import (
 
 	"github.com/shopspring/decimal"
 
+	"server/app/pkg/errors"
 	"server/app/pkg/log"
 	"server/app/pkg/tgBot"
 	settingsModel "server/app/services/settings/model"
+	"server/app/services/settings/model/applicationType"
 	"server/app/services/settings/network"
 	settingsRepository "server/app/services/settings/repository"
 )
@@ -19,6 +21,7 @@ type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
 	GetCurrencies(context.Context) ([]settingsModel.Currency, error)
 	GetIcons(context.Context) ([]settingsModel.Icon, error)
+	GetVersion(context.Context, applicationType.Type) (settingsModel.Version, error)
 }
 
 type Credentials struct {
@@ -92,10 +95,17 @@ func (s *Service) GetIcons(ctx context.Context) ([]settingsModel.Icon, error) {
 	return s.settingsRepository.GetIcons(ctx)
 }
 
-func (s *Service) GetVersion() settingsModel.Version {
-	return settingsModel.Version{
-		Version: s.version.Version,
-		Build:   s.version.Build,
+func (s *Service) GetVersion(ctx context.Context, appType applicationType.Type) (version settingsModel.Version, err error) {
+	switch appType {
+	case applicationType.Server:
+		return settingsModel.Version{
+			Version: s.version.Version,
+			Build:   s.version.Build,
+		}, nil
+	case applicationType.IOs:
+		return s.settingsRepository.GetVersion(ctx, appType)
+	default:
+		return version, errors.NotFound.New("Такое приложение еще не реализовано")
 	}
 }
 
