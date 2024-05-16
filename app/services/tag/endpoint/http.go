@@ -3,14 +3,12 @@ package endpoint
 import (
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/server"
 	"server/app/pkg/server/middleware"
 	tagService "server/app/services/tag/service"
 )
-
-var part = "/tag"
 
 type endpoint struct {
 	service *tagService.Service
@@ -26,13 +24,13 @@ func NewEndpoint(service *tagService.Service) http.Handler {
 		server.Before(middleware.DefaultAuthorization),
 	}
 
-	router := mux.NewRouter()
+	router := chi.NewRouter()
 
-	router.Methods("POST").Path(part).Handler(server.NewChain(s.createTag, options...))
-	router.Methods("PATCH").Path(part).Handler(server.NewChain(s.updateTag, options...))
-	router.Methods("DELETE").Path(part).Handler(server.NewChain(s.deleteTag, options...))
-	router.Methods("GET").Path(part).Handler(server.NewChain(s.getTags, options...))
+	router.Method("POST", "/", server.NewChain(s.createTag, options...))
+	router.Method("PATCH", "/", server.NewChain(s.updateTag, options...))
+	router.Method("DELETE", "/", server.NewChain(s.deleteTag, options...))
+	router.Method("GET", "/", server.NewChain(s.getTags, options...))
 
-	router.Methods("GET").Path(part + "/to_transactions").Handler(server.NewChain(s.getTagsToTransaction, options...))
+	router.Method("GET", "/to_transactions", server.NewChain(s.getTagsToTransaction, options...))
 	return router
 }
