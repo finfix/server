@@ -4,15 +4,13 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/server"
 	"server/app/pkg/server/middleware"
 	settingsService "server/app/services/settings/service"
 )
-
-var part = "/settings"
 
 type endpoint struct {
 	service  *settingsService.Service
@@ -48,12 +46,12 @@ func NewEndpoint(
 		server.Before(middleware.DefaultAuthorization),
 	}
 
-	r := mux.NewRouter()
+	r := chi.NewRouter()
 
-	r.Methods("POST").Path(part + "/updateCurrencies").Handler(server.NewChain(e.updateCurrencies, adminMethodsOptions...))
-	r.Methods("GET").Path(part + "/currencies").Handler(server.NewChain(e.getCurrencies, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/icons").Handler(server.NewChain(e.getIcons, userMethodsOptions...))
-	r.Methods("GET").Path(part + "/version").Handler(server.NewChain(e.getVersion))
+	r.Method("POST", "/updateCurrencies", server.NewChain(e.updateCurrencies, adminMethodsOptions...))
+	r.Method("GET", "/currencies", server.NewChain(e.getCurrencies, userMethodsOptions...))
+	r.Method("GET", "/icons", server.NewChain(e.getIcons, userMethodsOptions...))
+	r.Method("GET", "/version/{application}", server.NewChain(e.getVersion))
 
 	return r
 }

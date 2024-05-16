@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 
@@ -17,7 +18,6 @@ import (
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
 	"server/app/pkg/panicRecover"
-	"server/app/pkg/server/middleware"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
@@ -205,17 +205,14 @@ func mainNoExit() error {
 		return err
 	}
 
-	mux := http.NewServeMux()
-	mux.Handle("/account", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/account/", accountEndpoint.NewEndpoint(accountService))
-	mux.Handle("/transaction", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/transaction/", transactionEndpoint.NewEndpoint(transactionService))
-	mux.Handle("/tag/", tagEndpoint.NewEndpoint(tagService))
-	mux.Handle("/tag", tagEndpoint.NewEndpoint(tagService))
-	mux.Handle("/auth/", authEndpoint.NewEndpoint(authService))
-	mux.Handle("/settings/", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
-	mux.Handle("/user/", userEndpoint.NewEndpoint(userService))
-	mux.Handle("/swagger/", httpSwagger.WrapHandler)
+	r := chi.NewRouter()
+	r.Mount("/account", accountEndpoint.NewEndpoint(accountService))
+	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
+	r.Mount("/tag", tagEndpoint.NewEndpoint(tagService))
+	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
+	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
+	r.Mount("/user", userEndpoint.NewEndpoint(userService))
+	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	errs := make(chan error)
 
@@ -228,7 +225,7 @@ func mainNoExit() error {
 	go func() {
 		server := &http.Server{
 			Addr:                         cfg.HTTP,
-			Handler:                      CORS(mux),
+			Handler:                      r,
 			DisableGeneralOptionsHandler: false,
 			TLSConfig:                    nil,
 			ReadTimeout:                  0,
@@ -246,27 +243,6 @@ func mainNoExit() error {
 	}()
 
 	return <-errs
-}
-
-func CORS(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		w.Header().Set("Access-Control-Allow-Origin", origin)
-		if r.Method == http.MethodOptions {
-			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE")
-			w.Header().Set("Access-Control-Allow-Headers", "*")
-			return
-		}
-
-		// Обрабатываем панику, если она случилась
-		defer panicRecover.PanicRecover(func(err error) {
-			log.Error(context.Background(), err)
-			middleware.DefaultErrorEncoder(context.Background(), w, err)
-		})
-
-		handler.ServeHTTP(w, r)
-	})
 }
 
 func initServices(cfg config.Config) error {

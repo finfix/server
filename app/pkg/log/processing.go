@@ -41,14 +41,14 @@ func processingErrorLog(ctx context.Context, level logLevel, err error) {
 }
 
 // processingLog обрабатывает входные данные для логгирования
-func processingLog(ctx context.Context, level logLevel, msg string, opts ...Option) {
+func processingLog(ctx context.Context, level logLevel, msg any, opts ...Option) {
 
 	options := mergeOptions(opts...)
 
 	shareLog(Log{
 		Path:             errors.GetPath(errors.ThirdPathDepth),
 		Params:           options.params,
-		Message:          msg,
+		Message:          fmt.Sprintf("%v", msg),
 		Level:            level,
 		AdditionalFields: maps.Join(logger.additionalFields, ExtractAdditionalInfo(ctx)),
 	})
