@@ -27,8 +27,9 @@ func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req tr
               note,  
               is_executed,  
               datetime_create,
-			  created_by_user_id
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			  created_by_user_id,
+			  accounting_in_charts
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		req.Type,
 		req.DateTransaction,
 		req.AccountFromID,
@@ -39,6 +40,7 @@ func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req tr
 		req.IsExecuted,
 		req.DatetimeCreate,
 		req.CreatedByUserID,
+		req.AccountingInCharts,
 	); err != nil {
 		return id, err
 	}
@@ -80,6 +82,10 @@ func (repo *TransactionRepository) UpdateTransaction(ctx context.Context, fields
 	if fields.DateTransaction != nil {
 		queryFields = append(queryFields, `date_transaction = ?`)
 		args = append(args, fields.DateTransaction)
+	}
+	if fields.AccountingInCharts != nil {
+		queryFields = append(queryFields, `accounting_in_charts = ?`)
+		args = append(args, fields.AccountingInCharts)
 	}
 	if fields.Note != nil {
 		if *fields.Note == "" {

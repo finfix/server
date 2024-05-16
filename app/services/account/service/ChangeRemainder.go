@@ -49,16 +49,17 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 
 	// Создаем транзакцию балансировки
 	balancingTransactionID, err := s.transaction.CreateTransaction(ctx, transactionRepoModel.CreateTransactionReq{
-		Type:            transactionType.Balancing,
-		AmountFrom:      amount,
-		AmountTo:        amount,
-		Note:            "",
-		AccountToID:     account.ID,
-		AccountFromID:   balancingAccountID,
-		DateTransaction: datetime.Date{Time: time.Now()},
-		IsExecuted:      pointer.Pointer(true),
-		CreatedByUserID: userID,
-		DatetimeCreate:  time.Now(),
+		Type:               transactionType.Balancing,
+		AmountFrom:         amount,
+		AmountTo:           amount,
+		Note:               "",
+		AccountToID:        account.ID,
+		AccountFromID:      balancingAccountID,
+		DateTransaction:    datetime.Date{Time: time.Now()},
+		IsExecuted:         true,
+		CreatedByUserID:    userID,
+		DatetimeCreate:     time.Now(),
+		AccountingInCharts: true,
 	})
 	if err != nil {
 		return res, err

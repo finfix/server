@@ -23,17 +23,18 @@ func (s DeleteTransactionReq) SetNecessary(information services.NecessaryUserInf
 }
 
 type CreateTransactionReq struct {
-	Necessary       services.NecessaryUserInformation
-	Type            transactionType.Type `json:"type" validate:"required"`                                                         // Тип транзакции
-	AmountFrom      decimal.Decimal      `json:"amountFrom" validate:"required" minimum:"1"`                                       // Сумма списания с первого счета
-	AmountTo        decimal.Decimal      `json:"amountTo" validate:"required" minimum:"1"`                                         // Сумма пополнения второго счета (в случаях меж валютной транзакции цифры отличаются)
-	Note            string               `json:"note"`                                                                             // Заметка для транзакции
-	AccountFromID   uint32               `json:"accountFromID" validate:"required" minimum:"1"`                                    // Идентификатор счета списания
-	AccountToID     uint32               `json:"accountToID" validate:"required" minimum:"1"`                                      // Идентификатор счета пополнения
-	DateTransaction datetime.Date        `json:"dateTransaction" validate:"required" format:"date" swaggertype:"primitive,string"` // Дата транзакции
-	IsExecuted      *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
-	TagIDs          []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
-	DatetimeCreate  datetime.Time        `json:"datetimeCreate" validate:"required"`                                               // Дата создания транзакции
+	Necessary          services.NecessaryUserInformation
+	Type               transactionType.Type `json:"type" validate:"required"`                                                         // Тип транзакции
+	AmountFrom         decimal.Decimal      `json:"amountFrom" validate:"required" minimum:"1"`                                       // Сумма списания с первого счета
+	AmountTo           decimal.Decimal      `json:"amountTo" validate:"required" minimum:"1"`                                         // Сумма пополнения второго счета (в случаях меж валютной транзакции цифры отличаются)
+	Note               string               `json:"note"`                                                                             // Заметка для транзакции
+	AccountFromID      uint32               `json:"accountFromID" validate:"required" minimum:"1"`                                    // Идентификатор счета списания
+	AccountToID        uint32               `json:"accountToID" validate:"required" minimum:"1"`                                      // Идентификатор счета пополнения
+	DateTransaction    datetime.Date        `json:"dateTransaction" validate:"required" format:"date" swaggertype:"primitive,string"` // Дата транзакции
+	IsExecuted         *bool                `json:"isExecuted" validate:"required"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
+	TagIDs             []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
+	DatetimeCreate     datetime.Time        `json:"datetimeCreate" validate:"required"`                                               // Дата создания транзакции
+	AccountingInCharts *bool                `json:"accountingInCharts" validate:"required"`                                           // Учитывается ли транзакция в графиках или нет
 }
 
 func (s CreateTransactionReq) Validate() error {
@@ -54,30 +55,32 @@ func (s CreateTransactionReq) SetNecessary(information services.NecessaryUserInf
 
 func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
 	return repoModel.CreateTransactionReq{
-		Type:            s.Type,
-		AmountFrom:      s.AmountFrom,
-		AmountTo:        s.AmountTo,
-		Note:            s.Note,
-		AccountFromID:   s.AccountFromID,
-		AccountToID:     s.AccountToID,
-		DateTransaction: s.DateTransaction,
-		IsExecuted:      s.IsExecuted,
-		CreatedByUserID: s.Necessary.UserID,
-		DatetimeCreate:  s.DatetimeCreate.Time,
+		Type:               s.Type,
+		AmountFrom:         s.AmountFrom,
+		AmountTo:           s.AmountTo,
+		Note:               s.Note,
+		AccountFromID:      s.AccountFromID,
+		AccountToID:        s.AccountToID,
+		DateTransaction:    s.DateTransaction,
+		IsExecuted:         *s.IsExecuted,
+		CreatedByUserID:    s.Necessary.UserID,
+		DatetimeCreate:     s.DatetimeCreate.Time,
+		AccountingInCharts: *s.AccountingInCharts,
 	}
 }
 
 type UpdateTransactionReq struct {
-	Necessary       services.NecessaryUserInformation
-	ID              uint32           `json:"id" validate:"required" minimum:"1"`                           // Идентификатор транзакции
-	AmountFrom      *decimal.Decimal `json:"amountFrom" minimum:"1"`                                       // Сумма списания с первого счета
-	AmountTo        *decimal.Decimal `json:"amountTo" minimum:"1"`                                         // Сумма пополнения второго счета
-	Note            *string          `json:"note"`                                                         // Заметка для транзакции
-	AccountFromID   *uint32          `json:"accountFromID" minimum:"1"`                                    // Идентификатор счета списания
-	AccountToID     *uint32          `json:"accountToID" minimum:"1"`                                      // Идентификатор счета пополнения
-	DateTransaction *datetime.Date   `json:"dateTransaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции
-	IsExecuted      *bool            `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
-	TagIDs          *[]uint32        `json:"tagIDs"`                                                       // Идентификаторы тегов
+	Necessary          services.NecessaryUserInformation
+	ID                 uint32           `json:"id" validate:"required" minimum:"1"`                           // Идентификатор транзакции
+	AmountFrom         *decimal.Decimal `json:"amountFrom" minimum:"1"`                                       // Сумма списания с первого счета
+	AmountTo           *decimal.Decimal `json:"amountTo" minimum:"1"`                                         // Сумма пополнения второго счета
+	Note               *string          `json:"note"`                                                         // Заметка для транзакции
+	AccountFromID      *uint32          `json:"accountFromID" minimum:"1"`                                    // Идентификатор счета списания
+	AccountToID        *uint32          `json:"accountToID" minimum:"1"`                                      // Идентификатор счета пополнения
+	DateTransaction    *datetime.Date   `json:"dateTransaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции
+	IsExecuted         *bool            `json:"isExecuted"`                                                   // Исполнена операция или нет (если нет, сделки как бы не существует)
+	TagIDs             *[]uint32        `json:"tagIDs"`                                                       // Идентификаторы тегов
+	AccountingInCharts *bool            `json:"accountingInCharts"`                                           // Учитывается ли транзакция в графиках или нет
 }
 
 func (s UpdateTransactionReq) Validate() error {
