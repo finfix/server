@@ -14,6 +14,7 @@ require (
 	github.com/shopspring/decimal v1.4.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/http-swagger v1.3.4
+	github.com/swaggo/swag v1.16.1
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.21.0
 	gopkg.in/telebot.v3 v3.2.1
@@ -35,7 +36,6 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
-	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/tidwall/gjson v1.14.2 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect

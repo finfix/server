@@ -1,11 +1,24 @@
 swagger:
-	swag init -g ./app/main.go -o ./app/docs --parseDependency --parseInternal
-
-local_docker_build:
-	docker build -f Dockerfile -t coin-server .
-
-local_docker_start:
-	docker-compose --project-directory ../. up coin-server -d
+	swag init -o tmp -d app --parseInternal
+	rm -rf tmp
 
 lint:
-	golangci-lint run
+	golangci-lint run -v
+
+mockery:
+	mockery
+
+test-coverage-number: mockery
+	go test -v -coverprofile=profile.cov ./app...
+	go tool cover -func profile.cov
+	rm profile.cov
+
+test-coverage-html: mockery
+	go test -v -coverprofile=profile.cov ./app...
+	go tool cover -html profile.cov
+	rm profile.cov
+
+test: mockery
+	go test ./...
+
+deploy-check: lint swagger test
