@@ -24,6 +24,8 @@ func ExtractDataFromToken(ctx context.Context, r *http.Request) (context.Context
 func DefaultAuthorization(ctx context.Context, r *http.Request) (context.Context, error) {
 	userID, deviceID, err := jwtManager.Parse(r.Header.Get("Authorization"))
 	if err != nil {
+		ctx = contextKeys.SetDeviceID(ctx, deviceID)
+		ctx = contextKeys.SetUserID(ctx, userID)
 		return ctx, err
 	}
 	if deviceID == "" {
