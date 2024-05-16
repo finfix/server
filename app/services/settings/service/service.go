@@ -104,8 +104,10 @@ func (s *Service) GetVersion(ctx context.Context, appType applicationType.Type) 
 		}, nil
 	case applicationType.IOs:
 		return s.settingsRepository.GetVersion(ctx, appType)
-	default:
+	case applicationType.Android, applicationType.Web:
 		return version, errors.NotFound.New("Такое приложение еще не реализовано")
+	default:
+		return version, errors.BadRequest.New("Неверный тип приложения")
 	}
 }
 
