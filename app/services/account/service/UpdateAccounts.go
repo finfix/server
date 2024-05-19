@@ -5,6 +5,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
+	"server/app/pkg/slices"
 	"server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository/checker"
@@ -26,12 +27,12 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	if err != nil {
 		return res, err
 	}
-	if len(accounts) == 0 {
-		return res, errors.NotFound.New("Счет не найден", []errors.Option{
+	account, err := slices.FirstWithError(accounts)
+	if err != nil {
+		return res, errors.NotFound.Wrap(err, []errors.Option{
 			errors.ParamsOption("accountID", updateReq.ID),
 		}...)
 	}
-	account := accounts[0]
 
 	// Проверяем, что входные данные не противоречат разрешениям
 	if err = s.accountPermissionsService.CheckAccountPermissions(updateReq, s.accountPermissionsService.GetAccountPermissions(account)); err != nil {
@@ -77,7 +78,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	if updateReq.AccountingInHeader != nil {
 		account.AccountingInHeader = *updateReq.AccountingInHeader
 	}
-	s.CheckAccountingInHeaderLogic(
+	s.HandleAccountingInHeaderLogic(
 		repoUpdateReqs,
 		account,
 		childrenAccounts,
@@ -87,7 +88,7 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	if updateReq.Visible != nil {
 		account.Visible = *updateReq.Visible
 	}
-	s.CheckVisibleLogic(
+	s.HandleVisibleLogic(
 		repoUpdateReqs,
 		account,
 		childrenAccounts,
@@ -107,7 +108,24 @@ func (s *Service) updateAccounts(ctx context.Context, account model.Account, upd
 
 	// Если передан остаток, редактируем его
 	if updateReqs[account.ID].Remainder != nil {
-		if res, err = s.accountService.ChangeAccountRemainder(ctx, account, *updateReqs[account.ID].Remainder, userID); err != nil {
+		if res, err = s.accountService.ChangeAccountRemainder(
+			ctx,
+			account,
+			*updateReqs[account.ID].Remainder,
+			userID,
+		); err != nil {
+			return res, err
+		}
+	}
+
+	// Если передан порядковый номер, то меняем порядковые номера остальных счетов
+	if updateReqs[account.ID].SerialNumber != nil {
+		if err = s.accountRepository.ChangeSerialNumbers(
+			ctx,
+			account.AccountGroupID,
+			*updateReqs[account.ID].SerialNumber,
+			account.SerialNumber,
+		); err != nil {
 			return res, err
 		}
 	}
@@ -116,7 +134,7 @@ func (s *Service) updateAccounts(ctx context.Context, account model.Account, upd
 	return res, s.accountRepository.UpdateAccount(ctx, updateReqs)
 }
 
-func (s *Service) CheckAccountingInHeaderLogic(
+func (s *Service) HandleAccountingInHeaderLogic(
 	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,
@@ -149,7 +167,7 @@ func (s *Service) CheckAccountingInHeaderLogic(
 	return repoUpdateReqs
 }
 
-func (s *Service) CheckVisibleLogic(
+func (s *Service) HandleVisibleLogic(
 	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,

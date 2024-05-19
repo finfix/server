@@ -187,9 +187,6 @@ func mainNoExit() error {
 
 	userService := userService.New(
 		userRepository,
-		generalRepository,
-		accountRepository,
-
 	)
 
 	authService := authService.New(
@@ -212,6 +209,7 @@ func mainNoExit() error {
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
 	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
 	r.Mount("/user", userEndpoint.NewEndpoint(userService))
+	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	errs := make(chan error)

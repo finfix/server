@@ -151,6 +151,7 @@ type UpdateAccountReq struct {
 	AccountingInHeader *bool                  `json:"accountingInHeader"`                 // Будет ли счет учитываться в статистике
 	AccountingInCharts *bool                  `json:"accountingInCharts"`                 // Будет ли счет учитываться в графиках
 	Currency           *string                `json:"currencyCode"`                       // Валюта счета
+	SerialNumber       *uint32                `json:"serialNumber"`                       // Порядковый номер счета
 	ParentAccountID    *uint32                `json:"parentAccountID"`                    // Идентификатор родительского счета
 	Budget             UpdateAccountBudgetReq `json:"budget"`                             // Месячный бюджет
 }
@@ -173,6 +174,7 @@ func (s *UpdateAccountReq) ConvertToRepoReq() repoModel.UpdateAccountReq {
 		Currency:           s.Currency,
 		ParentAccountID:    s.ParentAccountID,
 		Budget:             s.Budget.ConvertToRepoReq(),
+		SerialNumber:       s.SerialNumber,
 	}
 }
 

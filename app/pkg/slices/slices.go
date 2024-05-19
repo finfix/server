@@ -1,6 +1,11 @@
 package slices
 
-import "server/app/pkg/maps"
+import (
+	"fmt"
+
+	"server/app/pkg/errors"
+	"server/app/pkg/maps"
+)
 
 // ToMap возращает map, где ключом является поле структуры, а значением сама структура
 // Example:
@@ -59,4 +64,23 @@ func JoinExclusive(leftObjects, rightObjects []uint32) (leftObjectsExclusive, ri
 	}
 
 	return
+}
+
+func First[T any](array []T) *T {
+	if len(array) == 0 {
+		return nil
+	} else {
+		value := array[0]
+		return &value
+	}
+}
+
+func FirstWithError[T any](array []T) (value T, err error) {
+	valuePtr := First(array)
+	if valuePtr == nil {
+		return value, errors.NotFound.New("Значение массива не найдено", []errors.Option{
+			errors.ParamsOption("Type", fmt.Sprintf("%T", value)),
+		}...)
+	}
+	return *valuePtr, nil
 }

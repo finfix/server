@@ -21,4 +21,4 @@ test-coverage-html: mockery
 test: mockery
 	go test ./...
 
-deploy-check: lint swagger test
+deploy-check: swagger test lint
