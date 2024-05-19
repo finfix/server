@@ -85,6 +85,55 @@ func (_c *MockAccountRepository_CalculateRemainderAccounts_Call) RunAndReturn(ru
 	return _c
 }
 
+// ChangeSerialNumbers provides a mock function with given fields: ctx, accountGroupID, oldValue, newValue
+func (_m *MockAccountRepository) ChangeSerialNumbers(ctx context.Context, accountGroupID uint32, oldValue uint32, newValue uint32) error {
+	ret := _m.Called(ctx, accountGroupID, oldValue, newValue)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ChangeSerialNumbers")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint32, uint32, uint32) error); ok {
+		r0 = rf(ctx, accountGroupID, oldValue, newValue)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockAccountRepository_ChangeSerialNumbers_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ChangeSerialNumbers'
+type MockAccountRepository_ChangeSerialNumbers_Call struct {
+	*mock.Call
+}
+
+// ChangeSerialNumbers is a helper method to define mock.On call
+//   - ctx context.Context
+//   - accountGroupID uint32
+//   - oldValue uint32
+//   - newValue uint32
+func (_e *MockAccountRepository_Expecter) ChangeSerialNumbers(ctx interface{}, accountGroupID interface{}, oldValue interface{}, newValue interface{}) *MockAccountRepository_ChangeSerialNumbers_Call {
+	return &MockAccountRepository_ChangeSerialNumbers_Call{Call: _e.mock.On("ChangeSerialNumbers", ctx, accountGroupID, oldValue, newValue)}
+}
+
+func (_c *MockAccountRepository_ChangeSerialNumbers_Call) Run(run func(ctx context.Context, accountGroupID uint32, oldValue uint32, newValue uint32)) *MockAccountRepository_ChangeSerialNumbers_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uint32), args[2].(uint32), args[3].(uint32))
+	})
+	return _c
+}
+
+func (_c *MockAccountRepository_ChangeSerialNumbers_Call) Return(_a0 error) *MockAccountRepository_ChangeSerialNumbers_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockAccountRepository_ChangeSerialNumbers_Call) RunAndReturn(run func(context.Context, uint32, uint32, uint32) error) *MockAccountRepository_ChangeSerialNumbers_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateAccount provides a mock function with given fields: _a0, _a1
 func (_m *MockAccountRepository) CreateAccount(_a0 context.Context, _a1 model.CreateAccountReq) (uint32, uint32, error) {
 	ret := _m.Called(_a0, _a1)
@@ -367,54 +416,6 @@ func (_c *MockAccountRepository_GetAccounts_Call) Return(_a0 []accountmodel.Acco
 }
 
 func (_c *MockAccountRepository_GetAccounts_Call) RunAndReturn(run func(context.Context, model.GetAccountsReq) ([]accountmodel.Account, error)) *MockAccountRepository_GetAccounts_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// SwitchAccountsBetweenThemselves provides a mock function with given fields: ctx, id1, id2
-func (_m *MockAccountRepository) SwitchAccountsBetweenThemselves(ctx context.Context, id1 uint32, id2 uint32) error {
-	ret := _m.Called(ctx, id1, id2)
-
-	if len(ret) == 0 {
-		panic("no return value specified for SwitchAccountsBetweenThemselves")
-	}
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, uint32, uint32) error); ok {
-		r0 = rf(ctx, id1, id2)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// MockAccountRepository_SwitchAccountsBetweenThemselves_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SwitchAccountsBetweenThemselves'
-type MockAccountRepository_SwitchAccountsBetweenThemselves_Call struct {
-	*mock.Call
-}
-
-// SwitchAccountsBetweenThemselves is a helper method to define mock.On call
-//   - ctx context.Context
-//   - id1 uint32
-//   - id2 uint32
-func (_e *MockAccountRepository_Expecter) SwitchAccountsBetweenThemselves(ctx interface{}, id1 interface{}, id2 interface{}) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
-	return &MockAccountRepository_SwitchAccountsBetweenThemselves_Call{Call: _e.mock.On("SwitchAccountsBetweenThemselves", ctx, id1, id2)}
-}
-
-func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) Run(run func(ctx context.Context, id1 uint32, id2 uint32)) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(uint32), args[2].(uint32))
-	})
-	return _c
-}
-
-func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) Return(_a0 error) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
-	_c.Call.Return(_a0)
-	return _c
-}
-
-func (_c *MockAccountRepository_SwitchAccountsBetweenThemselves_Call) RunAndReturn(run func(context.Context, uint32, uint32) error) *MockAccountRepository_SwitchAccountsBetweenThemselves_Call {
 	_c.Call.Return(run)
 	return _c
 }

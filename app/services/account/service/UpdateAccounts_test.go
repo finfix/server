@@ -78,6 +78,7 @@ func TestService_update(t *testing.T) {
 						DaysOffset:     nil,
 						GradualFilling: nil,
 					},
+					SerialNumber: nil,
 				},
 			},
 			userID: 1,
