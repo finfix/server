@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"server/app/pkg/errors"
+	"server/app/pkg/slices"
 	"server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 	"server/app/services/generalRepository/checker"
@@ -45,10 +45,10 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 			if err != nil {
 				return err
 			}
-			if len(accounts) == 0 {
-				return errors.NotFound.New("Счет не найден")
+			account, err := slices.FirstWithError(accounts)
+			if err != nil {
+				return err
 			}
-			account := accounts[0]
 
 			// Меняем остаток счета созданием транзакции
 			updateRes, err := s.ChangeAccountRemainder(ctxTx, account, accountToCreate.Remainder, accountToCreate.Necessary.UserID)

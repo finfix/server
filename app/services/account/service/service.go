@@ -37,8 +37,8 @@ type AccountRepository interface {
 	UpdateAccount(context.Context, map[uint32]accountRepoModel.UpdateAccountReq) error
 	DeleteAccount(ctx context.Context, id uint32) error
 
+	ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error
 	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
-	SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error
 
 	GetAccountGroups(context.Context, accountModel.GetAccountGroupsReq) ([]accountModel.AccountGroup, error)
 	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
