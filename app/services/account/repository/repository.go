@@ -72,7 +72,12 @@ func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetA
 func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
 
 	// Получаем текущий максимальный серийный номер
-	row, err := repo.db.QueryRow(ctx, `SELECT MAX(serial_number) FROM coin.accounts`)
+	row, err := repo.db.QueryRow(ctx, `
+			SELECT MAX(serial_number) 
+			FROM coin.accounts 
+			WHERE accounts_group_id = ?`,
+		account.AccountGroupID,
+	)
 	if err != nil {
 		return id, serialNumber, err
 	}
@@ -206,6 +211,32 @@ func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.Ge
 	}
 
 	return accounts, nil
+}
+
+func (repo *Repository) ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error {
+
+	var req string
+	args := []any{
+		accountGroupID,
+	}
+
+	if newValue < oldValue {
+		req = `UPDATE coin.accounts
+			SET serial_number = serial_number + 1
+			WHERE account_group_id = ? 
+			  AND serial_number >= ?
+			  AND serial_number < ?`
+		args = append(args, newValue, oldValue)
+	} else {
+		req = `UPDATE coin.accounts
+			SET serial_number = serial_number - 1
+			WHERE account_group_id = ? 
+			  AND serial_number > ?
+			  AND serial_number <= ?`
+		args = append(args, oldValue, newValue)
+	}
+
+	return repo.db.Exec(ctx, req, args...)
 }
 
 // CalculateRemainderAccounts возвращает остатки счетов
@@ -372,6 +403,10 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 			queryFields = append(queryFields, "currency_signatura = ?")
 			args = append(args, fields.Currency)
 		}
+		if fields.SerialNumber != nil {
+			queryFields = append(queryFields, "serial_number = ?")
+			args = append(args, fields.SerialNumber)
+		}
 		if fields.ParentAccountID != nil {
 			if *fields.ParentAccountID == 0 {
 				queryFields = append(queryFields, "parent_account_id = NULL")
@@ -410,21 +445,6 @@ func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32
 // DeleteAccount удаляет счет
 func (repo *Repository) DeleteAccount(ctx context.Context, id uint32) error {
 	return repo.db.Exec(ctx, `DELETE FROM coin.accounts WHERE id = ?`, id)
-}
-
-func (repo *Repository) SwitchAccountsBetweenThemselves(ctx context.Context, id1, id2 uint32) error {
-	return repo.db.Exec(ctx, `
-			UPDATE coin.accounts
-			SET serial_number = CASE
-    		  WHEN id = ? THEN (SELECT serial_number FROM coin.accounts WHERE id = ?)
-    		  WHEN id = ? THEN (SELECT serial_number FROM coin.accounts WHERE id = ?)
-    		  ELSE serial_number
-    		  END
-			WHERE id IN (?, ?);`,
-		id1, id2,
-		id2, id1,
-		id1, id2,
-	)
 }
 
 func New(db sql.SQL, ) *Repository {
