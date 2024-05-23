@@ -5,17 +5,17 @@ import (
 	"net/http"
 
 	"server/app/pkg/server/middleware"
-	"server/app/services/account/model"
+	"server/app/services/accountGroup/model"
 )
 
 // @Summary Получение списка групп счетов
-// @Tags account
+// @Tags accountGroup
 // @Security AuthJWT
 // @Param Query query model.GetAccountGroupsReq true "model.GetAccountGroupsReq"
 // @Produce json
 // @Success 200 {object} []model.AccountGroup "[]model.AccountGroup"
 // @Failure 400,401,403,404,500 {object} errors.CustomError
-// @Router /account/accountGroups [get]
+// @Router /accountGroup [get]
 func (s *endpoint) getAccountGroups(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос

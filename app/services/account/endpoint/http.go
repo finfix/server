@@ -30,7 +30,6 @@ func NewEndpoint(service *accountService.Service) http.Handler {
 	r.Method("GET", "/", server.NewChain(e.get, options...))
 	r.Method("PATCH", "/", server.NewChain(e.updateAccount, options...))
 	r.Method("DELETE", "/", server.NewChain(e.deleteAccount, options...))
-	r.Method("GET", "/accountGroups", server.NewChain(e.getAccountGroups, options...))
 
 	return r
 }
