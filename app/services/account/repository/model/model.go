@@ -21,7 +21,7 @@ type CreateAccountReq struct {
 	AccountingInCharts bool
 	IsParent           bool
 	ParentAccountID    *uint32
-	UserID             *uint32
+	UserID             uint32
 	DatetimeCreate     time.Time
 }
 

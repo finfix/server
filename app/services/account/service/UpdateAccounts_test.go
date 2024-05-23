@@ -52,7 +52,7 @@ func TestService_update(t *testing.T) {
 				ParentAccountID:    nil,
 				SerialNumber:       0,
 				IsParent:           false,
-				CreatedByUserID:    nil,
+				CreatedByUserID:    0,
 				DatetimeCreate:     datetime.Time{Time: time.Now()},
 				AccountingInCharts: false,
 				AccountBudget: model.AccountBudget{

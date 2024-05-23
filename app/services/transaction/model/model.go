@@ -18,6 +18,6 @@ type Transaction struct {
 	DateTransaction    datetime.Date        `json:"dateTransaction" db:"date_transaction" format:"date" swaggertype:"primitive,string"` // Дата транзакции (пользовательские)
 	IsExecuted         bool                 `json:"isExecuted" db:"is_executed"`                                                        // Исполнена операция или нет (если нет, сделки как бы не существует)
 	AccountingInCharts bool                 `json:"accountingInCharts" db:"accounting_in_charts"`                                       // Учитывается ли транзакция в графиках или нет
-	CreatedByUserID    *uint32              `json:"createdByUserID" db:"created_by_user_id" minimum:"1"`                                // Идентификатор пользователя, создавшего транзакцию
+	CreatedByUserID    uint32               `json:"createdByUserID" db:"created_by_user_id" minimum:"1"`                                // Идентификатор пользователя, создавшего транзакцию
 	DatetimeCreate     datetime.Time        `json:"datetimeCreate" db:"datetime_create" format:"date-time"`                             // Дата и время создания транзакции
 }

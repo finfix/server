@@ -20,7 +20,7 @@ type Account struct {
 	ParentAccountID    *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`     // Идентификатор родительского аккаунта
 	SerialNumber       uint32           `json:"serialNumber" db:"serial_number"`                                // Порядковый номер счета
 	IsParent           bool             `json:"isParent" db:"is_parent"`                                        // Является ли счет родительским
-	CreatedByUserID    *uint32          `json:"createdByUserID" db:"created_by_user_id"`                        // Идентификатор пользователя, создавшего счет
+	CreatedByUserID    uint32           `json:"createdByUserID" db:"created_by_user_id"`                        // Идентификатор пользователя, создавшего счет
 	DatetimeCreate     datetime.Time    `json:"datetimeCreate" db:"datetime_create"`                            // Дата и время создания счета
 	AccountingInCharts bool             `json:"accountingInCharts" db:"accounting_in_charts"`                   // Учитывать ли счет в графиках
 	AccountBudget      `json:"budget"`                                                                          // Бюджет
