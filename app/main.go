@@ -22,6 +22,9 @@ import (
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
 	accountService "server/app/services/account/service"
+	accountGroupEndpoint "server/app/services/accountGroup/endpoint"
+	accountGroupRepository "server/app/services/accountGroup/repository"
+	accountGroupService "server/app/services/accountGroup/service"
 	accountPermisssionsService "server/app/services/accountPermissions"
 	authEndpoint "server/app/services/auth/endpoint"
 	authRepository "server/app/services/auth/repository"
@@ -139,6 +142,7 @@ func mainNoExit() error {
 	if err != nil {
 		return err
 	}
+	accountGroupRepository := accountGroupRepository.New(db)
 	accountRepository := accountRepository.New(db)
 	tagRepository := tagRepository.New(db)
 	transactionRepository := transactionRepository.New(db)
@@ -162,6 +166,11 @@ func mainNoExit() error {
 		settingsService.Credentials{
 			CurrencyProviderAPIKey: cfg.APIKeys.CurrencyProvider,
 		},
+	)
+
+	accountGroupService := accountGroupService.New(
+		accountGroupRepository,
+		generalRepository,
 	)
 
 	accountService := accountService.New(
@@ -204,6 +213,7 @@ func mainNoExit() error {
 
 	r := chi.NewRouter()
 	r.Mount("/account", accountEndpoint.NewEndpoint(accountService))
+	r.Mount("/accountGroup", accountGroupEndpoint.NewEndpoint(accountGroupService))
 	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
 	r.Mount("/tag", tagEndpoint.NewEndpoint(tagService))
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
