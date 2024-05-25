@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"server/app/pkg/log"
@@ -78,7 +79,7 @@ func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = log.SetTaskID(ctx)
 
 	defer func() {
-		log.Info(ctx, fmt.Sprintf("Request %v %v %v", r.Method, r.URL.Path, time.Since(startTime)), []log.Option{
+		log.Info(ctx, fmt.Sprintf("%v [%v]", r.URL.Path, strings.ToLower(r.Method)), []log.Option{
 			log.ParamsOption(
 				"method", r.Method,
 				"path", r.URL.Path,
