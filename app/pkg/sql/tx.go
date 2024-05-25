@@ -2,8 +2,6 @@ package sql
 
 import (
 	"github.com/jmoiron/sqlx"
-
-	"server/app/pkg/errors"
 )
 
 type TxInterface interface {
@@ -17,14 +15,14 @@ type Tx struct {
 
 func (s *Tx) Commit() error {
 	if err := s.Tx.Commit(); err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 	return nil
 }
 
 func (s *Tx) Rollback() error {
 	if err := s.Tx.Rollback(); err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 	return nil
 }

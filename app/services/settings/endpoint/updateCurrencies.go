@@ -6,7 +6,7 @@ import (
 )
 
 // @Summary Обновление курсов валют
-// @Tags admin
+// @Tags settings
 // @Security SecretKey
 // @Success 200 "При успешном выполнении возвращается пустой ответ"
 // @Failure 400,401,403,500 {object} errors.CustomError

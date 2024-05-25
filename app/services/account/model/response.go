@@ -17,7 +17,3 @@ type UpdateAccountRes struct {
 	BalancingTransactionID       *uint32 `json:"balancingTransactionID" validate:"required"`       // Идентификатор транзакции
 	BalancingAccountSerialNumber *uint32 `json:"balancingAccountSerialNumber" validate:"required"` // Порядковый номер балансировочного счета
 }
-
-type GetAccountGroupsRes struct {
-	AccountGroups []AccountGroup
-}

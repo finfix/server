@@ -6,6 +6,7 @@ lint:
 	golangci-lint run -v
 
 mockery:
+	rm -rf mocks
 	mockery
 
 test-coverage-number: mockery

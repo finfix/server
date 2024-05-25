@@ -20,7 +20,7 @@ type Account struct {
 	ParentAccountID    *uint32          `json:"parentAccountID" db:"parent_account_id" validate:"required"`     // Идентификатор родительского аккаунта
 	SerialNumber       uint32           `json:"serialNumber" db:"serial_number"`                                // Порядковый номер счета
 	IsParent           bool             `json:"isParent" db:"is_parent"`                                        // Является ли счет родительским
-	CreatedByUserID    *uint32          `json:"createdByUserID" db:"created_by_user_id"`                        // Идентификатор пользователя, создавшего счет
+	CreatedByUserID    uint32           `json:"createdByUserID" db:"created_by_user_id"`                        // Идентификатор пользователя, создавшего счет
 	DatetimeCreate     datetime.Time    `json:"datetimeCreate" db:"datetime_create"`                            // Дата и время создания счета
 	AccountingInCharts bool             `json:"accountingInCharts" db:"accounting_in_charts"`                   // Учитывать ли счет в графиках
 	AccountBudget      `json:"budget"`                                                                          // Бюджет
@@ -31,12 +31,4 @@ type AccountBudget struct {
 	FixedSum       decimal.Decimal `json:"fixedSum" db:"budget_fixed_sum"`             // Фиксированная сумма
 	DaysOffset     uint32          `json:"daysOffset" db:"budget_days_offset"`         // Смещение в днях
 	GradualFilling bool            `json:"gradualFilling" db:"budget_gradual_filling"` // Постепенное пополнение
-}
-
-type AccountGroup struct {
-	ID           uint32 `json:"id" db:"id"`                       // Идентификатор группы счетов
-	Name         string `json:"name" db:"name"`                   // Название группы счетов
-	Currency     string `json:"currency" db:"currency_signatura"` // Валюта группы счетов
-	SerialNumber uint32 `json:"serialNumber" db:"serial_number"`  // Порядковый номер группы счетов
-	Visible      bool   `json:"visible" db:"visible"`             // Видимость группы счетов
 }

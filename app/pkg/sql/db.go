@@ -34,14 +34,14 @@ type DB struct {
 func Open(driverName string, url string) (*DB, error) {
 	db, err := sqlx.Open(driverName, url)
 	if err != nil {
-		return nil, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return nil, wrapSQLError(err)
 	}
 	return &DB{db}, nil
 }
 
 func (s *DB) Close() error {
 	if err := s.DB.Close(); err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 	return nil
 }
@@ -49,14 +49,14 @@ func (s *DB) Close() error {
 func (s *DB) Begin(ctx context.Context) (*Tx, error) {
 	tx, err := s.DB.BeginTxx(ctx, nil)
 	if err != nil {
-		return nil, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return nil, wrapSQLError(err)
 	}
 	return &Tx{tx}, nil
 }
 
 func (s *DB) Ping() error {
 	if err := s.DB.Ping(); err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 	return nil
 }
@@ -64,7 +64,7 @@ func (s *DB) Ping() error {
 func (s *DB) In(query string, args ...any) (_ string, _ []any, err error) {
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return "", nil, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return "", nil, wrapSQLError(err)
 	}
 	return query, args, nil
 }
@@ -85,9 +85,8 @@ func (s *DB) Select(ctx context.Context, dest any, query string, args ...any) (e
 	} else {
 		err = s.DB.SelectContext(ctx, dest, query, args...)
 	}
-
 	if err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 
 	return nil
@@ -107,7 +106,7 @@ func (s *DB) Get(ctx context.Context, dest any, query string, args ...any) (err 
 	}
 
 	if err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 
 	return nil
@@ -128,7 +127,7 @@ func (s *DB) Query(ctx context.Context, query string, args ...any) (_ *Rows, err
 	}
 
 	if err != nil {
-		return nil, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return nil, wrapSQLError(err)
 	}
 
 	return rows, nil
@@ -166,7 +165,7 @@ func (s *DB) Prepare(ctx context.Context, query string) (_ *Stmt, err error) {
 	}
 
 	if err != nil {
-		return nil, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return nil, wrapSQLError(err)
 	}
 
 	return stmt, nil
@@ -186,7 +185,7 @@ func (s *DB) Exec(ctx context.Context, query string, args ...any) (err error) {
 	}
 
 	if err != nil {
-		return errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return wrapSQLError(err)
 	}
 
 	return nil
@@ -207,7 +206,7 @@ func (s *DB) ExecWithLastInsertID(ctx context.Context, query string, args ...any
 	}
 
 	if err != nil {
-		return 0, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return 0, wrapSQLError(err)
 	}
 
 	return id, nil
@@ -229,13 +228,25 @@ func (s *DB) ExecWithRowsAffected(ctx context.Context, query string, args ...any
 	}
 
 	if err != nil {
-		return 0, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return 0, wrapSQLError(err)
 	}
 
 	affected, err := result.RowsAffected()
 	if err != nil {
-		return 0, errors.InternalServer.Wrap(err, secondPathDepthOption...)
+		return 0, wrapSQLError(err)
 	}
 
 	return uint32(affected), nil
+}
+
+func wrapSQLError(err error) error {
+	thirdPathDepthOption := []errors.Option{errors.PathDepthOption(errors.ThirdPathDepth)}
+	switch {
+	case errors.Is(err, context.Canceled):
+		return errors.ClientReject.Wrap(err, thirdPathDepthOption...)
+	case errors.Is(err, sql.ErrNoRows):
+		return errors.NotFound.Wrap(err, thirdPathDepthOption...)
+	default:
+		return errors.InternalServer.Wrap(err, thirdPathDepthOption...)
+	}
 }

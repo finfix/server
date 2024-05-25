@@ -193,3 +193,7 @@ func As(get error, target any) bool {
 	}
 	return false
 }
+
+func Is(get error, target error) bool {
+	return errors.Is(get, target)
+}
