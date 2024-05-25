@@ -24,7 +24,7 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 	row, err := repo.db.QueryRow(ctx, `
 			SELECT MAX(serial_number) 
 			FROM coin.accounts 
-			WHERE accounts_group_id = ?`,
+			WHERE account_group_id = ?`,
 		account.AccountGroupID,
 	)
 	if err != nil {
