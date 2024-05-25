@@ -102,6 +102,7 @@ func joinAccountPermissions(permissions ...AccountPermissions) (joinedPermission
 
 func (s *Service) refreshAccountPermissions(doOnce bool) error {
 	for {
+		log.Info(context.Background(), "Получаем пермишены на действия со счетами")
 		var err error
 		_typeToPermissions, _isParentToPermissions, err := s.getAccountPermissions(context.Background())
 		s.permissions.set(_typeToPermissions, _isParentToPermissions)
@@ -186,12 +187,12 @@ func New(
 		},
 	}
 
-	log.Info(context.Background(), "Получаем пермишены на действия со счетами")
 	err := service.refreshAccountPermissions(true)
 	if err != nil {
 		return nil, err
 	}
 	go func() {
+		time.Sleep(time.Minute)
 		_ = service.refreshAccountPermissions(false)
 	}()
 

@@ -15,7 +15,7 @@ import (
 // @Produce json
 // @Success 200 {object} model.User
 // @Failure 401,404,500 {object} errors.CustomError
-// @Router /user/ [get]
+// @Router /user [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
 	// Декодируем запрос

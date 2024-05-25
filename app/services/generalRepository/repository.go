@@ -167,6 +167,7 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 				return errors.Forbidden.New("Access denied", []errors.Option{
 					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
+					errors.PathDepthOption(errors.SecondPathDepth),
 				}...)
 			}
 		}
@@ -271,12 +272,12 @@ func New(db sql.SQL) (_ *Repository, err error) {
 		},
 	}
 
-	log.Info(context.Background(), "Получаем доступы пользователей к объектам")
 	err = repository.refreshAccesses(true)
 	if err != nil {
 		return nil, err
 	}
 	go func() {
+		time.Sleep(time.Minute)
 		_ = repository.refreshAccesses(false)
 	}()
 
@@ -285,6 +286,7 @@ func New(db sql.SQL) (_ *Repository, err error) {
 
 func (repo *Repository) refreshAccesses(doOnce bool) error {
 	for {
+		log.Info(context.Background(), "Получаем доступы пользователей к объектам")
 		_accesses, err := repo.getAccesses(context.Background())
 		repo.accesses.Set(_accesses)
 		if doOnce {

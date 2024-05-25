@@ -39,9 +39,6 @@ type AccountRepository interface {
 
 	ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error
 	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
-
-	GetAccountGroups(context.Context, accountModel.GetAccountGroupsReq) ([]accountModel.AccountGroup, error)
-	CreateAccountGroup(context.Context, accountModel.CreateAccountGroupReq) (uint32, error)
 }
 
 type TransactionRepository interface {

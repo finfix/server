@@ -93,7 +93,7 @@ func (s CreateAccountReq) ContertToAccount() Account {
 		ParentAccountID:    s.ParentAccountID,
 		SerialNumber:       0,
 		IsParent:           *s.IsParent,
-		CreatedByUserID:    &s.Necessary.UserID,
+		CreatedByUserID:    s.Necessary.UserID,
 		DatetimeCreate:     datetime.Time{Time: time.Now()},
 		AccountingInCharts: *s.AccountingInCharts,
 		AccountBudget: AccountBudget{
@@ -119,7 +119,7 @@ func (s CreateAccountReq) ConvertToRepoReq() repoModel.CreateAccountReq {
 		IsParent:           *s.IsParent,
 		Visible:            true,
 		ParentAccountID:    s.ParentAccountID,
-		UserID:             &s.Necessary.UserID,
+		UserID:             s.Necessary.UserID,
 		DatetimeCreate:     s.DatetimeCreate.Time,
 	}
 }
@@ -204,35 +204,4 @@ func (s DeleteAccountReq) Validate() error { return nil }
 func (s DeleteAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
 	s.Necessary = necessary
 	return s
-}
-
-type SwitchAccountBetweenThemselvesReq struct {
-	Necessary services.NecessaryUserInformation
-	ID1       uint32 `json:"id1" validate:"required" minimum:"1"` // Идентификатор первого счета
-	ID2       uint32 `json:"id2" validate:"required" minimum:"1"` // Идентификатор второго счета
-}
-
-func (s SwitchAccountBetweenThemselvesReq) Validate() error { return nil }
-
-func (s SwitchAccountBetweenThemselvesReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
-}
-
-type GetAccountGroupsReq struct {
-	Necessary       services.NecessaryUserInformation
-	AccountGroupIDs []uint32 `json:"accountGroupIDs" schema:"accountGroupIDs" minimum:"1"` // Идентификаторы групп счетов
-}
-
-func (s GetAccountGroupsReq) Validate() error { return nil }
-
-func (s GetAccountGroupsReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
-}
-
-type CreateAccountGroupReq struct {
-	Name            string          // Название группы счетов
-	AvailableBudget decimal.Decimal // Доступный бюджет
-	Currency        string          // Валюта группы счетов
 }

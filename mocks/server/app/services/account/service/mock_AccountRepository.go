@@ -198,63 +198,6 @@ func (_c *MockAccountRepository_CreateAccount_Call) RunAndReturn(run func(contex
 	return _c
 }
 
-// CreateAccountGroup provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) CreateAccountGroup(_a0 context.Context, _a1 accountmodel.CreateAccountGroupReq) (uint32, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for CreateAccountGroup")
-	}
-
-	var r0 uint32
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, accountmodel.CreateAccountGroupReq) (uint32, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, accountmodel.CreateAccountGroupReq) uint32); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Get(0).(uint32)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, accountmodel.CreateAccountGroupReq) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockAccountRepository_CreateAccountGroup_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateAccountGroup'
-type MockAccountRepository_CreateAccountGroup_Call struct {
-	*mock.Call
-}
-
-// CreateAccountGroup is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 accountmodel.CreateAccountGroupReq
-func (_e *MockAccountRepository_Expecter) CreateAccountGroup(_a0 interface{}, _a1 interface{}) *MockAccountRepository_CreateAccountGroup_Call {
-	return &MockAccountRepository_CreateAccountGroup_Call{Call: _e.mock.On("CreateAccountGroup", _a0, _a1)}
-}
-
-func (_c *MockAccountRepository_CreateAccountGroup_Call) Run(run func(_a0 context.Context, _a1 accountmodel.CreateAccountGroupReq)) *MockAccountRepository_CreateAccountGroup_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accountmodel.CreateAccountGroupReq))
-	})
-	return _c
-}
-
-func (_c *MockAccountRepository_CreateAccountGroup_Call) Return(_a0 uint32, _a1 error) *MockAccountRepository_CreateAccountGroup_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockAccountRepository_CreateAccountGroup_Call) RunAndReturn(run func(context.Context, accountmodel.CreateAccountGroupReq) (uint32, error)) *MockAccountRepository_CreateAccountGroup_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // DeleteAccount provides a mock function with given fields: ctx, id
 func (_m *MockAccountRepository) DeleteAccount(ctx context.Context, id uint32) error {
 	ret := _m.Called(ctx, id)
@@ -298,65 +241,6 @@ func (_c *MockAccountRepository_DeleteAccount_Call) Return(_a0 error) *MockAccou
 }
 
 func (_c *MockAccountRepository_DeleteAccount_Call) RunAndReturn(run func(context.Context, uint32) error) *MockAccountRepository_DeleteAccount_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
-// GetAccountGroups provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) GetAccountGroups(_a0 context.Context, _a1 accountmodel.GetAccountGroupsReq) ([]accountmodel.AccountGroup, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetAccountGroups")
-	}
-
-	var r0 []accountmodel.AccountGroup
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, accountmodel.GetAccountGroupsReq) ([]accountmodel.AccountGroup, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, accountmodel.GetAccountGroupsReq) []accountmodel.AccountGroup); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]accountmodel.AccountGroup)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, accountmodel.GetAccountGroupsReq) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockAccountRepository_GetAccountGroups_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetAccountGroups'
-type MockAccountRepository_GetAccountGroups_Call struct {
-	*mock.Call
-}
-
-// GetAccountGroups is a helper method to define mock.On call
-//   - _a0 context.Context
-//   - _a1 accountmodel.GetAccountGroupsReq
-func (_e *MockAccountRepository_Expecter) GetAccountGroups(_a0 interface{}, _a1 interface{}) *MockAccountRepository_GetAccountGroups_Call {
-	return &MockAccountRepository_GetAccountGroups_Call{Call: _e.mock.On("GetAccountGroups", _a0, _a1)}
-}
-
-func (_c *MockAccountRepository_GetAccountGroups_Call) Run(run func(_a0 context.Context, _a1 accountmodel.GetAccountGroupsReq)) *MockAccountRepository_GetAccountGroups_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(accountmodel.GetAccountGroupsReq))
-	})
-	return _c
-}
-
-func (_c *MockAccountRepository_GetAccountGroups_Call) Return(_a0 []accountmodel.AccountGroup, _a1 error) *MockAccountRepository_GetAccountGroups_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockAccountRepository_GetAccountGroups_Call) RunAndReturn(run func(context.Context, accountmodel.GetAccountGroupsReq) ([]accountmodel.AccountGroup, error)) *MockAccountRepository_GetAccountGroups_Call {
 	_c.Call.Return(run)
 	return _c
 }
