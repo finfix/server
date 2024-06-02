@@ -28,6 +28,7 @@ type SettingsRepository interface {
 }
 
 type UserService interface {
+	SendNotification(ctx context.Context, userID uint32, push userModel.Notification) (uint8, error)
 	GetUsers(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error)
 }
 
@@ -122,6 +123,25 @@ func (s *Service) GetVersion(ctx context.Context, appType applicationType.Type) 
 	default:
 		return version, errors.BadRequest.New("Неверный тип приложения")
 	}
+}
+
+func (s *Service) SendNotification(ctx context.Context, req settingsModel.SendNotificationReq) (res settingsModel.SendNotificationRes, err error) {
+
+	err = s.checkAdmin(ctx, req.Necessary.UserID)
+	if err != nil {
+		return res, err
+	}
+
+	count, err := s.userService.SendNotification(
+		ctx,
+		req.UserID,
+		req.Notification,
+	)
+	if err != nil {
+		return res, err
+	}
+	res.NotificationsSent = count
+	return res, err
 }
 
 func (s *Service) checkAdmin(ctx context.Context, userID uint32) error {
