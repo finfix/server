@@ -10,7 +10,7 @@ import (
 func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) error {
 
 	// Получаем девайс пользователя
-	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{
+	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{ //nolint:exhaustruct
 		DeviceIDs: []string{device.DeviceID},
 		UserIDs:   []uint32{device.UserID},
 	})
@@ -33,9 +33,10 @@ func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) err
 
 		// Обновляем у него токен
 		err = s.userRepository.UpdateDevice(ctx, userRepoModel.UpdateDeviceReq{
-			DeviceID:     device.DeviceID,
-			UserID:       device.UserID,
-			RefreshToken: &device.RefreshToken,
+			DeviceID:          device.DeviceID,
+			UserID:            device.UserID,
+			RefreshToken:      &device.RefreshToken,
+			NotificationToken: nil,
 		})
 	}
 

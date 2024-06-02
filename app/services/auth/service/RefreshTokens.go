@@ -13,7 +13,7 @@ import (
 func (s *Service) RefreshTokens(ctx context.Context, req model.RefreshTokensReq) (newTokens model.RefreshTokensRes, err error) {
 
 	// Получаем девайс по идентификатору пользователя и девайса
-	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{
+	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{ // nolint:exhaustruct
 		DeviceIDs: []string{req.Necessary.DeviceID},
 		UserIDs:   []uint32{req.Necessary.UserID},
 	})
@@ -54,9 +54,10 @@ func (s *Service) RefreshTokens(ctx context.Context, req model.RefreshTokensReq)
 
 	// Обновляем refresh токен у девайса
 	if err = s.userRepository.UpdateDevice(ctx, userRepoModel.UpdateDeviceReq{
-		UserID:       req.Necessary.UserID,
-		DeviceID:     req.Necessary.DeviceID,
-		RefreshToken: &newTokens.Tokens.RefreshToken,
+		UserID:            req.Necessary.UserID,
+		DeviceID:          req.Necessary.DeviceID,
+		RefreshToken:      &newTokens.Tokens.RefreshToken,
+		NotificationToken: nil,
 	}); err != nil {
 		return newTokens, err
 	}

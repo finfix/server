@@ -59,6 +59,7 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 				UserID:            req.Necessary.UserID,
 				DeviceID:          req.Necessary.DeviceID,
 				NotificationToken: req.NotificationToken,
+				RefreshToken:      nil,
 			}); err != nil {
 				return err
 			}
@@ -74,9 +75,8 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 			}
 
 			// Получаем актуальный пароль пользователя
-			users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{
-				IDs:    []uint32{req.Necessary.UserID},
-				Emails: nil,
+			users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{ //nolint:exhaustruct
+				IDs: []uint32{req.Necessary.UserID},
 			})
 			if err != nil {
 				return err
@@ -113,7 +113,9 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 func (s *Service) SendNotification(ctx context.Context, userID uint32, push userModel.Notification) (count uint8, err error) {
 
 	// Получаем все девайсы пользователя
-	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{UserIDs: []uint32{userID}})
+	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{ //nolint:exhaustruct
+		UserIDs: []uint32{userID},
+	})
 	if err != nil {
 		return count, err
 	}

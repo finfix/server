@@ -9,20 +9,12 @@ import (
 )
 
 type CreateReq struct {
-	Necessary       services.NecessaryUserInformation
 	Name            string
 	Email           string
 	PasswordHash    []byte
 	PasswordSalt    []byte
 	TimeCreate      time.Time
 	DefaultCurrency string
-}
-
-func (s CreateReq) Validate() error { return nil }
-
-func (s CreateReq) SetNecessary(information services.NecessaryUserInformation) any {
-	s.Necessary = information
-	return s
 }
 
 type GetReq struct {
@@ -77,6 +69,7 @@ func (s UpdateUserReq) ConvertToRepoModel() userRepoModel.UpdateUserReq {
 		Name:            s.Name,
 		Email:           s.Email,
 		PasswordHash:    nil,
+		PasswordSalt:    nil,
 		DefaultCurrency: s.DefaultCurrency,
 	}
 }

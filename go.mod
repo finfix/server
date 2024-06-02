@@ -12,6 +12,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/shopspring/decimal v1.4.0
+	github.com/sideshow/apns2 v0.23.0
 	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/tidwall/sjson v1.2.5
@@ -34,7 +35,6 @@ require (
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	github.com/sideshow/apns2 v0.23.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	github.com/swaggo/swag v1.16.1 // indirect

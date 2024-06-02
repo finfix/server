@@ -11,8 +11,7 @@ import (
 )
 
 type endpoint struct {
-	service  *settingsService.Service
-	adminKey string
+	service *settingsService.Service
 }
 
 func NewEndpoint(service *settingsService.Service) http.Handler {

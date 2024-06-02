@@ -53,6 +53,8 @@ func NewPushNotificator(isOn bool, apnsCredentials APNsCredentials) (*PushNotifi
 // Push отправляет одно сообщение на все переданные устройства
 func (s *PushNotificator) Push(ctx context.Context, req PushReq) (id string, err error) {
 
+	const defaultPriority = 5
+
 	if !s.isOn {
 		return id, nil
 	}
@@ -78,14 +80,14 @@ func (s *PushNotificator) Push(ctx context.Context, req PushReq) (id string, err
 		DeviceToken: req.NotificationToken,
 		Topic:       req.BundleID,
 		Expiration:  time.Time{},
-		Priority:    5,
+		Priority:    defaultPriority,
 		Payload:     payload,
 		PushType:    apns2.PushTypeAlert,
 	}
 
 	res, err := s.apns.PushWithContext(ctx, notification)
 	if err != nil {
-		return id, nil
+		return id, errors.InternalServer.Wrap(err)
 	}
 	id = res.ApnsID
 

@@ -145,7 +145,7 @@ func (s *Service) SendNotification(ctx context.Context, req settingsModel.SendNo
 }
 
 func (s *Service) checkAdmin(ctx context.Context, userID uint32) error {
-	users, err := s.userService.GetUsers(ctx, userModel.GetReq{
+	users, err := s.userService.GetUsers(ctx, userModel.GetReq{ //nolint:exhaustruct
 		IDs: []uint32{userID},
 	})
 	if err != nil {
