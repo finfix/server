@@ -57,11 +57,6 @@ import (
 // @name Authorization
 // @description JWT-токен авторизации
 
-// @securityDefinitions.apikey SecretKey
-// @in header
-// @name AdminSecretKey
-// @description Ключ для доступа к админ-методам
-
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
 //go:generate go mod download
 //go:generate swag init -o docs --parseInternal
@@ -217,7 +212,7 @@ func mainNoExit() error {
 	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
 	r.Mount("/tag", tagEndpoint.NewEndpoint(tagService))
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
-	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
+	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService))
 	r.Mount("/user", userEndpoint.NewEndpoint(userService))
 	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)

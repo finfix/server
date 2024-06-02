@@ -13,9 +13,6 @@ type Config struct {
 	// Адрес для http-сервера
 	HTTP string `env:"LISTEN_HTTP"`
 
-	// Ключ для админских методов
-	AdminSecretKey string `env:"SECRET_KEY"`
-
 	// Данные базы данных
 	Repository database.RepoConfig
 	DBName     string `env:"DB_NAME"`
