@@ -13,10 +13,10 @@ type options struct {
 	logAs *LogOption
 	// Текст для пользователя
 	HumanText string
-	// Затирать путь
-	erasePath bool
 	// Дополнительный текст к исходной ошибке
 	errMessage *string
+	// Не затирать тип ошибки
+	dontEraseErrorType *struct{}
 }
 
 func ParamsOption(parameters ...any) Option {
@@ -47,18 +47,18 @@ func ErrMessageOption(p string) Option {
 	return func(o *options) { o.errMessage = &p }
 }
 
-func ErasePathOption(p bool) Option {
-	return func(o *options) { o.erasePath = p }
+func DontEraseErrorType() Option {
+	return func(o *options) { o.dontEraseErrorType = &struct{}{} }
 }
 
 func mergeOptions(opts ...Option) options {
 	options := &options{
-		params:     nil,
-		pathDepth:  nil,
-		logAs:      nil,
-		HumanText:  "",
-		erasePath:  false,
-		errMessage: nil,
+		params:             nil,
+		pathDepth:          nil,
+		logAs:              nil,
+		HumanText:          "",
+		dontEraseErrorType: nil,
+		errMessage:         nil,
 	}
 
 	for _, opt := range opts {

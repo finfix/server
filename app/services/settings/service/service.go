@@ -13,15 +13,23 @@ import (
 	"server/app/services/settings/model/applicationType"
 	"server/app/services/settings/network"
 	settingsRepository "server/app/services/settings/repository"
+	userModel "server/app/services/user/model"
+	userService "server/app/services/user/service"
 )
 
 var _ SettingsRepository = &settingsRepository.Repository{}
+var _ UserService = &userService.Service{}
 
 type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
 	GetCurrencies(context.Context) ([]settingsModel.Currency, error)
 	GetIcons(context.Context) ([]settingsModel.Icon, error)
 	GetVersion(context.Context, applicationType.Type) (settingsModel.Version, error)
+}
+
+type UserService interface {
+	SendNotification(ctx context.Context, userID uint32, push userModel.Notification) (uint8, error)
+	GetUsers(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error)
 }
 
 type Credentials struct {
@@ -35,13 +43,19 @@ type Version struct {
 
 type Service struct {
 	settingsRepository SettingsRepository
+	userService        UserService
 	tgBot              *tgBot.TgBot
 	credentials        Credentials
 	version            Version
 }
 
 // UpdateCurrencies обновляет курсы валют
-func (s *Service) UpdateCurrencies(ctx context.Context) error {
+func (s *Service) UpdateCurrencies(ctx context.Context, req settingsModel.UpdateCurrenciesReq) error {
+
+	err := s.checkAdmin(ctx, req.Necessary.UserID)
+	if err != nil {
+		return err
+	}
 
 	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %v₽\nBTC: %v$"
 
@@ -111,9 +125,52 @@ func (s *Service) GetVersion(ctx context.Context, appType applicationType.Type) 
 	}
 }
 
-func New(rep SettingsRepository, tgBot *tgBot.TgBot, version Version, credentials Credentials) *Service {
+func (s *Service) SendNotification(ctx context.Context, req settingsModel.SendNotificationReq) (res settingsModel.SendNotificationRes, err error) {
+
+	err = s.checkAdmin(ctx, req.Necessary.UserID)
+	if err != nil {
+		return res, err
+	}
+
+	count, err := s.userService.SendNotification(
+		ctx,
+		req.UserID,
+		req.Notification,
+	)
+	if err != nil {
+		return res, err
+	}
+	res.NotificationsSent = count
+	return res, err
+}
+
+func (s *Service) checkAdmin(ctx context.Context, userID uint32) error {
+	users, err := s.userService.GetUsers(ctx, userModel.GetReq{ //nolint:exhaustruct
+		IDs: []uint32{userID},
+	})
+	if err != nil {
+		return err
+	}
+	if len(users) == 0 {
+		return errors.NotFound.New("User not found")
+	}
+	user := users[0]
+	if !user.IsAdmin {
+		return errors.Forbidden.New("Access denied")
+	}
+	return nil
+}
+
+func New(
+	settingsRepository SettingsRepository,
+	userService UserService,
+	tgBot *tgBot.TgBot,
+	version Version,
+	credentials Credentials,
+) *Service {
 	return &Service{
-		settingsRepository: rep,
+		settingsRepository: settingsRepository,
+		userService:        userService,
 		tgBot:              tgBot,
 		credentials:        credentials,
 		version:            version,

@@ -1,9 +1,9 @@
 package model
 
 import (
-	"server/app/pkg/datetime"
 	"server/app/pkg/validation"
 	"server/app/services"
+	"server/app/services/user/model/OS"
 )
 
 type RefreshTokensReq struct {
@@ -22,6 +22,8 @@ type SignInReq struct {
 	Email    string `json:"email" validate:"required" format:"email"` // Электронная почта пользователя
 	Password string `json:"password" validate:"required"`             // Пароль пользователя
 	DeviceID string `json:"-" validate:"required"`                    // Идентификатор устройства
+	OS       OS.OS  `json:"os" validate:"required"`                   // Операционная система
+	BundleID string `json:"bundleID" validate:"required"`             // Бандл приложения
 }
 
 func (r SignInReq) Validate() error {
@@ -38,6 +40,8 @@ type SignUpReq struct {
 	Email    string `json:"email" validate:"required" format:"email"` // Электронная почта пользователя
 	Password string `json:"password" validate:"required"`             // Пароль пользователя
 	DeviceID string `json:"-" validate:"required"`                    // Идентификатор устройства
+	OS       OS.OS  `json:"os" validate:"required"`                   // Операционная система
+	BundleID string `json:"bundleID" validate:"required"`             // Бандл приложения
 }
 
 func (r SignUpReq) Validate() error {
@@ -49,8 +53,15 @@ func (r SignUpReq) SetNecessary(necessary services.NecessaryUserInformation) any
 	return r
 }
 
-type Session struct {
-	ExpiresAt datetime.Time `db:"expires_at"`
-	ID        uint32        `db:"id"`
-	DeviceID  string        `db:"device_id"`
+type SignOutReq struct {
+	Necessary services.NecessaryUserInformation
+}
+
+func (r SignOutReq) Validate() error {
+	return nil
+}
+
+func (r SignOutReq) SetNecessary(necessary services.NecessaryUserInformation) any {
+	r.Necessary = necessary
+	return r
 }

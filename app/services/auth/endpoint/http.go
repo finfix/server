@@ -28,6 +28,7 @@ func NewEndpoint(service *authService.Service) http.Handler {
 
 	r.Method("POST", "/signIn", server.NewChain(s.signIn, options...))
 	r.Method("POST", "/signUp", server.NewChain(s.signUp, options...))
+	r.Method("POST", "/signOut", server.NewChain(s.signOut, options...))
 	r.Method("POST", "/refreshTokens", server.NewChain(s.refreshTokens, []server.Option{
 		server.Before(middleware.DefaultDeviceIDValidator),
 		server.Before(middleware.ExtractDataFromToken),

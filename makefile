@@ -1,4 +1,7 @@
 swagger:
+	swag init -o app/docs -d app --parseInternal
+
+check-swagger:
 	swag init -o tmp -d app --parseInternal
 	rm -rf tmp
 
@@ -22,4 +25,4 @@ test-coverage-html: mockery
 test: mockery
 	go test ./...
 
-deploy-check: swagger test lint
+deploy-check: check-swagger test lint

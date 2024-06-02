@@ -8,8 +8,12 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/log"
+	"server/app/services"
+	"server/app/services/settings/model"
 	settingsService "server/app/services/settings/service"
 )
+
+const adminUser = 15
 
 type Scheduler struct {
 	cron            *cron.Cron
@@ -32,7 +36,12 @@ func (s *Scheduler) Start() error {
 	_, err := s.cron.AddFunc("@daily", func() { // Every day at 00:00 UTC
 		ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 		defer cancel()
-		if err := s.settingsService.UpdateCurrencies(ctx); err != nil {
+		if err := s.settingsService.UpdateCurrencies(ctx, model.UpdateCurrenciesReq{
+			Necessary: services.NecessaryUserInformation{
+				UserID:   adminUser,
+				DeviceID: "system",
+			},
+		}); err != nil {
 			log.Error(context.Background(), err)
 		}
 	})

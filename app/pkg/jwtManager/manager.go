@@ -1,20 +1,17 @@
 package jwtManager
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
 )
 
 type JWTManager struct {
 	accessTokenSigningKey []byte
-	accessTokenTTL        time.Duration
-	refreshTokenTTL       time.Duration
+	ttls                  map[TokenType]time.Duration
 }
 
 var jwtManager *JWTManager
@@ -26,8 +23,10 @@ func Init(
 ) {
 	jwtManager = &JWTManager{
 		accessTokenSigningKey: accessTokenSigningKey,
-		accessTokenTTL:        accessTokenTTL,
-		refreshTokenTTL:       refreshTokenTTL,
+		ttls: map[TokenType]time.Duration{
+			RefreshToken: refreshTokenTTL,
+			AccessToken:  accessTokenTTL,
+		},
 	}
 }
 
@@ -36,7 +35,14 @@ type MyCustomClaims struct {
 	jwt.StandardClaims
 }
 
-func NewJWT(userID uint32, deviceID string) (string, error) {
+type TokenType int
+
+const (
+	RefreshToken = iota + 1
+	AccessToken
+)
+
+func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error) {
 
 	if jwtManager == nil {
 		return "", errors.InternalServer.New("JWTManager is not initialized")
@@ -46,7 +52,7 @@ func NewJWT(userID uint32, deviceID string) (string, error) {
 		DeviceID: deviceID,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  "",
-			ExpiresAt: time.Now().Add(jwtManager.accessTokenTTL).Unix(),
+			ExpiresAt: time.Now().Add(jwtManager.ttls[tokenType]).Unix(),
 			Id:        "",
 			IssuedAt:  0,
 			Issuer:    "",
@@ -65,20 +71,25 @@ func NewJWT(userID uint32, deviceID string) (string, error) {
 	return tokenStr, nil
 }
 
-func Parse(accessToken string) (uint32, string, error) {
+func Parse(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
-		return 0, "", errors.InternalServer.New("JWTManager is not initialized")
+		return 0, "", errors.InternalServer.New("JWTManager is not initialized", []errors.Option{
+			errors.PathDepthOption(errors.SecondPathDepth),
+		}...)
 	}
 
-	if accessToken == "" {
-		return 0, "", errors.Unauthorized.New("JWT-token is empty")
+	if reqToken == "" {
+		return 0, "", errors.Unauthorized.New("JWT-token is empty", []errors.Option{
+			errors.PathDepthOption(errors.SecondPathDepth),
+		}...)
 	}
 
-	token, jwtErr := jwt.ParseWithClaims(accessToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) { //nolint:exhaustruct
+	token, jwtErr := jwt.ParseWithClaims(reqToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) { //nolint:exhaustruct
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.InternalServer.New("Unexpected signing method", []errors.Option{
 				errors.ParamsOption("token", token.Header["alg"]),
+				errors.PathDepthOption(errors.SecondPathDepth),
 			}...)
 		}
 
@@ -86,7 +97,9 @@ func Parse(accessToken string) (uint32, string, error) {
 	})
 	if jwtErr != nil {
 		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
-			return 0, "", errors.BadRequest.Wrap(jwtErr)
+			return 0, "", errors.BadRequest.Wrap(jwtErr, []errors.Option{
+				errors.PathDepthOption(errors.SecondPathDepth),
+			}...)
 		} else {
 			jwtErr = errors.Unauthorized.Wrap(jwtErr, []errors.Option{
 				errors.PathDepthOption(errors.SecondPathDepth),
@@ -108,27 +121,4 @@ func Parse(accessToken string) (uint32, string, error) {
 	}
 
 	return uint32(id), claims.DeviceID, jwtErr
-}
-
-func NewRefreshToken() (string, time.Time, error) {
-
-	if jwtManager == nil {
-		return "", time.Now(), errors.InternalServer.New("JWTManager is not initialized")
-	}
-
-	const refreshTokenLength = 64
-
-	bytes, err := hasher.GenerateRandomBytes(refreshTokenLength)
-	if err != nil {
-		return "", time.Now(), err
-	}
-
-	// Получаем время жизни refresh token
-	refreshDur, err := time.ParseDuration(jwtManager.refreshTokenTTL.String())
-	if err != nil {
-		return "", time.Now(), err
-	}
-	refreshTokenExpiresAt := time.Now().Add(refreshDur)
-
-	return fmt.Sprintf("%x", bytes[:refreshTokenLength]), refreshTokenExpiresAt, nil
 }

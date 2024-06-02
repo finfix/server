@@ -18,6 +18,7 @@ import (
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
 	"server/app/pkg/panicRecover"
+	"server/app/pkg/pushNotificator"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
@@ -27,7 +28,6 @@ import (
 	accountGroupService "server/app/services/accountGroup/service"
 	accountPermisssionsService "server/app/services/accountPermissions"
 	authEndpoint "server/app/services/auth/endpoint"
-	authRepository "server/app/services/auth/repository"
 	authService "server/app/services/auth/service"
 	"server/app/services/generalRepository"
 	"server/app/services/scheduler"
@@ -56,11 +56,6 @@ import (
 // @in header
 // @name Authorization
 // @description JWT-токен авторизации
-
-// @securityDefinitions.apikey SecretKey
-// @in header
-// @name AdminSecretKey
-// @description Ключ для доступа к админ-методам
 
 //go:generate go install github.com/swaggo/swag/cmd/swag@v1.8.2
 //go:generate go mod download
@@ -92,6 +87,7 @@ func mainNoExit() error {
 
 	// Парсим флаги
 	isSetupTelegram := flag.Bool("telegram", false, "Enabling telegram bot\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
+	isSetupPushes := flag.Bool("push-notifications", false, "Enabling push notifications\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
 	logFormat := flag.String("log-format", string(log.JSONFormat), "text - Human readable string\njson - JSON format")
 	envMode := flag.String("env-mode", "local", "Environment mode for log label: test, prod")
 	flag.Parse()
@@ -137,6 +133,16 @@ func mainNoExit() error {
 	}
 	defer tgBot.Bot.Close()
 
+	log.Info(ctx, "Инициализируем пуши")
+	pushNotificator, err := pushNotificator.NewPushNotificator(*isSetupPushes, pushNotificator.APNsCredentials{
+		TeamID:      cfg.APNs.TeamID,
+		KeyID:       cfg.APNs.KeyID,
+		KeyFilePath: cfg.APNs.KeyFilePath,
+	})
+	if err != nil {
+		return err
+	}
+
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.New(db)
 	if err != nil {
@@ -148,25 +154,12 @@ func mainNoExit() error {
 	transactionRepository := transactionRepository.New(db)
 	settingsRepository := settingsRepository.New(db)
 	userRepository := userRepository.New(db)
-	authRepository := authRepository.New(db)
 
 	// Регистрируем сервисы
 	accountPermisssionsService, err := accountPermisssionsService.New(db)
 	if err != nil {
 		return err
 	}
-
-	settingsService := settingsService.New(
-		settingsRepository,
-		tgBot,
-		settingsService.Version{
-			Version: version,
-			Build:   build,
-		},
-		settingsService.Credentials{
-			CurrencyProviderAPIKey: cfg.APIKeys.CurrencyProvider,
-		},
-	)
 
 	accountGroupService := accountGroupService.New(
 		accountGroupRepository,
@@ -196,14 +189,28 @@ func mainNoExit() error {
 
 	userService := userService.New(
 		userRepository,
+		generalRepository,
+		pushNotificator,
+		[]byte(cfg.GeneralSalt),
+	)
+
+	settingsService := settingsService.New(
+		settingsRepository,
+		userService,
+		tgBot,
+		settingsService.Version{
+			Version: version,
+			Build:   build,
+		},
+		settingsService.Credentials{
+			CurrencyProviderAPIKey: cfg.APIKeys.CurrencyProvider,
+		},
 	)
 
 	authService := authService.New(
-		authRepository,
 		userRepository,
 		generalRepository,
 		[]byte(cfg.GeneralSalt),
-
 	)
 
 	log.Info(ctx, "Запускаем планировщик")
@@ -217,7 +224,7 @@ func mainNoExit() error {
 	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
 	r.Mount("/tag", tagEndpoint.NewEndpoint(tagService))
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
-	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService, cfg.AdminSecretKey))
+	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService))
 	r.Mount("/user", userEndpoint.NewEndpoint(userService))
 	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)

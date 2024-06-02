@@ -27,5 +27,6 @@ func NewEndpoint(service *userService.Service) http.Handler {
 	r := chi.NewRouter()
 
 	r.Method("GET", "/", server.NewChain(e.getUser, options...))
+	r.Method("PATCH", "/", server.NewChain(e.updateUser, options...))
 	return r
 }

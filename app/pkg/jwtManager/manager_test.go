@@ -7,7 +7,7 @@ import (
 	"server/app/pkg/testingFunc"
 )
 
-func TestNewRefreshToken(t *testing.T) {
+func TestNewJWTToken(t *testing.T) {
 
 	mapOfTokens := make(map[string]struct{})
 
@@ -15,7 +15,7 @@ func TestNewRefreshToken(t *testing.T) {
 
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {
-			token, _, err := NewRefreshToken()
+			token, err := NewJWT(RefreshToken, 1, "deviceID")
 			if testingFunc.CheckError(t, nil, err) {
 				return
 			}
