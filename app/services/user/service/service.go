@@ -5,6 +5,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/hasher"
+	"server/app/pkg/log"
 	"server/app/pkg/pushNotificator"
 	"server/app/services/generalRepository"
 	userModel "server/app/services/user/model"
@@ -58,8 +59,18 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 			if err := s.userRepository.UpdateDevice(ctx, userRepoModel.UpdateDeviceReq{
 				UserID:            req.Necessary.UserID,
 				DeviceID:          req.Necessary.DeviceID,
-				NotificationToken: req.NotificationToken,
 				RefreshToken:      nil,
+				NotificationToken: req.NotificationToken,
+				ApplicationInformation: userRepoModel.UpdateApplicationInformationReq{
+					BundleID: nil,
+					Version:  nil,
+					Build:    nil,
+				},
+				DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
+					VersionOS: nil,
+					IPAddress: nil,
+					UserAgent: nil,
+				},
 			}); err != nil {
 				return err
 			}
@@ -128,8 +139,8 @@ func (s *Service) SendNotification(ctx context.Context, userID uint32, push user
 		}
 
 		// Смотрим на операционную систему и отправляем уведомление
-		switch device.OS {
-		case OS.IOS:
+		switch device.DeviceInformation.NameOS {
+		case OS.IOS, OS.IPadOS, OS.OSX, OS.WatchOS:
 			_, err = s.pushNotificator.Push(ctx, pushNotificator.PushReq{
 				Notification: pushNotificator.NotificationSettings{
 					Title:    &push.Title,
@@ -138,13 +149,14 @@ func (s *Service) SendNotification(ctx context.Context, userID uint32, push user
 					Badge:    &push.BadgeCount,
 				},
 				NotificationToken: *device.NotificationToken,
-				BundleID:          device.BundleID,
+				BundleID:          device.ApplicationInformation.BundleID,
 			})
+
 		case OS.Android:
 			break
 		}
 		if err != nil {
-			return count, err
+			log.Error(ctx, err)
 		}
 		count++
 	}

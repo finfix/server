@@ -28,6 +28,30 @@ func (repo *Repository) UpdateDevice(ctx context.Context, fields userRepoModel.U
 		queryFields = append(queryFields, `notification_token = ?`)
 		args = append(args, fields.NotificationToken)
 	}
+	if fields.ApplicationInformation.BundleID != nil {
+		queryFields = append(queryFields, `application_bundle_id = ?`)
+		args = append(args, fields.ApplicationInformation.BundleID)
+	}
+	if fields.ApplicationInformation.Build != nil {
+		queryFields = append(queryFields, `application_build = ?`)
+		args = append(args, fields.ApplicationInformation.Build)
+	}
+	if fields.ApplicationInformation.Version != nil {
+		queryFields = append(queryFields, `application_version = ?`)
+		args = append(args, fields.ApplicationInformation.Version)
+	}
+	if fields.DeviceInformation.VersionOS != nil {
+		queryFields = append(queryFields, `device_os_version = ?`)
+		args = append(args, fields.DeviceInformation.VersionOS)
+	}
+	if fields.DeviceInformation.IPAddress != nil {
+		queryFields = append(queryFields, `device_ip_address = ?`)
+		args = append(args, fields.DeviceInformation.IPAddress)
+	}
+	if fields.DeviceInformation.UserAgent != nil {
+		queryFields = append(queryFields, `device_user_agent = ?`)
+		args = append(args, fields.DeviceInformation.UserAgent)
+	}
 
 	if len(queryFields) == 0 {
 		return errors.BadRequest.New("No fields to update")

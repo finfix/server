@@ -21,13 +21,7 @@ func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) err
 	// Если девайс не нашелся
 	if len(devices) == 0 {
 
-		_, err = s.userRepository.CreateDevice(ctx, userRepoModel.CreateDeviceReq{
-			RefreshToken: device.RefreshToken,
-			DeviceID:     device.DeviceID,
-			UserID:       device.UserID,
-			OS:           device.OS,
-			BundleID:     device.BundleID,
-		})
+		_, err = s.userRepository.CreateDevice(ctx, device)
 
 	} else { // Если девайс нашелся
 
@@ -37,6 +31,16 @@ func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) err
 			UserID:            device.UserID,
 			RefreshToken:      &device.RefreshToken,
 			NotificationToken: nil,
+			ApplicationInformation: userRepoModel.UpdateApplicationInformationReq{
+				BundleID: &device.ApplicationInformation.BundleID,
+				Version:  &device.ApplicationInformation.Version,
+				Build:    &device.ApplicationInformation.Build,
+			},
+			DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
+				VersionOS: &device.DeviceInformation.VersionOS,
+				UserAgent: &device.DeviceInformation.UserAgent,
+				IPAddress: &device.DeviceInformation.IPAddress,
+			},
 		})
 	}
 

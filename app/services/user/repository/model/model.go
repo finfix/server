@@ -1,22 +1,24 @@
 package model
 
-import (
-	"server/app/services/user/model/OS"
-)
-
 type UpdateDeviceReq struct {
-	UserID            uint32
-	DeviceID          string
-	RefreshToken      *string
-	NotificationToken *string
+	UserID                 uint32
+	DeviceID               string
+	RefreshToken           *string
+	NotificationToken      *string
+	ApplicationInformation UpdateApplicationInformationReq
+	DeviceInformation      UpdateDeviceInformationReq
 }
 
-type CreateDeviceReq struct {
-	RefreshToken string
-	DeviceID     string
-	UserID       uint32
-	OS           OS.OS
-	BundleID     string
+type UpdateApplicationInformationReq struct {
+	BundleID *string
+	Version  *string
+	Build    *string
+}
+
+type UpdateDeviceInformationReq struct {
+	VersionOS *string
+	IPAddress *string
+	UserAgent *string
 }
 
 type GetDevicesReq struct {

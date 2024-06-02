@@ -52,12 +52,12 @@ func (s *Service) SignUp(ctx context.Context, loginData model.SignUpReq) (access
 
 		// Создаем или обновляем девайс пользователя
 		err = s.upsertDevice(ctx, userModel.Device{
-			OS:                loginData.OS,
-			NotificationToken: nil,
-			RefreshToken:      accessData.RefreshToken,
-			UserID:            accessData.ID,
-			DeviceID:          loginData.DeviceID,
-			BundleID:          loginData.BundleID,
+			DeviceInformation:      loginData.Device,
+			NotificationToken:      nil,
+			RefreshToken:           accessData.RefreshToken,
+			UserID:                 accessData.ID,
+			DeviceID:               loginData.DeviceID,
+			ApplicationInformation: loginData.Application,
 		})
 		if err != nil {
 			return err

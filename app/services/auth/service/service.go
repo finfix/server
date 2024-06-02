@@ -16,7 +16,7 @@ type UserRepository interface {
 	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
 	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
 
-	CreateDevice(context.Context, userRepoModel.CreateDeviceReq) (uint32, error)
+	CreateDevice(context.Context, userModel.Device) (uint32, error)
 	DeleteDevice(ctx context.Context, userID uint32, deviceID string) error
 	UpdateDevice(context.Context, userRepoModel.UpdateDeviceReq) error
 	GetDevices(context.Context, userRepoModel.GetDevicesReq) ([]userModel.Device, error)
