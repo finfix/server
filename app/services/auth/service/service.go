@@ -2,75 +2,44 @@ package service
 
 import (
 	"context"
-	"time"
 
-	"server/app/pkg/jwtManager"
-	authModel "server/app/services/auth/model"
-	authRepository "server/app/services/auth/repository"
 	"server/app/services/generalRepository"
 	userModel "server/app/services/user/model"
-	userService "server/app/services/user/service"
+	userRepository "server/app/services/user/repository"
+	userRepoModel "server/app/services/user/repository/model"
 )
 
-var _ AuthRepository = &authRepository.Repository{}
-var _ UserService = &userService.Service{}
+var _ UserRepository = &userRepository.Repository{}
 var _ GeneralRepository = &generalRepository.Repository{}
 
-type AuthRepository interface {
-	CreateSession(ctx context.Context, token string, timeExpiry time.Time, deviceID string, userID uint32) error
-	DeleteSession(ctx context.Context, userID uint32, deviceID string) error
-	GetSession(context.Context, authModel.RefreshTokensReq) (authModel.Session, error)
-}
-
-type UserService interface {
+type UserRepository interface {
 	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
 	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
+
+	CreateDevice(context.Context, userRepoModel.CreateDeviceReq) (uint32, error)
+	DeleteDevice(ctx context.Context, userID uint32, deviceID string) error
+	UpdateDevice(context.Context, userRepoModel.UpdateDeviceReq) error
+	GetDevices(context.Context, userRepoModel.GetDevicesReq) ([]userModel.Device, error)
 }
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error
 }
 
-func (s *Service) createSession(ctx context.Context, userID uint32, deviceID string) (accessToken, refreshToken string, err error) {
-
-	// Создаем Access token
-	accessToken, err = jwtManager.NewJWT(userID, deviceID)
-	if err != nil {
-		return "", "", err
-	}
-
-	// Создаем refresh token
-	refreshToken, refreshTokenExpiresAt, err := jwtManager.NewRefreshToken()
-	if err != nil {
-		return "", "", err
-	}
-
-	// Создаем и заносим новую сессию в базу данных
-	err = s.authRepository.CreateSession(ctx, refreshToken, refreshTokenExpiresAt, deviceID, userID)
-	if err != nil {
-		return "", "", err
-	}
-
-	return accessToken, refreshToken, err
-}
-
 type Service struct {
-	authRepository    AuthRepository
-	userService       UserService
+	userRepository    UserRepository
 	generalRepository GeneralRepository
 	generalSalt       []byte
 }
 
 func New(
-	authRepository AuthRepository,
-	userService UserService,
+	userRepository UserRepository,
 	generalRepository GeneralRepository,
 	generalSalt []byte,
 
 ) *Service {
 	return &Service{
-		authRepository:    authRepository,
-		userService:       userService,
+		userRepository:    userRepository,
 		generalRepository: generalRepository,
 		generalSalt:       generalSalt,
 	}

@@ -37,6 +37,12 @@ type Config struct {
 		Token  string `env:"TG_BOT_TOKEN"`
 		ChatID int64  `env:"TG_CHAT_ID"`
 	}
+
+	APNs struct {
+		TeamID      string `env:"APNS_TEAM_ID"`
+		KeyID       string `env:"APNS_KEY_ID"`
+		KeyFilePath string `env:"APNS_KEY_FILE_PATH"`
+	}
 }
 
 // GetConfig возвращает конфигурацию из .env файла

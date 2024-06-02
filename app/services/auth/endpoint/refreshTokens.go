@@ -11,6 +11,7 @@ import (
 // @Summary Обновление токенов
 // @Tags auth
 // @Accept json
+// @Security AuthJWT
 // @Param Dody body model.RefreshTokensReq true "model.RefreshTokensReq"
 // @Produce json
 // @Success 200 {object} model.RefreshTokensRes
