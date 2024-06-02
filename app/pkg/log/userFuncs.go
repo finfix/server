@@ -12,31 +12,47 @@ import (
 	"server/app/pkg/hasher"
 )
 
+func handleProcessing(ctx context.Context, level logLevel, log any, opts ...Option) {
+	switch log := log.(type) {
+	case string:
+		processingStringLog(ctx, level, log, opts...)
+	case error:
+		processingErrorLog(ctx, level, log)
+	default:
+		processingErrorLog(ctx, errorLevel, errors.InternalServer.New(
+			fmt.Sprintf("Processor log for type %T not implemented", log),
+			[]errors.Option{
+				errors.PathDepthOption(errors.ThirdPathDepth),
+			}...,
+		))
+	}
+}
+
 // Error логгирует сообщения для ошибок системы
-func Error(ctx context.Context, err error) {
-	processingErrorLog(ctx, errorLevel, err)
+func Error(ctx context.Context, log any) {
+	handleProcessing(ctx, errorLevel, log)
 }
 
 // Warning логгирует сообщения для ошибок пользователя
-func Warning(ctx context.Context, err error) {
-	processingErrorLog(ctx, warningLevel, err)
+func Warning(ctx context.Context, log any) {
+	handleProcessing(ctx, warningLevel, log)
 }
 
 // Info логгирует сообщения для информации
-func Info(ctx context.Context, msg any, opts ...Option) {
-	processingLog(ctx, infoLevel, msg, opts...)
+func Info(ctx context.Context, log any, opts ...Option) {
+	handleProcessing(ctx, infoLevel, log, opts...)
 }
 
 // Fatal логгирует сообщения для фатальных ошибок
-func Fatal(ctx context.Context, err error) {
-	processingErrorLog(context.Background(), fatalLevel, err)
+func Fatal(ctx context.Context, log error) {
+	handleProcessing(ctx, fatalLevel, log)
 	time.Sleep(1 * time.Second)
 	os.Exit(1)
 }
 
 // Debug логгирует сообщения для дебага
-func Debug(ctx context.Context, msg string, opts ...Option) {
-	processingLog(ctx, debugLevel, msg, opts...)
+func Debug(ctx context.Context, log string, opts ...Option) {
+	handleProcessing(ctx, debugLevel, log, opts...)
 }
 
 // SetTaskID устанавливает TaskID в контекст

@@ -6,6 +6,7 @@ check-swagger:
 	rm -rf tmp
 
 lint:
+	brew upgrade golangci-lint
 	golangci-lint run -v
 
 mockery:

@@ -164,7 +164,7 @@ func CastError(err error) CustomError {
 
 func GetPath(skip int) []string {
 	var pcs [32]uintptr
-	n := runtime.Callers(skip, pcs[:])
+	n := runtime.Callers(0, pcs[:])
 	var path []string
 	for i := skip; i < n; i++ {
 		_, file, line, _ := runtime.Caller(i)

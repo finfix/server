@@ -86,8 +86,6 @@ func mainNoExit() error {
 	})
 
 	// Парсим флаги
-	isSetupTelegram := flag.Bool("telegram", false, "Enabling telegram bot\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
-	isSetupPushes := flag.Bool("push-notifications", false, "Enabling push notifications\ntrue:\n\t1. Setup connect\n\t2. Enable sending messages")
 	logFormat := flag.String("log-format", string(log.JSONFormat), "text - Human readable string\njson - JSON format")
 	envMode := flag.String("env-mode", "local", "Environment mode for log label: test, prod")
 	flag.Parse()
@@ -127,17 +125,19 @@ func mainNoExit() error {
 
 	// Инициализируем клиента телеграм
 	log.Info(ctx, "Инициализируем телеграм клиента")
-	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, *isSetupTelegram)
+	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, cfg.Telegram.Enabled)
 	if err != nil {
 		return err
 	}
-	defer tgBot.Bot.Close()
+	if cfg.Telegram.Enabled {
+		defer tgBot.Bot.Close()
+	}
 
 	log.Info(ctx, "Инициализируем пуши")
-	pushNotificator, err := pushNotificator.NewPushNotificator(*isSetupPushes, pushNotificator.APNsCredentials{
-		TeamID:      cfg.APNs.TeamID,
-		KeyID:       cfg.APNs.KeyID,
-		KeyFilePath: cfg.APNs.KeyFilePath,
+	pushNotificator, err := pushNotificator.NewPushNotificator(cfg.Notifications.Enabled, pushNotificator.APNsCredentials{
+		TeamID:      cfg.Notifications.APNs.TeamID,
+		KeyID:       cfg.Notifications.APNs.KeyID,
+		KeyFilePath: cfg.Notifications.APNs.KeyFilePath,
 	})
 	if err != nil {
 		return err
