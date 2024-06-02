@@ -44,6 +44,14 @@ func (repo *Repository) UpdateDevice(ctx context.Context, fields userRepoModel.U
 		queryFields = append(queryFields, `device_os_version = ?`)
 		args = append(args, fields.DeviceInformation.VersionOS)
 	}
+	if fields.DeviceInformation.IPAddress != nil {
+		queryFields = append(queryFields, `device_ip_address = ?`)
+		args = append(args, fields.DeviceInformation.IPAddress)
+	}
+	if fields.DeviceInformation.UserAgent != nil {
+		queryFields = append(queryFields, `device_user_agent = ?`)
+		args = append(args, fields.DeviceInformation.UserAgent)
+	}
 
 	if len(queryFields) == 0 {
 		return errors.BadRequest.New("No fields to update")

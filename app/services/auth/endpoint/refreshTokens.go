@@ -25,6 +25,9 @@ func (s *endpoint) refreshTokens(ctx context.Context, r *http.Request) (any, err
 		return nil, err
 	}
 
+	req.Device.IPAddress = r.Header.Get("X-Real-IP")
+	req.Device.UserAgent = r.Header.Get("User-Agent")
+
 	// Вызываем метод сервиса
 	return s.service.RefreshTokens(ctx, req)
 }

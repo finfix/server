@@ -7,10 +7,10 @@ import (
 )
 
 type RefreshTokensReq struct {
-	Token       string                           `json:"token" validate:"required"` // Токен восстановления доступа
-	Application userModel.ApplicationInformation `json:"application"`               // Информация о приложении
-	Device      userModel.DeviceInformation      `json:"device"`                    // Информация о девайсе
-	Necessary   services.NecessaryUserInformation
+	Token       string                            `json:"token" validate:"required"` // Токен восстановления доступа
+	Application userModel.ApplicationInformation  `json:"application"`               // Информация о приложении
+	Device      userModel.DeviceInformation       `json:"device"`                    // Информация о девайсе
+	Necessary   services.NecessaryUserInformation `json:"-"`
 }
 
 func (r RefreshTokensReq) Validate() error { return nil }

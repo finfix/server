@@ -38,6 +38,8 @@ func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) err
 			},
 			DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
 				VersionOS: &device.DeviceInformation.VersionOS,
+				UserAgent: &device.DeviceInformation.UserAgent,
+				IPAddress: &device.DeviceInformation.IPAddress,
 			},
 		})
 	}

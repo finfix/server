@@ -68,6 +68,8 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 				},
 				DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
 					VersionOS: nil,
+					IPAddress: nil,
+					UserAgent: nil,
 				},
 			}); err != nil {
 				return err

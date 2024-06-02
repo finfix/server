@@ -59,6 +59,8 @@ func (s *Service) RefreshTokens(ctx context.Context, req model.RefreshTokensReq)
 		RefreshToken: &newTokens.Tokens.RefreshToken,
 		DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
 			VersionOS: &req.Device.VersionOS,
+			UserAgent: &req.Device.UserAgent,
+			IPAddress: &req.Device.IPAddress,
 		},
 		ApplicationInformation: userRepoModel.UpdateApplicationInformationReq{
 			BundleID: &req.Application.BundleID,

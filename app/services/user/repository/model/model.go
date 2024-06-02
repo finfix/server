@@ -17,6 +17,8 @@ type UpdateApplicationInformationReq struct {
 
 type UpdateDeviceInformationReq struct {
 	VersionOS *string
+	IPAddress *string
+	UserAgent *string
 }
 
 type GetDevicesReq struct {
