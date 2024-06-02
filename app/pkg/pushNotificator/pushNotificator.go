@@ -26,7 +26,7 @@ type APNsCredentials struct {
 func NewPushNotificator(isOn bool, apnsCredentials APNsCredentials) (*PushNotificator, error) {
 
 	if !isOn {
-		log.Info(context.Background(), "Push notificator is off")
+		log.Warning(context.Background(), "Push notificator is off")
 		return &PushNotificator{
 			isOn: isOn,
 			apns: nil,
@@ -56,6 +56,7 @@ func (s *PushNotificator) Push(ctx context.Context, req PushReq) (id string, err
 	const defaultPriority = 5
 
 	if !s.isOn {
+		log.Warning(ctx, "Вызвана функция Push. Пуши выключены")
 		return id, nil
 	}
 

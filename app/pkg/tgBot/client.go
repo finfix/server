@@ -25,7 +25,7 @@ func NewTgBot(
 ) (*TgBot, error) {
 
 	if !isOn {
-		log.Info(context.Background(), "Telegram bot is off")
+		log.Warning(context.Background(), "Telegram bot is off")
 		return &TgBot{
 			Bot:  nil,
 			Chat: nil,
@@ -62,9 +62,10 @@ func NewTgBot(
 }
 
 // SendMessage отправляет сообщение пользователю в телеграм
-func (s *TgBot) SendMessage(_ context.Context, req SendMessageReq) error {
+func (s *TgBot) SendMessage(ctx context.Context, req SendMessageReq) error {
 
 	if !s.isOn {
+		log.Warning(ctx, "Вызвана функция SendMessage. Пуши выключены")
 		return nil
 	}
 

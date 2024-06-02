@@ -40,7 +40,7 @@ func Warning(ctx context.Context, log any) {
 
 // Info логгирует сообщения для информации
 func Info(ctx context.Context, log any, opts ...Option) {
-	handleProcessing(ctx, infoLevel, log)
+	handleProcessing(ctx, infoLevel, log, opts...)
 }
 
 // Fatal логгирует сообщения для фатальных ошибок
@@ -52,7 +52,7 @@ func Fatal(ctx context.Context, log error) {
 
 // Debug логгирует сообщения для дебага
 func Debug(ctx context.Context, log string, opts ...Option) {
-	handleProcessing(ctx, debugLevel, log)
+	handleProcessing(ctx, debugLevel, log, opts...)
 }
 
 // SetTaskID устанавливает TaskID в контекст
