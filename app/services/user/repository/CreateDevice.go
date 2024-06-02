@@ -3,23 +3,33 @@ package repository
 import (
 	"context"
 
-	userRepoModel "server/app/services/user/repository/model"
+	userModel "server/app/services/user/model"
 )
 
 // CreateDevice Создает новый девайс для пользователя
-func (repo *Repository) CreateDevice(ctx context.Context, req userRepoModel.CreateDeviceReq) (id uint32, err error) {
+func (repo *Repository) CreateDevice(ctx context.Context, req userModel.Device) (id uint32, err error) {
 	return repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.devices (
 			  refresh_token, 
 			  device_id, 
 			  user_id,
-			  os,
-			  bundle_id
-        	) VALUES (?, ?, ?, ?, ?)`,
+			  device_os_name,
+			  device_os_version,
+			  device_name,
+			  device_model_name,
+			  application_bundle_id,
+			  application_version,
+			  application_build
+        	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		req.RefreshToken,
 		req.DeviceID,
 		req.UserID,
-		req.OS,
-		req.BundleID,
+		req.DeviceInformation.NameOS,
+		req.DeviceInformation.VersionOS,
+		req.DeviceInformation.DeviceName,
+		req.DeviceInformation.ModelName,
+		req.ApplicationInformation.BundleID,
+		req.ApplicationInformation.Version,
+		req.ApplicationInformation.Build,
 	)
 }

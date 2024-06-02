@@ -43,6 +43,7 @@ func NewPushNotificator(isOn bool, apnsCredentials APNsCredentials) (*PushNotifi
 		KeyID:   apnsCredentials.KeyID,
 		TeamID:  apnsCredentials.TeamID,
 	})
+	apnsClient.Host = apns2.HostProduction
 
 	return &PushNotificator{
 		isOn: isOn,

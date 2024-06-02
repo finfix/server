@@ -52,11 +52,19 @@ func (s *Service) RefreshTokens(ctx context.Context, req model.RefreshTokensReq)
 		return newTokens, err
 	}
 
-	// Обновляем refresh токен у девайса
+	// Обновляем данные у девайса
 	if err = s.userRepository.UpdateDevice(ctx, userRepoModel.UpdateDeviceReq{
-		UserID:            req.Necessary.UserID,
-		DeviceID:          req.Necessary.DeviceID,
-		RefreshToken:      &newTokens.Tokens.RefreshToken,
+		UserID:       req.Necessary.UserID,
+		DeviceID:     req.Necessary.DeviceID,
+		RefreshToken: &newTokens.Tokens.RefreshToken,
+		DeviceInformation: userRepoModel.UpdateDeviceInformationReq{
+			VersionOS: &req.Device.VersionOS,
+		},
+		ApplicationInformation: userRepoModel.UpdateApplicationInformationReq{
+			BundleID: &req.Application.BundleID,
+			Version:  &req.Application.Version,
+			Build:    &req.Application.Build,
+		},
 		NotificationToken: nil,
 	}); err != nil {
 		return newTokens, err
