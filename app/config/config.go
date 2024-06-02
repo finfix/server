@@ -34,14 +34,18 @@ type Config struct {
 
 	// Доступы к телеграм-боту
 	Telegram struct {
-		Token  string `env:"TG_BOT_TOKEN"`
-		ChatID int64  `env:"TG_CHAT_ID"`
+		Enabled bool   `env:"TG_BOT_ENABLED"`
+		Token   string `env:"TG_BOT_TOKEN"`
+		ChatID  int64  `env:"TG_CHAT_ID"`
 	}
 
-	APNs struct {
-		TeamID      string `env:"APNS_TEAM_ID"`
-		KeyID       string `env:"APNS_KEY_ID"`
-		KeyFilePath string `env:"APNS_KEY_FILE_PATH"`
+	Notifications struct {
+		Enabled bool `env:"NOTIFICATIONS_ENABLED"`
+		APNs    struct {
+			TeamID      string `env:"NOTIFICATIONS_APNS_TEAM_ID"`
+			KeyID       string `env:"NOTIFICATIONS_APNS_KEY_ID"`
+			KeyFilePath string `env:"NOTIFICATIONS_APNS_KEY_FILE_PATH"`
+		}
 	}
 }
 
