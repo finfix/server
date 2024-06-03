@@ -106,7 +106,7 @@ func TestAuthorization(t *testing.T) {
 			if tt.token == nil {
 
 				// Создаем токен
-				token, err := jwtManager.NewJWT(tt.params.userID, tt.params.deviceID)
+				token, err := jwtManager.NewJWT(jwtManager.AccessToken, tt.params.userID, tt.params.deviceID)
 				if err != nil {
 					t.Fatalf("\nНе смогли создать JWV-токен: %v", err)
 				}

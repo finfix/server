@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 FROM golang:1.22 AS builder
 RUN apt install ca-certificates
-ADD . /coin
-WORKDIR /coin
+ADD . /@{project_name}
+WORKDIR /@{project_name}
 RUN sed -i -e 's|@{build}|@{build_number}|g' -e 's|@{version}|@{version_number}|g' app/main.go
 RUN go generate ./...
 RUN go build app/main.go
@@ -10,7 +10,7 @@ RUN go build app/main.go
 FROM ubuntu:latest
 WORKDIR /@{project_name}
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /coin/main .
+COPY --from=builder /@{project_name}/main .
 EXPOSE @{service_port}
 USER root:root
 CMD ["./main"]

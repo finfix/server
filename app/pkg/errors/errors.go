@@ -99,21 +99,20 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 			customErr.HumanText = options.HumanText
 		}
 
-		// Затираем путь, если передано в опциях
-		if options.erasePath {
-			// Если передана глубина пути, то используем ее
-			if options.pathDepth != nil {
-				skip = *options.pathDepth
-			}
-			customErr.Path = GetPath(skip)
+		// Если передана глубина пути, то используем ее
+		if options.pathDepth != nil {
+			skip = *options.pathDepth
 		}
+		customErr.Path = GetPath(skip)
 
 		// Если передан текст ошибки, то добавляем его к исходной ошибке
 		if options.errMessage != nil {
 			customErr.InitialError = fmt.Errorf("%v: %v", options.errMessage, customErr.InitialError)
 		}
 
-		customErr.ErrorType = typ
+		if options.dontEraseErrorType == nil {
+			customErr.ErrorType = typ
+		}
 
 	} else { // Если это не обернутая ошибка
 
@@ -165,7 +164,7 @@ func CastError(err error) CustomError {
 
 func GetPath(skip int) []string {
 	var pcs [32]uintptr
-	n := runtime.Callers(skip, pcs[:])
+	n := runtime.Callers(0, pcs[:])
 	var path []string
 	for i := skip; i < n; i++ {
 		_, file, line, _ := runtime.Caller(i)

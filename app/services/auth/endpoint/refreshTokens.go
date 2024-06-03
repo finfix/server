@@ -11,6 +11,7 @@ import (
 // @Summary Обновление токенов
 // @Tags auth
 // @Accept json
+// @Security AuthJWT
 // @Param Dody body model.RefreshTokensReq true "model.RefreshTokensReq"
 // @Produce json
 // @Success 200 {object} model.RefreshTokensRes
@@ -23,6 +24,9 @@ func (s *endpoint) refreshTokens(ctx context.Context, r *http.Request) (any, err
 	if err != nil {
 		return nil, err
 	}
+
+	req.Device.IPAddress = r.Header.Get("X-Real-IP")
+	req.Device.UserAgent = r.Header.Get("User-Agent")
 
 	// Вызываем метод сервиса
 	return s.service.RefreshTokens(ctx, req)

@@ -13,7 +13,7 @@ import (
 func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (accessData model.AuthRes, err error) {
 
 	// Получаем пользователя по email
-	users, err := s.userService.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct
+	users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct
 	if err != nil {
 		return accessData, err
 	}
@@ -24,18 +24,32 @@ func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (access
 	}
 	user := users[0]
 
+	accessData.ID = user.ID
+
 	// Сравниваем пришедший пароль и хэш пароля из базы данных
 	if err = hasher.CompareHashAndPassword(user.PasswordHash, []byte(loginData.Password), user.PasswordSalt, s.generalSalt); err != nil {
 		return accessData, err
 	}
 
-	// Создаем сессию
-	accessData.AccessToken, accessData.RefreshToken, err = s.createSession(ctx, user.ID, loginData.DeviceID)
+	// Создаем пару токенов
+	accessData.Tokens, err = s.createPairTokens(ctx, user.ID, loginData.DeviceID)
 	if err != nil {
 		return accessData, err
 	}
 
-	accessData.ID = user.ID
+	// Создаем или обновляем девайс пользователя
+	err = s.upsertDevice(ctx, userModel.Device{
+		DeviceInformation:      loginData.Device,
+		NotificationToken:      nil,
+		RefreshToken:           accessData.RefreshToken,
+		UserID:                 accessData.ID,
+		DeviceID:               loginData.DeviceID,
+		ApplicationInformation: loginData.Application,
+	})
+	if err != nil {
+		return accessData, err
+	}
 
+	// Возвращаем идентификатор пользователя и токены
 	return accessData, nil
 }
