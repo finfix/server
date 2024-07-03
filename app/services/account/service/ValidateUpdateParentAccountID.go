@@ -12,9 +12,9 @@ import (
 func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {
 
 	if account.IsParent {
-		return errors.BadRequest.New("Счет уже является родительским", []errors.Option{
+		return errors.BadRequest.New("Счет уже является родительским",
 			errors.ParamsOption("accountID", account.ID),
-		}...)
+		)
 	}
 
 	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, userID, []uint32{parentAccountID}); err != nil {
@@ -27,39 +27,39 @@ func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account mod
 		return err
 	}
 	if len(parentAccounts) == 0 {
-		return errors.NotFound.New("Родительский счет не найден", []errors.Option{
+		return errors.NotFound.New("Родительский счет не найден",
 			errors.ParamsOption("accountID", parentAccountID),
-		}...)
+		)
 	}
 	parentAccount := parentAccounts[0]
 
 	// Проверяем, что указанный счет является родительским
 	if parentAccount.ID != parentAccountID {
-		return errors.BadRequest.New("Указанный счет не является родительским", []errors.Option{
+		return errors.BadRequest.New("Указанный счет не является родительским",
 			errors.ParamsOption("accountID", parentAccountID),
-		}...)
+		)
 	}
 
 	// Проверяем, что счета находятся в одной группе
 	if account.AccountGroupID != parentAccount.AccountGroupID {
-		return errors.BadRequest.New("Счета находятся в разных группах", []errors.Option{
+		return errors.BadRequest.New("Счета находятся в разных группах",
 			errors.ParamsOption(
 				"childAccountID", account.ID,
 				"childAccountGroupID", account.AccountGroupID,
 				"parentAccountID", parentAccount.ID,
 				"parentAccountGroupID", parentAccount.AccountGroupID,
-			)}...)
+			))
 	}
 
 	// Проверяем, что типы счетов совпадают
 	if account.Type != parentAccount.Type {
-		return errors.BadRequest.New("Типы счетов не совпадают", []errors.Option{
+		return errors.BadRequest.New("Типы счетов не совпадают",
 			errors.ParamsOption(
 				"childAccountID", account.ID,
 				"childType", account.Type,
 				"parentAccountID", parentAccount.ID,
 				"parentType", parentAccount.Type,
-			)}...)
+			))
 	}
 
 	return nil

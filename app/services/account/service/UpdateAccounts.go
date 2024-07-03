@@ -29,9 +29,9 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	}
 	account, err := slices.FirstWithError(accounts)
 	if err != nil {
-		return res, errors.NotFound.Wrap(err, []errors.Option{
+		return res, errors.NotFound.Wrap(err,
 			errors.ParamsOption("accountID", updateReq.ID),
-		}...)
+		)
 	}
 
 	// Проверяем, что входные данные не противоречат разрешениям

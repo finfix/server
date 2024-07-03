@@ -22,11 +22,11 @@ func (t *Type) Validate() error {
 	switch *t {
 	case Earnings, Expense, Debt, Regular, Balancing:
 	default:
-		return errors.BadRequest.New("Unknown account type", []errors.Option{
+		return errors.BadRequest.New("Unknown account type",
 			errors.PathDepthOption(errors.SecondPathDepth),
 			errors.ParamsOption("type", *t),
 			errors.HumanTextOption("Неизвестный тип счета"),
-		}...)
+		)
 	}
 	return nil
 }

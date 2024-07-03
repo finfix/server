@@ -55,10 +55,15 @@ func After(after ...AfterFunc) Option {
 }
 
 type BeforeFunc func(context.Context, *http.Request) (context.Context, error)
+
 type SendFunc func(context.Context, *http.Request) (any, error)
+
 type AfterFunc func(context.Context, http.ResponseWriter) context.Context
+
 type EncodeResponseFunc func(context.Context, http.ResponseWriter, any) error
+
 type EncodeErrorFunc func(context.Context, http.ResponseWriter, error)
+
 type LoggingFunc func(error)
 
 func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -79,13 +84,13 @@ func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = log.SetTaskID(ctx)
 
 	defer func() {
-		log.Info(ctx, fmt.Sprintf("%v [%v]", r.URL.Path, strings.ToLower(r.Method)), []log.Option{
+		log.Info(ctx, fmt.Sprintf("%v [%v]", r.URL.Path, strings.ToLower(r.Method)),
 			log.ParamsOption(
 				"method", r.Method,
 				"path", r.URL.Path,
 				"duration", time.Since(startTime),
 			),
-		}...)
+		)
 	}()
 
 	for _, f := range s.before {

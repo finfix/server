@@ -21,11 +21,11 @@ func (t *Type) Validate() error {
 	switch *t {
 	case Transfer, Consumption, Balancing, Income:
 	default:
-		return errors.BadRequest.New("Unknown transaction type", []errors.Option{
+		return errors.BadRequest.New("Unknown transaction type",
 			errors.PathDepthOption(errors.SecondPathDepth),
 			errors.ParamsOption("type", *t),
 			errors.HumanTextOption("Неизвестный тип транзакции"),
-		}...)
+		)
 	}
 	return nil
 }

@@ -154,9 +154,9 @@ func CastError(err error) CustomError {
 
 	customErr, ok := err.(CustomError)
 	if !ok {
-		err = InternalServer.Wrap(errors.New("Ошибка не обернута, путь неверный"), []Option{
+		err = InternalServer.Wrap(errors.New("Ошибка не обернута, путь неверный"),
 			PathDepthOption(SecondPathDepth),
-		}...)
+		)
 		customErr, _ = err.(CustomError)
 	}
 	return customErr

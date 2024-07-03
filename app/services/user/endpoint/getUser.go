@@ -31,9 +31,9 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	if len(users) == 0 {
-		return nil, errors.InternalServer.New("Пользователь не найден", []errors.Option{
+		return nil, errors.InternalServer.New("Пользователь не найден",
 			errors.ParamsOption("UserID", req.Necessary.UserID),
-		}...)
+		)
 	}
 
 	// Конвертируем ответ во внутреннюю структуру

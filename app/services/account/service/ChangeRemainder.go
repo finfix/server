@@ -102,10 +102,11 @@ func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Accou
 
 	// Если общий балансировочный счет не найден
 	if len(parentBalancingAccounts) == 0 {
-		return balancingAccountID, serialNumber, wasCreate, errors.InternalServer.New("Родительский балансировочный счет не найден", []errors.Option{errors.ParamsOption(
+		return balancingAccountID, serialNumber, wasCreate, errors.InternalServer.New("Родительский балансировочный счет не найден", errors.ParamsOption(
 			"accountID", account,
 			"accountGroupID", account.AccountGroupID,
-		)}...)
+		),
+		)
 	}
 
 	parentBalancingAccount = parentBalancingAccounts[0]

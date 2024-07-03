@@ -41,10 +41,9 @@ func DefaultDecoder[T Decodable](
 ) (req T, err error) {
 
 	if reflect.ValueOf(req).Kind() != reflect.Struct {
-		return req, errors.InternalServer.New("Пришедший интерфейс не равен структуре", []errors.Option{
+		return req, errors.InternalServer.New("Пришедший интерфейс не равен структуре",
 			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(req).Kind().String()),
-			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+			errors.PathDepthOption(errors.SecondPathDepth))
 	}
 
 	switch decodeSchema {
@@ -69,10 +68,10 @@ func DefaultDecoder[T Decodable](
 
 	var ok bool
 	if req, ok = reqAny.(T); !ok {
-		return req, errors.InternalServer.New("Не удалось привести интерфейс к структуре", []errors.Option{
+		return req, errors.InternalServer.New("Не удалось привести интерфейс к структуре",
 			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(reqAny).Kind().String()),
 			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		)
 	}
 
 	return req, validation.ZeroValue(req)
