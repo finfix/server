@@ -19,9 +19,10 @@ import (
 // @Router /auth/signUp [post]
 func (s *endpoint) signUp(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.SignUpReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SignUpReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

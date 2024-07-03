@@ -3,7 +3,6 @@ package model
 import (
 	"time"
 
-	"server/app/pkg/validation"
 	"server/app/services"
 	userRepoModel "server/app/services/user/repository/model"
 )
@@ -23,16 +22,6 @@ type GetReq struct {
 	Emails    []string
 }
 
-func (s GetReq) Validate() error {
-	for _, email := range s.Emails {
-		err := validation.Mail(email)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (s GetReq) SetNecessary(information services.NecessaryUserInformation) any {
 	s.Necessary = information
 	return s
@@ -46,16 +35,6 @@ type UpdateUserReq struct {
 	OldPassword       *string `json:"oldPassword"`
 	DefaultCurrency   *string `json:"defaultCurrency"`
 	NotificationToken *string `json:"notificationToken"`
-}
-
-func (s UpdateUserReq) Validate() error {
-	if s.Email != nil {
-		err := validation.Mail(*s.Email)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func (s UpdateUserReq) SetNecessary(information services.NecessaryUserInformation) any {

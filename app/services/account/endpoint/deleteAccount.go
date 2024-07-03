@@ -19,9 +19,10 @@ import (
 // @Router /account [delete]
 func (s *endpoint) deleteAccount(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.DeleteAccountReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.DeleteAccountReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 

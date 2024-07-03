@@ -20,9 +20,10 @@ import (
 // @Router /user [patch]
 func (s *endpoint) updateUser(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.UpdateUserReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.UpdateUserReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

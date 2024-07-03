@@ -15,8 +15,6 @@ type DeleteTransactionReq struct {
 	ID        uint32 `json:"id" validate:"required" minimum:"1"` // Идентификатор транзакции
 }
 
-func (s DeleteTransactionReq) Validate() error { return nil }
-
 func (s DeleteTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
 	s.Necessary = information
 	return s

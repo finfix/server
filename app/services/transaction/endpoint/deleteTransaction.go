@@ -19,9 +19,10 @@ import (
 // @Router /transaction [delete]
 func (s *endpoint) deleteTransaction(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.DeleteTransactionReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.DeleteTransactionReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 

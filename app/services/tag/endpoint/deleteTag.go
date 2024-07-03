@@ -19,9 +19,10 @@ import (
 // @Router /tag [delete]
 func (s *endpoint) deleteTag(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.DeleteTagReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.DeleteTagReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 

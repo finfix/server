@@ -20,9 +20,10 @@ import (
 // @Router /accountGroup [post]
 func (s *endpoint) createAccountGroup(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.CreateAccountGroupReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.CreateAccountGroupReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

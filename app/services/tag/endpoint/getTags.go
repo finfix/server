@@ -19,9 +19,10 @@ import (
 // @Router /tag [get]
 func (s *endpoint) getTags(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.GetTagsReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.GetTagsReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 

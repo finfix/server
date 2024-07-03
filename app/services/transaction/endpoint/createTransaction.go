@@ -20,9 +20,10 @@ import (
 // @Router /transaction [post]
 func (s *endpoint) createTransaction(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.CreateTransactionReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.CreateTransactionReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

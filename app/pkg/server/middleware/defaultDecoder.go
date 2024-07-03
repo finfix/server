@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/schema"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/validation"
+	"server/app/pkg/validator"
 	"server/app/services"
 )
 
@@ -20,59 +20,96 @@ const (
 	DecodeJSON
 )
 
-type Validable interface {
+type validatorProtocol interface {
 	Validate() error
 }
 
-type NecessarySettable interface {
-	SetNecessary(services.NecessaryUserInformation) any
-}
-
-type Decodable interface {
-	Validable
-	NecessarySettable
-}
-
-func DefaultDecoder[T Decodable](
+func DefaultDecoder(
 	ctx context.Context,
 	r *http.Request,
 	decodeSchema DecodeMethod,
-	_ T,
-) (req T, err error) {
+	dest any,
+) (err error) {
 
-	if reflect.ValueOf(req).Kind() != reflect.Struct {
-		return req, errors.InternalServer.New("Пришедший интерфейс не равен структуре",
-			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(req).Kind().String()),
+	reflectVar := reflect.ValueOf(dest)
+	if reflectVar.Kind() != reflect.Ptr || reflectVar.Elem().Kind() != reflect.Struct {
+		return errors.InternalServer.New("Пришедший интерфейс является указателем на структуру",
+			errors.ParamsOption("Тип интерфейса", reflectVar.Kind().String()),
 			errors.PathDepthOption(errors.SecondPathDepth))
 	}
 
 	switch decodeSchema {
 	case DecodeSchema:
-		err = schema.NewDecoder().Decode(&req, r.URL.Query())
+		err = schema.NewDecoder().Decode(dest, r.URL.Query())
 	case DecodeJSON:
-		err = json.NewDecoder(r.Body).Decode(&req)
+		err = json.NewDecoder(r.Body).Decode(dest)
 	}
 	if err != nil {
-		return req, errors.BadRequest.Wrap(err)
-	}
-
-	if err = req.Validate(); err != nil {
-		return req, err
-	}
-
-	necessaryInformation, err := services.ExtractNecessaryFromCtx(ctx)
-	if err != nil {
-		return req, err
-	}
-	reqAny := req.SetNecessary(necessaryInformation)
-
-	var ok bool
-	if req, ok = reqAny.(T); !ok {
-		return req, errors.InternalServer.New("Не удалось привести интерфейс к структуре",
-			errors.ParamsOption("Тип интерфейса", reflect.ValueOf(reqAny).Kind().String()),
+		return errors.BadRequest.Wrap(
+			err,
 			errors.PathDepthOption(errors.SecondPathDepth),
 		)
 	}
 
-	return req, validation.ZeroValue(req)
+	// Если структура реализует интерфейс валидатора, то валидируем ее с помощью функции
+	if v, ok := dest.(validatorProtocol); ok {
+		if err = v.Validate(); err != nil {
+			return errors.BadRequest.Wrap(
+				err,
+				errors.PathDepthOption(errors.SecondPathDepth),
+			)
+		}
+	}
+
+	// Получаем необходимую для каждого запроса информацию из контекста
+	necessaryInformation, err := services.ExtractNecessaryFromCtx(ctx)
+	if err != nil {
+		return errors.BadRequest.Wrap(
+			err,
+			errors.PathDepthOption(errors.SecondPathDepth),
+		)
+	}
+
+	if err = setNessessary(necessaryInformation, dest); err != nil {
+		return errors.InternalServer.Wrap(err,
+			errors.PathDepthOption(errors.SecondPathDepth),
+		)
+	}
+
+	if err = validator.Validate(dest); err != nil {
+		return errors.BadRequest.Wrap(err,
+			errors.PathDepthOption(errors.SecondPathDepth),
+		)
+	}
+
+	return nil
+}
+
+func setNessessary(necessaryInformation services.NecessaryUserInformation, dest any) error {
+
+	// Получаем указатель на структуру
+	reflectVar := reflect.ValueOf(dest).Elem()
+
+	// Ищем поле с именем "Necessary"
+	necessaryField := reflectVar.FieldByName("Necessary")
+
+	// Если такого поля нет, тогда выходим из функции
+	if !necessaryField.IsValid() {
+		return nil
+	}
+
+	// Проверяем, является ли поле экспортированным и можно ли его устанавливать
+	if !necessaryField.CanSet() {
+		return errors.InternalServer.New(
+			"Поле Necessary является неэкспортируемым",
+		)
+	}
+
+	// Получаем значение структуры necessaryData с использованием отражения
+	necessaryValue := reflect.ValueOf(necessaryInformation)
+
+	// Устанавливаем значение поля
+	necessaryField.Set(necessaryValue)
+
+	return nil
 }
