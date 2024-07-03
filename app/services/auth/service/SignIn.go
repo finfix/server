@@ -18,9 +18,9 @@ func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (access
 		return accessData, err
 	}
 	if len(users) == 0 {
-		return accessData, errors.NotFound.New("User not found", []errors.Option{
+		return accessData, errors.NotFound.New("User not found",
 			errors.HumanTextOption("Пользователь не найден"),
-		}...)
+		)
 	}
 	user := users[0]
 

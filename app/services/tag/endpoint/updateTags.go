@@ -19,9 +19,10 @@ import (
 // @Router /tag [patch]
 func (s *endpoint) updateTag(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.UpdateTagReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.UpdateTagReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

@@ -19,9 +19,10 @@ import (
 // @Router /auth/refreshTokens [post]
 func (s *endpoint) refreshTokens(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.RefreshTokensReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.RefreshTokensReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

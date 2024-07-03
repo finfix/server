@@ -93,22 +93,23 @@ func (s *Service) CreateTransaction(ctx context.Context, transaction transaction
 
 	// Проверяем, что счета можно использовать для создания транзакции
 	if !permissionsAccountFrom.CreateTransaction || !permissionsAccountTo.CreateTransaction {
-		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов", []errors.Option{
+		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов",
 			errors.ParamsOption(
 				"AccountFromID", transaction.AccountFromID,
 				"AccountGroupFromID", accountsMap[transaction.AccountFromID].AccountGroupID,
 				"AccountToID", transaction.AccountToID,
 				"AccountGroupToID", accountsMap[transaction.AccountToID].AccountGroupID,
-			)}...)
+			),
+		)
 	}
 
 	// Проверяем, что счета находятся в одной группе
 	if accountsMap[transaction.AccountFromID].AccountGroupID != accountsMap[transaction.AccountToID].AccountGroupID {
-		return id, errors.BadRequest.New("Счета находятся в разных группах", []errors.Option{
+		return id, errors.BadRequest.New("Счета находятся в разных группах",
 			errors.ParamsOption(
 				"AccountFromID", transaction.AccountFromID,
 				"AccountToID", transaction.AccountToID,
-			)}...)
+			))
 	}
 
 	return id, s.generalRepository.WithinTransaction(ctx, func(ctxTx context.Context) error {
@@ -164,9 +165,9 @@ func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel
 		return err
 	}
 	if len(transactions) == 0 {
-		return errors.NotFound.New("Транзакция не найдена", []errors.Option{
+		return errors.NotFound.New("Транзакция не найдена",
 			errors.ParamsOption("ID", fields.ID),
-		}...)
+		)
 	}
 	transaction := transactions[0]
 
@@ -239,13 +240,14 @@ func (s *Service) transactionAndAccountTypesValidation(accountFrom, accountTo ac
 	}
 
 	if !isAccess {
-		return errors.BadRequest.New("Неверно выбраны типы счетов", []errors.Option{
+		return errors.BadRequest.New("Неверно выбраны типы счетов",
 			errors.ParamsOption(
 				"TransactionType", tranType,
 				"AccountFromID", accountFrom.ID,
 				"AccountToID", accountTo.ID,
 				"Accesses", accesses,
-			)}...)
+			),
+		)
 	}
 
 	return nil

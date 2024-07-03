@@ -11,9 +11,9 @@ import (
 func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 
 	if er == nil {
-		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка", []errors.Option{
+		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка",
 			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		)
 	}
 
 	err := errors.CastError(er)

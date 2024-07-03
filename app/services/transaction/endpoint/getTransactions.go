@@ -19,9 +19,10 @@ import (
 // @Router /transaction [get]
 func (s *endpoint) getTransactions(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.GetTransactionsReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.GetTransactionsReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 

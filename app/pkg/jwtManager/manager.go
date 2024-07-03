@@ -74,36 +74,36 @@ func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error)
 func Parse(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
-		return 0, "", errors.InternalServer.New("JWTManager is not initialized", []errors.Option{
+		return 0, "", errors.InternalServer.New("JWTManager is not initialized",
 			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		)
 	}
 
 	if reqToken == "" {
-		return 0, "", errors.Unauthorized.New("JWT-token is empty", []errors.Option{
+		return 0, "", errors.Unauthorized.New("JWT-token is empty",
 			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		)
 	}
 
 	token, jwtErr := jwt.ParseWithClaims(reqToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) { //nolint:exhaustruct
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.InternalServer.New("Unexpected signing method", []errors.Option{
+			return nil, errors.InternalServer.New("Unexpected signing method",
 				errors.ParamsOption("token", token.Header["alg"]),
 				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+			)
 		}
 
 		return jwtManager.accessTokenSigningKey, nil
 	})
 	if jwtErr != nil {
 		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
-			return 0, "", errors.BadRequest.Wrap(jwtErr, []errors.Option{
+			return 0, "", errors.BadRequest.Wrap(jwtErr,
 				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+			)
 		} else {
-			jwtErr = errors.Unauthorized.Wrap(jwtErr, []errors.Option{
+			jwtErr = errors.Unauthorized.Wrap(jwtErr,
 				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+			)
 		}
 	}
 
@@ -115,9 +115,9 @@ func Parse(reqToken string) (uint32, string, error) {
 	idStr := claims.Subject
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		return 0, "", errors.BadRequest.Wrap(err, []errors.Option{
+		return 0, "", errors.BadRequest.Wrap(err,
 			errors.ParamsOption("ID", idStr),
-		}...)
+		)
 	}
 
 	return uint32(id), claims.DeviceID, jwtErr

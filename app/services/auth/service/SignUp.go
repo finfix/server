@@ -17,10 +17,10 @@ func (s *Service) SignUp(ctx context.Context, loginData model.SignUpReq) (access
 	if _users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}); err != nil { //nolint:exhaustruct
 		return accessData, err
 	} else if len(_users) != 0 {
-		return accessData, errors.Forbidden.New("User with this email is already registered", []errors.Option{
+		return accessData, errors.Forbidden.New("User with this email is already registered",
 			errors.HumanTextOption("Пользователь с таким email уже зарегистрирован"),
 			errors.ParamsOption("email", loginData.Email),
-		}...)
+		)
 	}
 
 	// Получаем хэш пароля пользователя

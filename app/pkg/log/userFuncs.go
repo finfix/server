@@ -21,9 +21,8 @@ func handleProcessing(ctx context.Context, level logLevel, log any, opts ...Opti
 	default:
 		processingErrorLog(ctx, errorLevel, errors.InternalServer.New(
 			fmt.Sprintf("Processor log for type %T not implemented", log),
-			[]errors.Option{
-				errors.PathDepthOption(errors.ThirdPathDepth),
-			}...,
+
+			errors.PathDepthOption(errors.ThirdPathDepth),
 		))
 	}
 }

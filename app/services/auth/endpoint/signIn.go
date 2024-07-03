@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
 	"server/app/pkg/server/middleware"
 	"server/app/services/auth/model"
 )
@@ -19,9 +21,16 @@ import (
 // @Router /auth/signIn [post]
 func (s *endpoint) signIn(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.SignInReq
+
+	deviceID := contextKeys.GetDeviceID(ctx)
+	if deviceID == nil {
+		return nil, errors.BadRequest.New("DeviceID не задан")
+	}
+	req.DeviceID = *deviceID
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SignInReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

@@ -117,9 +117,9 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 
 	if len(accessedAccountGroupIDs) == 0 {
-		return errors.NotFound.New("Нет доступных объектов", []errors.Option{
+		return errors.NotFound.New("Нет доступных объектов",
 			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
-		}...)
+		)
 	}
 
 	var (
@@ -164,11 +164,11 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
 			if _, ok := repo.accesses.Get()[userID][accountGroupID]; !ok {
-				return errors.Forbidden.New("Access denied", []errors.Option{
+				return errors.Forbidden.New("Access denied",
 					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
 					errors.PathDepthOption(errors.SecondPathDepth),
-				}...)
+				)
 			}
 		}
 		return nil
@@ -218,10 +218,10 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	// Если количество записей не равно количеству проверяемых идентификаторов, то возвращаем ошибку
 	if countAccess != uint32(len(ids)) {
-		return errors.Forbidden.New("Access denied", []errors.Option{
+		return errors.Forbidden.New("Access denied",
 			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 			errors.HumanTextOption(fmt.Sprintf("Вы не имеете доступа к %s", errString)),
-		}...)
+		)
 	}
 
 	return nil

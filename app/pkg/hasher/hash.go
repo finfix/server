@@ -29,9 +29,9 @@ func CreateNewPassword(password, generalSalt []byte) ([]byte, []byte, error) {
 func CompareHashAndPassword(hash, password, userSalt, generalSalt []byte) error {
 
 	if err := bcrypt.CompareHashAndPassword(hash, saltPassword(password, userSalt, generalSalt)); err != nil {
-		return errors.BadRequest.Wrap(err, []errors.Option{
+		return errors.BadRequest.Wrap(err, 
 			errors.HumanTextOption("Неверно введен логин или пароль"),
-		}...)
+		)
 	}
 	return nil
 }

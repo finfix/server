@@ -6,7 +6,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/server/middleware"
-	userModel "server/app/services/user/model"
+	"server/app/services/user/model"
 )
 
 // @Summary Получение данных пользователя
@@ -18,9 +18,10 @@ import (
 // @Router /user [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.GetReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, userModel.GetReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
 		return nil, err
 	}
 
@@ -31,9 +32,9 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	if len(users) == 0 {
-		return nil, errors.InternalServer.New("Пользователь не найден", []errors.Option{
+		return nil, errors.InternalServer.New("Пользователь не найден",
 			errors.ParamsOption("UserID", req.Necessary.UserID),
-		}...)
+		)
 	}
 
 	// Конвертируем ответ во внутреннюю структуру

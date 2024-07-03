@@ -19,9 +19,10 @@ import (
 // @Router /accountGroup [patch]
 func (s *endpoint) updateAccountGroup(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.UpdateAccountGroupReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.UpdateAccountGroupReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

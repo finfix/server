@@ -130,9 +130,9 @@ func (repo *TransactionRepository) DeleteTransaction(ctx context.Context, id, us
 
 	// Проверяем, что в базе данных что-то изменилось
 	if rows == 0 {
-		return errors.NotFound.New("No such model found for model", []errors.Option{
+		return errors.NotFound.New("No such model found for model",
 			errors.ParamsOption("UserID", userID, "TransactionID", id),
-		}...)
+		)
 	}
 
 	return nil

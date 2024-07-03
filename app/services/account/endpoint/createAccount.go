@@ -20,9 +20,10 @@ import (
 // @Router /account [post]
 func (s *endpoint) createAccount(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.CreateAccountReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.CreateAccountReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

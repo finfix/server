@@ -18,9 +18,10 @@ import (
 // @Router /auth/signOut [post]
 func (s *endpoint) signOut(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.SignOutReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SignOutReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

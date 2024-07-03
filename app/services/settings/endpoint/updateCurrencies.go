@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"server/app/pkg/server/middleware"
-	settingsModel "server/app/services/settings/model"
+	"server/app/services/settings/model"
 )
 
 // @Summary Обновление курсов валют
@@ -16,9 +16,10 @@ import (
 // @Router /settings/updateCurrencies [post]
 func (s *endpoint) updateCurrencies(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.UpdateCurrenciesReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, settingsModel.UpdateCurrenciesReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
 		return nil, err
 	}
 

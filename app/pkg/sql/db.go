@@ -240,13 +240,15 @@ func (s *DB) ExecWithRowsAffected(ctx context.Context, query string, args ...any
 }
 
 func wrapSQLError(err error) error {
-	thirdPathDepthOption := []errors.Option{errors.PathDepthOption(errors.ThirdPathDepth)}
+
+	thirdPathDepthOption := errors.PathDepthOption(errors.ThirdPathDepth)
+
 	switch {
 	case errors.Is(err, context.Canceled):
-		return errors.ClientReject.Wrap(err, thirdPathDepthOption...)
+		return errors.ClientReject.Wrap(err, thirdPathDepthOption)
 	case errors.Is(err, sql.ErrNoRows):
-		return errors.NotFound.Wrap(err, thirdPathDepthOption...)
+		return errors.NotFound.Wrap(err, thirdPathDepthOption)
 	default:
-		return errors.InternalServer.Wrap(err, thirdPathDepthOption...)
+		return errors.InternalServer.Wrap(err, thirdPathDepthOption)
 	}
 }

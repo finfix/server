@@ -78,9 +78,9 @@ func First[T any](array []T) *T {
 func FirstWithError[T any](array []T) (value T, err error) {
 	valuePtr := First(array)
 	if valuePtr == nil {
-		return value, errors.NotFound.New("Значение массива не найдено", []errors.Option{
+		return value, errors.NotFound.New("Значение массива не найдено",
 			errors.ParamsOption("Type", fmt.Sprintf("%T", value)),
-		}...)
+		)
 	}
 	return *valuePtr, nil
 }
