@@ -24,6 +24,63 @@ func (_m *MockTransactionRepository) EXPECT() *MockTransactionRepository_Expecte
 	return &MockTransactionRepository_Expecter{mock: &_m.Mock}
 }
 
+// CreateFile provides a mock function with given fields: ctx, req
+func (_m *MockTransactionRepository) CreateFile(ctx context.Context, req model.CreateFileReq) (uint32, error) {
+	ret := _m.Called(ctx, req)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateFile")
+	}
+
+	var r0 uint32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateFileReq) (uint32, error)); ok {
+		return rf(ctx, req)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, model.CreateFileReq) uint32); ok {
+		r0 = rf(ctx, req)
+	} else {
+		r0 = ret.Get(0).(uint32)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, model.CreateFileReq) error); ok {
+		r1 = rf(ctx, req)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockTransactionRepository_CreateFile_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateFile'
+type MockTransactionRepository_CreateFile_Call struct {
+	*mock.Call
+}
+
+// CreateFile is a helper method to define mock.On call
+//   - ctx context.Context
+//   - req model.CreateFileReq
+func (_e *MockTransactionRepository_Expecter) CreateFile(ctx interface{}, req interface{}) *MockTransactionRepository_CreateFile_Call {
+	return &MockTransactionRepository_CreateFile_Call{Call: _e.mock.On("CreateFile", ctx, req)}
+}
+
+func (_c *MockTransactionRepository_CreateFile_Call) Run(run func(ctx context.Context, req model.CreateFileReq)) *MockTransactionRepository_CreateFile_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(model.CreateFileReq))
+	})
+	return _c
+}
+
+func (_c *MockTransactionRepository_CreateFile_Call) Return(_a0 uint32, _a1 error) *MockTransactionRepository_CreateFile_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockTransactionRepository_CreateFile_Call) RunAndReturn(run func(context.Context, model.CreateFileReq) (uint32, error)) *MockTransactionRepository_CreateFile_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateTransaction provides a mock function with given fields: _a0, _a1
 func (_m *MockTransactionRepository) CreateTransaction(_a0 context.Context, _a1 model.CreateTransactionReq) (uint32, error) {
 	ret := _m.Called(_a0, _a1)

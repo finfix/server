@@ -7,3 +7,7 @@ type CreateTransactionRes struct {
 type GetTransactionsRes struct {
 	Transactions []Transaction `json:"transactions"`
 }
+
+type CreateFileRes struct {
+	ID uint32 `json:"id"`
+}

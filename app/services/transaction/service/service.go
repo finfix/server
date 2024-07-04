@@ -45,6 +45,8 @@ type TransactionRepository interface {
 	UpdateTransaction(context.Context, transactionModel.UpdateTransactionReq) error
 	DeleteTransaction(ctx context.Context, id, userID uint32) error
 	GetTransactions(context.Context, transactionModel.GetTransactionsReq) (res []transactionModel.Transaction, err error)
+
+	CreateFile(ctx context.Context, req transactionRepoModel.CreateFileReq) (uint32, error)
 }
 
 type AccountPermissionsService interface {

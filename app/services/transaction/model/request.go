@@ -1,6 +1,8 @@
 package model
 
 import (
+	"mime/multipart"
+
 	"github.com/shopspring/decimal"
 
 	"server/app/pkg/datetime"
@@ -13,11 +15,6 @@ import (
 type DeleteTransactionReq struct {
 	Necessary services.NecessaryUserInformation
 	ID        uint32 `json:"id" validate:"required" minimum:"1"` // Идентификатор транзакции
-}
-
-func (s DeleteTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
-	s.Necessary = information
-	return s
 }
 
 type CreateTransactionReq struct {
@@ -44,11 +41,6 @@ func (s CreateTransactionReq) Validate() error {
 		return errors.BadRequest.New("amountFrom and amountTo must be greater than 0")
 	}
 	return nil
-}
-
-func (s CreateTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
-	s.Necessary = information
-	return s
 }
 
 func (s *CreateTransactionReq) ConvertToRepoReq() repoModel.CreateTransactionReq {
@@ -91,11 +83,6 @@ func (s UpdateTransactionReq) Validate() error {
 	return nil
 }
 
-func (s UpdateTransactionReq) SetNecessary(information services.NecessaryUserInformation) any {
-	s.Necessary = information
-	return s
-}
-
 type GetTransactionsReq struct {
 	Necessary       services.NecessaryUserInformation
 	IDs             []uint32              `json:"-"`                                                                       // Идентификаторы транзакций
@@ -120,7 +107,8 @@ func (s GetTransactionsReq) Validate() error {
 	return nil
 }
 
-func (s GetTransactionsReq) SetNecessary(information services.NecessaryUserInformation) any {
-	s.Necessary = information
-	return s
+type CreateFileReq struct {
+	Necessary  services.NecessaryUserInformation
+	File       multipart.File
+	FileHeader *multipart.FileHeader
 }

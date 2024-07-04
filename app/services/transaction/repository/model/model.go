@@ -22,3 +22,10 @@ type CreateTransactionReq struct {
 	DatetimeCreate     time.Time
 	AccountingInCharts bool
 }
+
+type CreateFileReq struct {
+	OriginalFileName string
+	UniqueFileName   string
+	DatetimeCreate   time.Time
+	CreatedByUserID  uint32
+}
