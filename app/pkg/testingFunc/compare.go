@@ -20,13 +20,13 @@ func CheckError(t *testing.T, wantErr error, gotErr error) bool {
 			t.Fatalf("\n\nДолжна быть ошибка: %v\n\n", wantErr)
 		case wantCustomErr.ErrorType == 0:
 			customErr := castError(t, gotErr)
-			t.Fatalf("\n\nОшибки быть не должно. Ошибка: %v\n%v\n\n", gotErr, customErr.Path)
+			t.Fatalf("\n\nОшибки быть не должно. Ошибка: %v\n%v\n\n", gotErr, customErr.StackTrace)
 		case wantCustomErr.ErrorType != gotCustomErr.ErrorType:
 			customErr := castError(t, gotErr)
-			t.Fatalf("\n\nДолжен быть другой тип ошибки: %v вместо %v. Ошибка: %v\n%v\n\n", wantCustomErr.ErrorType, gotCustomErr.ErrorType, gotErr, customErr.Path)
+			t.Fatalf("\n\nДолжен быть другой тип ошибки: %v вместо %v. Ошибка: %v\n%v\n\n", wantCustomErr.ErrorType, gotCustomErr.ErrorType, gotErr, customErr.StackTrace)
 		case !errors.As(gotErr, wantErr):
 			customErr := castError(t, gotErr)
-			t.Fatalf("\n\nДолжен быть другой текст ошибки: %v. Ошибка: %v\n%v\n\n", wantErr, gotErr, customErr.Path)
+			t.Fatalf("\n\nДолжен быть другой текст ошибки: %v. Ошибка: %v\n%v\n\n", wantErr, gotErr, customErr.StackTrace)
 		}
 
 		return true
@@ -34,8 +34,9 @@ func CheckError(t *testing.T, wantErr error, gotErr error) bool {
 	return false
 }
 
-func castError(t *testing.T, err error) errors.CustomError {
-	customErr, ok := err.(errors.CustomError)
+func castError(t *testing.T, err error) errors.Error {
+	var customErr errors.Error
+	ok := errors.As(err, &customErr)
 	if !ok {
 		t.Fatalf("\n\nОшибка не обернута в кастомный тип. Ошибка: %v\n\n", err)
 	}

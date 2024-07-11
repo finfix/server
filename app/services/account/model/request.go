@@ -69,7 +69,7 @@ func (s CreateAccountReq) Validate() error {
 	return s.Type.Validate()
 }
 
-func (s CreateAccountReq) ContertToAccount() Account {
+func (s CreateAccountReq) ConvertToAccount() Account {
 	return Account{
 		ID:                 0,
 		Remainder:          s.Remainder,

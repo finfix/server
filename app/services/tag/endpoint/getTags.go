@@ -15,7 +15,7 @@ import (
 // @Param Query query model.GetTagsReq true "model.CreateTagReq"
 // @Produce json
 // @Success 200 {object} []model.Tag
-// @Failure 400,404,500 {object} errors.CustomError
+// @Failure 400,404,500 {object} errors.Error
 // @Router /tag [get]
 func (s *endpoint) getTags(ctx context.Context, r *http.Request) (any, error) {
 

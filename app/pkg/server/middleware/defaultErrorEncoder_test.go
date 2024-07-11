@@ -48,12 +48,10 @@ func TestEncodeErrorResponse(t *testing.T) {
 				t.Fatalf("Полученный httpCode: %v, ожидаемый: %v. Ошибка:%v", w.Code, wantCode, w.Body.String())
 			}
 
-			getCustomErr := errors.CustomError{} // nolint:exhaustruct
+			var getCustomErr errors.Error
 			if err := json.NewDecoder(w.Body).Decode(&getCustomErr); err != nil {
 				t.Fatalf("Ошибка декодирования: %v", err)
 			}
-
-			getCustomErr.InitialError = defErrors.New(getCustomErr.DevelopText)
 
 			if !errors.As(getCustomErr, tt.wantError) {
 				t.Fatalf("Полученная ошибка: %v, ожидаемая: %v", getCustomErr, tt.wantError)

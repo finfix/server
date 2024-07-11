@@ -16,7 +16,7 @@ import (
 // @Param Body body model.CreateAccountReq true "model.CreateAccountReq"
 // @Produce json
 // @Success 200 {object} model.CreateAccountRes
-// @Failure 400,401,403,500 {object} errors.CustomError
+// @Failure 400,401,403,500 {object} errors.Error
 // @Router /account [post]
 func (s *endpoint) createAccount(ctx context.Context, r *http.Request) (any, error) {
 

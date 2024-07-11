@@ -13,7 +13,7 @@ import (
 // @Security AuthJWT
 // @Param Body body model.SendNotificationReq true "model.SendNotificationReq"
 // @Success 200 "При успешном выполнении возвращается пустой ответ"
-// @Failure 400,401,403,500 {object} errors.CustomError
+// @Failure 400,401,403,500 {object} errors.Error
 // @Router /settings/sendNotification [post]
 func (s *endpoint) sendNotification(ctx context.Context, r *http.Request) (any, error) {
 

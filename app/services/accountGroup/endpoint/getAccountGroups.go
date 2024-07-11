@@ -14,7 +14,7 @@ import (
 // @Param Query query model.GetAccountGroupsReq true "model.GetAccountGroupsReq"
 // @Produce json
 // @Success 200 {object} []model.AccountGroup "[]model.AccountGroup"
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /accountGroup [get]
 func (s *endpoint) getAccountGroups(ctx context.Context, r *http.Request) (any, error) {
 

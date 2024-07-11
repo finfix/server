@@ -21,7 +21,7 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 	if accountToCreate.ParentAccountID != nil {
 
 		// Представляем, что счет уже создан
-		account := accountToCreate.ContertToAccount()
+		account := accountToCreate.ConvertToAccount()
 
 		// Проверяем возможность привязки
 		if err = s.ValidateUpdateParentAccountID(ctx, account, *accountToCreate.ParentAccountID, accountToCreate.Necessary.UserID); err != nil {

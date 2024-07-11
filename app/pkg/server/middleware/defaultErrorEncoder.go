@@ -12,12 +12,14 @@ func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 
 	if er == nil {
 		er = errors.InternalServer.New("В функцию DefaultErrorEncoder передана пустая ошибка",
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 		)
 	}
 
 	err := errors.CastError(er)
-	err.HumanText = humanTextByLevel[err.ErrorType]
+	if err.HumanText == "" {
+		err.HumanText = humanTextByLevel[err.ErrorType]
+	}
 	err.AdditionalInfo = log.ExtractAdditionalInfo(ctx)
 
 	switch err.LogAs {
@@ -25,6 +27,8 @@ func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {
 		log.Error(ctx, err)
 	case errors.LogAsWarning:
 		log.Warning(ctx, err)
+	case errors.LogNone:
+		break
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

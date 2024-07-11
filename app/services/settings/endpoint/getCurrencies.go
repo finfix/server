@@ -12,7 +12,7 @@ import (
 // @Security AuthJWT
 // @Produce json
 // @Success 200 {object} []model.Currency
-// @Failure 401,500 {object} errors.CustomError
+// @Failure 401,500 {object} errors.Error
 // @Router /settings/currencies [get]
 func (s *endpoint) getCurrencies(ctx context.Context, _ *http.Request) (any, error) {
 

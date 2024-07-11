@@ -47,6 +47,8 @@ type Config struct {
 			KeyFilePath string `env:"NOTIFICATIONS_APNS_KEY_FILE_PATH"`
 		}
 	}
+
+	ServiceName string `env:"SERVICE_NAME"`
 }
 
 // GetConfig возвращает конфигурацию из .env файла

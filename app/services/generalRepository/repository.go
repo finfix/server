@@ -167,7 +167,7 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 				return errors.Forbidden.New("Access denied",
 					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
-					errors.PathDepthOption(errors.SecondPathDepth),
+					errors.StackTraceOption(errors.PreviousCaller),
 				)
 			}
 		}

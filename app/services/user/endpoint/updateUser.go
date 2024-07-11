@@ -16,7 +16,7 @@ import (
 // @Param Body body model.UpdateUserReq true "model.UpdateUserReq"
 // @Produce json
 // @Success 200 "Если редактирование пользователя прошло успешно, возвращается пустой ответ"
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /user [patch]
 func (s *endpoint) updateUser(ctx context.Context, r *http.Request) (any, error) {
 

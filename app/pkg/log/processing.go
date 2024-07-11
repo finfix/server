@@ -11,6 +11,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/maps"
+	"server/app/pkg/stackTrace"
 )
 
 const (
@@ -32,7 +33,7 @@ func processingErrorLog(ctx context.Context, level logLevel, err error) {
 	customErr := errors.CastError(err)
 
 	shareLog(Log{
-		Path:             customErr.Path,
+		Path:             customErr.StackTrace,
 		Params:           customErr.Params,
 		Message:          customErr.Error(),
 		Level:            level,
@@ -46,7 +47,7 @@ func processingStringLog(ctx context.Context, level logLevel, msg string, opts .
 	options := mergeOptions(opts...)
 
 	shareLog(Log{
-		Path:             errors.GetPath(errors.FourthPathDepth),
+		Path:             stackTrace.GetStackTrace(errors.Skip2PreviousCallers),
 		Params:           options.params,
 		Message:          fmt.Sprintf("%v", msg),
 		Level:            level,

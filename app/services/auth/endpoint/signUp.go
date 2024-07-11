@@ -15,7 +15,7 @@ import (
 // @Param DeviceID header string true "Нужен для идентификации устройства"
 // @Produce json
 // @Success 200 {object} model.AuthRes
-// @Failure 400,403,500 {object} errors.CustomError
+// @Failure 400,403,500 {object} errors.Error
 // @Router /auth/signUp [post]
 func (s *endpoint) signUp(ctx context.Context, r *http.Request) (any, error) {
 

@@ -15,7 +15,7 @@ import (
 // @Accept json
 // @Param Body body model.UpdateTransactionReq true "model.UpdateTransactionReq"
 // @Success 200 "При успешном выполнении запроса возвращает пустой ответ"
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /transaction [patch]
 func (s *endpoint) updateTransaction(ctx context.Context, r *http.Request) (any, error) {
 

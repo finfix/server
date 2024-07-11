@@ -15,7 +15,7 @@ import (
 // @Param Body body model.UpdateAccountGroupReq true "model.UpdateAccountGroupReq"
 // @Produce json
 // @Success 200 "Если редактирование группы счетов прошло успешно, возвращается пустой ответ"
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /accountGroup [patch]
 func (s *endpoint) updateAccountGroup(ctx context.Context, r *http.Request) (any, error) {
 

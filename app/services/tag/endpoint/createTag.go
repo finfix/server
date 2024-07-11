@@ -16,7 +16,7 @@ import (
 // @Param Body body model.CreateTagReq true "model.CreateTagReq"
 // @Produce json
 // @Success 200 {object} model.CreateTagRes
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /tag [post]
 func (s *endpoint) createTag(ctx context.Context, r *http.Request) (any, error) {
 

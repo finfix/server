@@ -14,7 +14,7 @@ import (
 // @Security AuthJWT
 // @Produce json
 // @Success 200 {object} model.User
-// @Failure 401,404,500 {object} errors.CustomError
+// @Failure 401,404,500 {object} errors.Error
 // @Router /user [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 

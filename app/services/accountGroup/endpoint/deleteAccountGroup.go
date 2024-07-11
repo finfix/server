@@ -14,7 +14,7 @@ import (
 // @Param Query query model.DeleteAccountGroupReq true "model.DeleteAccountGroupReq"
 // @Produce json
 // @Success 200 "Если удаление группы счетов прошло успешно, возвращается пустой ответ"
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /accountGroup [delete]
 func (s *endpoint) deleteAccountGroup(ctx context.Context, r *http.Request) (any, error) {
 

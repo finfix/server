@@ -19,6 +19,7 @@ import (
 	"server/app/pkg/log"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
+	"server/app/pkg/stackTrace"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
@@ -69,12 +70,12 @@ const (
 )
 
 func main() {
-	if err := mainNoExit(); err != nil {
+	if err := run(); err != nil {
 		log.Fatal(context.Background(), err)
 	}
 }
 
-func mainNoExit() error {
+func run() error {
 
 	// Создаем контекст с отменой по вызову функции
 	ctx, cancel := context.WithCancel(context.Background())
@@ -261,6 +262,8 @@ func mainNoExit() error {
 }
 
 func initServices(cfg config.Config) error {
+
+	stackTrace.Init(cfg.ServiceName)
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true
