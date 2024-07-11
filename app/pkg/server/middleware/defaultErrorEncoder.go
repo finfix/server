@@ -53,5 +53,4 @@ var humanTextByLevel = map[errors.ErrorType]string{
 	errors.BadGateway:     "Произошла ошибка на сервере внешнего сервиса",
 	errors.Unauthorized:   "Пользователь не авторизован",
 	errors.ClientReject:   "Клиент отказался принимать данные",
-	errors.LogicError:     "Произошла непредвиденная ошибка",
 }

@@ -7,9 +7,10 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
+
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
 )
 
 func handleProcessing(ctx context.Context, level logLevel, log any, opts ...Option) {
@@ -56,21 +57,12 @@ func Debug(ctx context.Context, log string, opts ...Option) {
 
 // SetTaskID устанавливает TaskID в контекст
 func SetTaskID(ctx context.Context) context.Context {
-	uuid, err := generateTaskID()
+	uuid, err := uuid.NewUUID()
 	if err != nil {
 		Error(ctx, err)
 		return ctx
 	}
-	return contextKeys.SetTaskID(ctx, uuid)
-}
-
-func generateTaskID() (string, error) {
-	var length uint32 = 4
-	bytes, err := hasher.GenerateRandomBytes(length)
-	if err != nil {
-		return "", errors.InternalServer.Wrap(err)
-	}
-	return fmt.Sprintf("%x", bytes[:4]), nil
+	return contextKeys.SetTaskID(ctx, uuid.String())
 }
 
 // ExtractAdditionalInfo извлекает дополнительную информацию из контекста

@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
 	"server/app/pkg/log"
+	"server/app/pkg/passwordManager"
 	"server/app/pkg/pushNotificator"
 	"server/app/services/generalRepository"
 	userModel "server/app/services/user/model"
@@ -98,12 +98,12 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 			user := users[0]
 
 			// Сравниваем пришедший пароль и хэш пароля из базы данных
-			if err = hasher.CompareHashAndPassword(user.PasswordHash, []byte(*req.OldPassword), user.PasswordSalt, s.generalSalt); err != nil {
+			if err = passwordManager.CompareHashAndPassword(user.PasswordHash, []byte(*req.OldPassword), user.PasswordSalt, s.generalSalt); err != nil {
 				return err
 			}
 
 			// Получаем хэш и соль нового пароля
-			passwordHash, passwordSalt, err := hasher.CreateNewPassword([]byte(*req.Password), s.generalSalt)
+			passwordHash, passwordSalt, err := passwordManager.CreateNewPassword([]byte(*req.Password), s.generalSalt)
 			if err != nil {
 				return err
 			}
