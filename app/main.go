@@ -13,10 +13,11 @@ import (
 
 	"server/app/config"
 	_ "server/app/docs"
-	"server/app/pkg/database"
+	"server/app/pkg/database/postgresql"
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
+	"server/app/pkg/migrator"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
 	"server/app/pkg/stackTrace"
@@ -44,6 +45,7 @@ import (
 	userEndpoint "server/app/services/user/endpoint"
 	userRepository "server/app/services/user/repository"
 	userService "server/app/services/user/service"
+	"server/migrations"
 )
 
 // @title COIN Server Documentation
@@ -118,11 +120,24 @@ func run() error {
 
 	// Подключаемся к базе данных
 	log.Info(ctx, "Подключаемся к БД")
-	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
+	postrgreSQL, err := postgresql.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer postrgreSQL.Close()
+
+	// Запускаем миграции в базе данных
+	log.Info(ctx, "Запускаем миграции")
+	postgreSQLMigrator := migrator.NewMigrator(
+		postrgreSQL,
+		migrator.MigratorConfig{
+			EmbedMigrations: migrations.EmbedMigrationsPostgreSQL,
+			Dir:             "pgsql",
+		},
+	)
+	if err = postgreSQLMigrator.Up(ctx); err != nil {
+		return err
+	}
 
 	// Инициализируем клиента телеграм
 	log.Info(ctx, "Инициализируем телеграм клиента")
@@ -145,19 +160,19 @@ func run() error {
 	}
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.New(db)
+	generalRepository, err := generalRepository.New(postrgreSQL)
 	if err != nil {
 		return err
 	}
-	accountGroupRepository := accountGroupRepository.New(db)
-	accountRepository := accountRepository.New(db)
-	tagRepository := tagRepository.New(db)
-	transactionRepository := transactionRepository.New(db)
-	settingsRepository := settingsRepository.New(db)
-	userRepository := userRepository.New(db)
+	accountGroupRepository := accountGroupRepository.New(postrgreSQL)
+	accountRepository := accountRepository.New(postrgreSQL)
+	tagRepository := tagRepository.New(postrgreSQL)
+	transactionRepository := transactionRepository.New(postrgreSQL)
+	settingsRepository := settingsRepository.New(postrgreSQL)
+	userRepository := userRepository.New(postrgreSQL)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.New(db)
+	accountPermisssionsService, err := accountPermisssionsService.New(postrgreSQL)
 	if err != nil {
 		return err
 	}

@@ -27,3 +27,9 @@ test: mockery
 	go test ./...
 
 deploy-check: check-swagger test lint
+
+migration-create-file:
+	goose -dir migrations/pgsql create init sql
+
+migration-up:
+	goose -dir migrations/pgsql up
