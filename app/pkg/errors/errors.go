@@ -72,7 +72,6 @@ const (
 
 // TypeToLogOption - Дефолтные настройки для логгирования каждого типа ошибок
 var TypeToLogOption = map[ErrorType]LogOption{
-	LogicError:     LogAsError,
 	BadRequest:     LogAsWarning,
 	NotFound:       LogAsWarning,
 	Teapot:         LogAsWarning,

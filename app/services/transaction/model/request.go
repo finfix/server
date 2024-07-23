@@ -108,7 +108,8 @@ func (s GetTransactionsReq) Validate() error {
 }
 
 type CreateFileReq struct {
-	Necessary  services.NecessaryUserInformation
-	File       multipart.File
-	FileHeader *multipart.FileHeader
+	Necessary     services.NecessaryUserInformation
+	TransactionID uint32
+	File          multipart.File
+	FileHeader    *multipart.FileHeader
 }

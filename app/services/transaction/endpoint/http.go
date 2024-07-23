@@ -31,6 +31,6 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 	router.Method("DELETE", "/", server.NewChain(s.deleteTransaction, options...))
 	router.Method("GET", "/", server.NewChain(s.getTransactions, options...))
 
-	router.Method("POST", "/file", server.NewChain(s.createFile, options...))
+	router.Method("POST", "/{transaction_id}/file", server.NewChain(s.createFile, options...))
 	return router
 }

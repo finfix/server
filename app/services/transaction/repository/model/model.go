@@ -24,6 +24,7 @@ type CreateTransactionReq struct {
 }
 
 type CreateFileReq struct {
+	TransactionID    uint32
 	OriginalFileName string
 	UniqueFileName   string
 	DatetimeCreate   time.Time

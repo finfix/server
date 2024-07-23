@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"server/app/pkg/errors"
+	"server/app/services/generalRepository/checker"
 	transactionModel "server/app/services/transaction/model"
 	transactionRepoModel "server/app/services/transaction/repository/model"
 )
@@ -19,11 +20,18 @@ func (s *Service) CreateFile(ctx context.Context, req transactionModel.CreateFil
 
 	defer req.File.Close()
 
+	// Проверяем, имеет ли пользователь доступ к транзакции
+	if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Transactions, req.Necessary.UserID, []uint32{req.TransactionID}); err != nil {
+		return id, err
+	}
+
+	// Разбиваем имя файла на название и расширение
 	filenameArr := strings.Split(req.FileHeader.Filename, ".")
 	if len(filenameArr) != 2 { //nolint:gomnd
 		return id, errors.BadRequest.New("Файл не имеет расширения")
 	}
 
+	// Генерируем новое уникальное имя файла
 	uniqueFileName := uuid.New().String() + "." + filenameArr[1]
 	fileUrl := "files/" + uniqueFileName
 
@@ -41,6 +49,7 @@ func (s *Service) CreateFile(ctx context.Context, req transactionModel.CreateFil
 
 	// Сохраняем данные о файле в базу данных
 	id, err = s.transactionRepository.CreateFile(ctx, transactionRepoModel.CreateFileReq{
+		TransactionID:    req.TransactionID,
 		OriginalFileName: req.FileHeader.Filename,
 		UniqueFileName:   uniqueFileName,
 		DatetimeCreate:   time.Now(),

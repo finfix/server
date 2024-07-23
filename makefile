@@ -29,7 +29,13 @@ test: mockery
 deploy-check: check-swagger test lint
 
 migration-create-file:
-	goose -dir migrations/pgsql create init sql
+	goose -dir migrations/pgsql create rename_me sql
+
+migration-status:
+	goose -dir migrations/pgsql status
 
 migration-up:
 	goose -dir migrations/pgsql up
+
+migration-down:
+	goose -dir migrations/pgsql down

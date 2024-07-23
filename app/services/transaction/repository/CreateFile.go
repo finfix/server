@@ -15,8 +15,10 @@ func (repo *TransactionRepository) CreateFile(ctx context.Context, req transacti
 			  original_file_name,
 			  file_name,
               datetime_create,
-			  created_by_user_id
-            ) VALUES (?, ?, ?, ?)`,
+			  created_by_user_id,
+			  transaction_id
+            ) VALUES (?, ?, ?, ?, ?)`,
+		req.TransactionID,
 		req.OriginalFileName,
 		req.UniqueFileName,
 		req.DatetimeCreate,
