@@ -27,7 +27,7 @@ func Validate(data any) error {
 		validatorErrs, ok := stdErr.(validator.ValidationErrors)
 		if !ok {
 			return errors.InternalServer.New("Не смогли закастить ошибку валидатора",
-				errors.PathDepthOption(errors.SecondPathDepth),
+				errors.StackTraceOption(errors.PreviousCaller),
 			)
 		}
 
@@ -41,7 +41,7 @@ func Validate(data any) error {
 		}
 
 		return errors.BadRequest.Wrap(validatorErrs,
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 			errors.ParamsOption(
 				"fields", fields,
 				"tags", tags,

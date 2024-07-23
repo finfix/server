@@ -22,7 +22,7 @@ func (a *ActionType) Validate() error {
 	case CreateTransaction, UpdateTransaction, DeleteTransaction, CreateAccount, UpdateAccount, DeleteAccount, CreateUser, UpdateUser:
 	default:
 		return errors.BadRequest.New("Unknown action type",
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 			errors.ParamsOption("type", *a),
 			errors.HumanTextOption("Неизвестный тип действия"),
 		)

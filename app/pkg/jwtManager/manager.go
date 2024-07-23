@@ -1,10 +1,10 @@
 package jwtManager
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 
 	"server/app/pkg/errors"
 )
@@ -32,6 +32,7 @@ func Init(
 
 type MyCustomClaims struct {
 	DeviceID string `json:"deviceID"`
+	UserID   uint32 `json:"userID"`
 	jwt.StandardClaims
 }
 
@@ -50,14 +51,15 @@ func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error)
 
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
+		UserID:   userID,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  "",
 			ExpiresAt: time.Now().Add(jwtManager.ttls[tokenType]).Unix(),
-			Id:        "",
-			IssuedAt:  0,
-			Issuer:    "",
+			Id:        uuid.New().String(),
+			IssuedAt:  time.Now().Unix(),
+			Issuer:    "bonavii.com",
 			NotBefore: 0,
-			Subject:   strconv.Itoa(int(userID)),
+			Subject:   "",
 		},
 	}
 
@@ -75,13 +77,13 @@ func Parse(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
 		return 0, "", errors.InternalServer.New("JWTManager is not initialized",
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 		)
 	}
 
 	if reqToken == "" {
 		return 0, "", errors.Unauthorized.New("JWT-token is empty",
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 		)
 	}
 
@@ -89,7 +91,7 @@ func Parse(reqToken string) (uint32, string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.InternalServer.New("Unexpected signing method",
 				errors.ParamsOption("token", token.Header["alg"]),
-				errors.PathDepthOption(errors.SecondPathDepth),
+				errors.StackTraceOption(errors.PreviousCaller),
 			)
 		}
 
@@ -98,11 +100,11 @@ func Parse(reqToken string) (uint32, string, error) {
 	if jwtErr != nil {
 		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
 			return 0, "", errors.BadRequest.Wrap(jwtErr,
-				errors.PathDepthOption(errors.SecondPathDepth),
+				errors.StackTraceOption(errors.PreviousCaller),
 			)
 		} else {
 			jwtErr = errors.Unauthorized.Wrap(jwtErr,
-				errors.PathDepthOption(errors.SecondPathDepth),
+				errors.StackTraceOption(errors.PreviousCaller),
 			)
 		}
 	}
@@ -112,13 +114,5 @@ func Parse(reqToken string) (uint32, string, error) {
 		return 0, "", errors.InternalServer.New("Error get user claims from token")
 	}
 
-	idStr := claims.Subject
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, "", errors.BadRequest.Wrap(err,
-			errors.ParamsOption("ID", idStr),
-		)
-	}
-
-	return uint32(id), claims.DeviceID, jwtErr
+	return claims.UserID, claims.DeviceID, jwtErr
 }

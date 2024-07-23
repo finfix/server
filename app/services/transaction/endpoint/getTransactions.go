@@ -15,7 +15,7 @@ import (
 // @Param Query query model.GetTransactionsReq true "model.CreateTransactionReq"
 // @Produce json
 // @Success 200 {object} []model.Transaction
-// @Failure 400,404,500 {object} errors.CustomError
+// @Failure 400,404,500 {object} errors.Error
 // @Router /transaction [get]
 func (s *endpoint) getTransactions(ctx context.Context, r *http.Request) (any, error) {
 

@@ -16,7 +16,7 @@ import (
 // @Param Body body model.CreateAccountGroupReq true "model.CreateAccountGroupReq"
 // @Produce json
 // @Success 200 {object} model.CreateAccountGroupRes
-// @Failure 400,401,403,500 {object} errors.CustomError
+// @Failure 400,401,403,500 {object} errors.Error
 // @Router /accountGroup [post]
 func (s *endpoint) createAccountGroup(ctx context.Context, r *http.Request) (any, error) {
 

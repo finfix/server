@@ -14,7 +14,7 @@ import (
 // @Produce json
 // @Security AuthJWT
 // @Success 200 "При успешном выходе возвращается null"
-// @Failure 400,404,500 {object} errors.CustomError
+// @Failure 400,404,500 {object} errors.Error
 // @Router /auth/signOut [post]
 func (s *endpoint) signOut(ctx context.Context, r *http.Request) (any, error) {
 

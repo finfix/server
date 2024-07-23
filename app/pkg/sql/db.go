@@ -241,7 +241,7 @@ func (s *DB) ExecWithRowsAffected(ctx context.Context, query string, args ...any
 
 func wrapSQLError(err error) error {
 
-	thirdPathDepthOption := errors.PathDepthOption(errors.ThirdPathDepth)
+	thirdPathDepthOption := errors.StackTraceOption(errors.SkipPreviousCaller)
 
 	switch {
 	case errors.Is(err, context.Canceled):

@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/caarlos0/env/v7"
 
-	"server/app/pkg/database"
+	"server/app/pkg/database/postgresql"
 	"server/app/pkg/errors"
 )
 
@@ -14,7 +14,7 @@ type Config struct {
 	HTTP string `env:"LISTEN_HTTP"`
 
 	// Данные базы данных
-	Repository database.RepoConfig
+	Repository postgresql.PostgreSQLConfig
 	DBName     string `env:"DB_NAME"`
 
 	// Информация для JWT-токенов
@@ -47,6 +47,8 @@ type Config struct {
 			KeyFilePath string `env:"NOTIFICATIONS_APNS_KEY_FILE_PATH"`
 		}
 	}
+
+	ServiceName string `env:"SERVICE_NAME"`
 }
 
 // GetConfig возвращает конфигурацию из .env файла

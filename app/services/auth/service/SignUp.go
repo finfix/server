@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
+	"server/app/pkg/passwordManager"
 	"server/app/services/auth/model"
 	userModel "server/app/services/user/model"
 )
@@ -24,7 +24,7 @@ func (s *Service) SignUp(ctx context.Context, loginData model.SignUpReq) (access
 	}
 
 	// Получаем хэш пароля пользователя
-	passwordHash, passwordSalt, err := hasher.CreateNewPassword([]byte(loginData.Password), s.generalSalt)
+	passwordHash, passwordSalt, err := passwordManager.CreateNewPassword([]byte(loginData.Password), s.generalSalt)
 	if err != nil {
 		return accessData, err
 	}

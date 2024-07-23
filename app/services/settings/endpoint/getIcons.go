@@ -12,7 +12,7 @@ import (
 // @Security AuthJWT
 // @Produce json
 // @Success 200 {object} []model.Icon
-// @Failure 401,500 {object} errors.CustomError
+// @Failure 401,500 {object} errors.Error
 // @Router /settings/icons [get]
 func (s *endpoint) getIcons(ctx context.Context, _ *http.Request) (any, error) {
 

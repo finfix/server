@@ -22,7 +22,7 @@ func (t *Type) Validate() error {
 	case IOs, Android, Web, Server:
 	default:
 		return errors.BadRequest.New("Unknown application type",
-			errors.PathDepthOption(errors.SecondPathDepth),
+			errors.StackTraceOption(errors.PreviousCaller),
 			errors.ParamsOption("type", *t),
 			errors.HumanTextOption("Неизвестный тип приложения"),
 		)

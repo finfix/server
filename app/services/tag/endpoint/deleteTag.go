@@ -15,7 +15,7 @@ import (
 // @Param Query query model.DeleteTagReq true "model.DeleteTagReq"
 // @Produce json
 // @Success 200 "Если удаление транзакции прошло успешно, возвращается пустой ответ"
-// @Failure 400,401,403,500 {object} errors.CustomError
+// @Failure 400,401,403,500 {object} errors.Error
 // @Router /tag [delete]
 func (s *endpoint) deleteTag(ctx context.Context, r *http.Request) (any, error) {
 
