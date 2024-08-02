@@ -3,14 +3,16 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"golang.org/x/sync/errgroup"
 
 	"server/app/config"
 	_ "server/app/docs"
@@ -22,6 +24,7 @@ import (
 	"server/app/pkg/migrator"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
+	"server/app/pkg/server"
 	"server/app/pkg/stackTrace"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
@@ -81,8 +84,8 @@ func main() {
 
 func run() error {
 
-	// Создаем контекст с отменой по вызову функции
-	ctx, cancel := context.WithCancel(context.Background())
+	// Основной контекст приложения
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
 	// Перехватываем возможную панику
@@ -127,9 +130,9 @@ func run() error {
 		return err
 	}
 
-	// Инициализируем все сервисы
-	log.Info(ctx, "Инициализируем сервисы")
-	if err = initServices(cfg); err != nil {
+	// Инициализируем все синглтоны
+	log.Info(ctx, "Инициализируем синглтоны")
+	if err = initSingletones(cfg); err != nil {
 		return err
 	}
 
@@ -260,38 +263,34 @@ func run() error {
 	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
-	errs := make(chan error)
-
-	log.Info(ctx, "Запускаем HTTP-сервер")
-	if cfg.HTTP == "" {
-		return errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана")
+	server, err := server.GetDefaultServer(cfg.HTTP, r)
+	if err != nil {
+		return err
 	}
-	log.Info(ctx, fmt.Sprintf("Server is listening %v", cfg.HTTP))
 
-	go func() {
-		server := &http.Server{
-			Addr:                         cfg.HTTP,
-			Handler:                      r,
-			DisableGeneralOptionsHandler: false,
-			TLSConfig:                    nil,
-			ReadTimeout:                  0,
-			ReadHeaderTimeout:            readHeaderTimeout,
-			WriteTimeout:                 0,
-			IdleTimeout:                  0,
-			MaxHeaderBytes:               0,
-			TLSNextProto:                 nil,
-			ConnState:                    nil,
-			ErrorLog:                     nil,
-			BaseContext:                  nil,
-			ConnContext:                  nil,
-		}
-		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
-	}()
+	// Создаем wait группу
+	eg, ctx := errgroup.WithContext(ctx)
 
-	return <-errs
+	// Запускаем HTTP-сервер
+	eg.Go(func() error { return server.Serve(ctx) })
+
+	// Запускаем горутину, ожидающую завершение контекста
+	eg.Go(func() error {
+
+		// Если контекст завершился, значит процесс убили
+		<-ctx.Done()
+
+		// Плавно завершаем работу сервера
+		server.Shutdown(ctx)
+
+		return nil // ctx.Err() в нашем случае всегда возвращает "context canceled", что не дает нам никакой доп. информации
+	})
+
+	// Ждем завершения контекста или ошибок в горутинах
+	return eg.Wait()
 }
 
-func initServices(cfg config.Config) error {
+func initSingletones(cfg config.Config) error {
 
 	stackTrace.Init(cfg.ServiceName)
 
