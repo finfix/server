@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"slices"
+	"strings"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/log/buffer/buffer"
@@ -37,8 +38,8 @@ func NewConsoleHandler(w io.Writer, level LogLevel) *ConsoleHandler {
 	}
 }
 
-func (h *ConsoleHandler) getPath() (path string) {
-	stackTrace := stackTrace.GetStackTrace(errors.Skip2PreviousCallers)
+func (h *ConsoleHandler) getPath(skip int) (path string) {
+	stackTrace := stackTrace.GetStackTrace(skip + stackTrace.SkipPreviousCaller)
 	if len(stackTrace) > 0 {
 		path = stackTrace[0]
 	} else {
@@ -61,6 +62,40 @@ func (h *ConsoleHandler) handle(_ context.Context, level LogLevel, log any, opts
 	// Получаем опции лога
 	logOpts := mergeOptions(opts...)
 
+	// Получаем место, которое надо показать в логе
+	var path string
+
+	// Если лог является ошибкой
+	if v, ok := log.(error); ok {
+
+		// Получаем путь из ошибки
+		customErr := errors.CastError(v)
+		if len(customErr.StackTrace) > 0 {
+			path = customErr.StackTrace[0]
+		}
+
+	} else { // Если лог другого типа
+
+		// Накидываем опции
+		skip := stackTrace.ThisCall
+		if logOpts.stackTraceSkip != nil {
+			skip = *logOpts.stackTraceSkip
+		}
+
+		// Получаем путь по стектрейсу
+		path = h.getPath(skip)
+	}
+
+	// Проверяем, не пустой ли путь
+	if path == "" {
+		logOpts.params["no_path_warn"] = "Не смогли получить путь для этого лога, ошибка при использовании log.Skip...Option()"
+	}
+
+	// Проверяем, чтобы исключить логи из pkg пакета
+	if strings.Contains(path, "pkg") {
+		logOpts.params["pkg_warn"] = "Используется лог из pkg. Добавь log.Skip...Option() к вызову лога"
+	}
+
 	// Собираем лог в зависимости от его типа
 	switch v := log.(type) {
 
@@ -68,7 +103,7 @@ func (h *ConsoleHandler) handle(_ context.Context, level LogLevel, log any, opts
 		consoleLogStruct = consoleLog{
 			Level:   level,
 			Message: v,
-			Path:    h.getPath(),
+			Path:    path,
 			Params:  logOpts.params,
 		}
 
@@ -77,20 +112,20 @@ func (h *ConsoleHandler) handle(_ context.Context, level LogLevel, log any, opts
 		consoleLogStruct = consoleLog{
 			Level:   level,
 			Message: customErr.Error(),
-			Path:    h.getPath(),
+			Path:    path,
 			Params:  maps.Join(logOpts.params, customErr.Params),
 		}
 
 	default: // Если передан неизвестный тип данных
 
 		// Добавляем информацию о том, что такой тип не обслуживается
-		logOpts.params["systemError"] = fmt.Sprintf("Processor jsonLog for type %T not implemented", log)
+		logOpts.params["error_no_processor"] = fmt.Sprintf("Processor jsonLog for type %T not implemented", log)
 
 		// Собираем лог ошибки, пытаясь все-таки показать исходный лог
 		consoleLogStruct = consoleLog{
 			Level:   LevelError,
 			Message: fmt.Sprintf("%v", log),
-			Path:    h.getPath(),
+			Path:    path,
 			Params:  logOpts.params,
 		}
 	}

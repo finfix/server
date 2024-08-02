@@ -67,7 +67,7 @@ func (h *JSONHandler) handle(ctx context.Context, level LogLevel, log any, opts 
 		logStruct = jsonLog{
 			Level:      level.String(),
 			Message:    v,
-			StackTrace: stackTrace.GetStackTrace(errors.SkipPreviousCaller),
+			StackTrace: stackTrace.GetStackTrace(stackTrace.SkipPreviousCaller),
 			Params:     logOpts.params,
 			UserInfo:   userInfo,
 			SystemInfo: logger.systemInfo,
@@ -97,7 +97,7 @@ func (h *JSONHandler) handle(ctx context.Context, level LogLevel, log any, opts 
 		logStruct = jsonLog{
 			Level:      LevelError.String(),
 			Message:    fmt.Sprintf("%v", log),
-			StackTrace: stackTrace.GetStackTrace(errors.SkipPreviousCaller),
+			StackTrace: stackTrace.GetStackTrace(stackTrace.SkipPreviousCaller),
 			Params:     logOpts.params,
 			UserInfo:   userInfo,
 			SystemInfo: logger.systemInfo,

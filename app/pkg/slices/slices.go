@@ -19,7 +19,7 @@ func ToMap[K comparable, V any](slice []V, field func(V) K) map[K]V {
 }
 
 func GetUniqueByField[K comparable, V any](slice []V, field func(V) K) []V {
-	return maps.ToSlice(ToMap(slice, field))
+	return maps.Values(ToMap(slice, field))
 }
 
 func GetFields[K comparable, V any](slice []V, field func(V) K) []K {

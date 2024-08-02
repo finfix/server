@@ -10,13 +10,6 @@ import (
 	"server/app/pkg/stackTrace"
 )
 
-const (
-	thisCall = iota + 1
-	SkipThisCall
-	SkipPreviousCaller
-	Skip2PreviousCallers
-)
-
 // Error - Кастомная структура ошибки
 type Error struct {
 
@@ -39,7 +32,7 @@ type Error struct {
 	HumanText string `json:"humanText"`
 
 	// Стектрейс от места враппинга ошибки. Если необходимо начать стектрейс с уровня выше, то
-	// Необходимо воспользоваться errors.StackTraceOption(errors.<const>)
+	// Необходимо воспользоваться errors.SkipThisCallOption(errors.<const>)
 	// const = SkipThisCall - начать стектрейс на один уровень выше враппера errors.Type.Wrap по дереву
 	// const = SkipPreviousCaller и остальные работают по аналогии, пропуская все больше уровней стека вызовов
 	StackTrace []string `json:"path"`
@@ -92,7 +85,7 @@ func (typ ErrorType) New(msg string, opts ...Option) error {
 
 	options := mergeOptions(opts...)
 
-	skip := thisCall
+	skip := stackTrace.ThisCall
 	if options.stackTrace != nil {
 		skip = *options.stackTrace
 	}
@@ -122,7 +115,7 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
 	options := mergeOptions(opts...)
 
-	skip := thisCall
+	skip := stackTrace.ThisCall
 
 	var customErr Error
 
@@ -188,7 +181,7 @@ func CastError(err error) Error {
 	var customErr Error
 	if !As(err, &customErr) {
 		err = InternalServer.Wrap(err,
-			StackTraceOption(SkipThisCall),
+			SkipThisCallOption(),
 			ParamsOption("error", "Ошибка не обернута, путь неверный"),
 		)
 		_ = As(err, &customErr)

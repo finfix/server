@@ -35,7 +35,7 @@ func DefaultDecoder(
 	if reflectVar.Kind() != reflect.Ptr || reflectVar.Elem().Kind() != reflect.Struct {
 		return errors.InternalServer.New("Пришедший интерфейс является указателем на структуру",
 			errors.ParamsOption("Тип интерфейса", reflectVar.Kind().String()),
-			errors.StackTraceOption(errors.PreviousCaller))
+			errors.SkipThisCallOption())
 	}
 
 	switch decodeSchema {
@@ -47,7 +47,7 @@ func DefaultDecoder(
 	if err != nil {
 		return errors.BadRequest.Wrap(
 			err,
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 
@@ -56,7 +56,7 @@ func DefaultDecoder(
 		if err = v.Validate(); err != nil {
 			return errors.BadRequest.Wrap(
 				err,
-				errors.StackTraceOption(errors.PreviousCaller),
+				errors.SkipThisCallOption(),
 			)
 		}
 	}
@@ -66,19 +66,19 @@ func DefaultDecoder(
 	if err != nil {
 		return errors.BadRequest.Wrap(
 			err,
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 
 	if err = SetNecessary(necessaryInformation, dest); err != nil {
 		return errors.InternalServer.Wrap(err,
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 
 	if err = validator.Validate(dest); err != nil {
 		return errors.BadRequest.Wrap(err,
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 

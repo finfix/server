@@ -1,6 +1,11 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+
+	"server/app/pkg/pointer"
+	"server/app/pkg/stackTrace"
+)
 
 type Option func(*options)
 
@@ -30,8 +35,16 @@ func ParamsOption(parameters ...any) Option {
 	return func(o *options) { o.params = p }
 }
 
-func StackTraceOption(p int) Option {
-	return func(o *options) { o.stackTrace = &p }
+func SkipThisCallOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.SkipThisCall) }
+}
+
+func SkipPreviousCallerOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.SkipPreviousCaller) }
+}
+
+func Skip2PreviousCallersOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.Skip2PreviousCallers) }
 }
 
 func LogAsOption(p LogOption) Option {

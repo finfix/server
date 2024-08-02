@@ -64,7 +64,7 @@ func Info(ctx context.Context, log any, opts ...Option) {
 }
 
 // Fatal логгирует сообщения для фатальных ошибок и завершает работу программы
-func Fatal(ctx context.Context, log error, opts ...Option) {
+func Fatal(ctx context.Context, log any, opts ...Option) {
 	for _, handler := range logger.handlers {
 		handler.handle(ctx, LevelFatal, log, opts...)
 	}
@@ -73,7 +73,7 @@ func Fatal(ctx context.Context, log error, opts ...Option) {
 }
 
 // Debug логгирует сообщения для дебага
-func Debug(ctx context.Context, log string, opts ...Option) {
+func Debug(ctx context.Context, log any, opts ...Option) {
 	for _, handler := range logger.handlers {
 		handler.handle(ctx, LevelDebug, log, opts...)
 	}
