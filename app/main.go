@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -17,6 +18,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
+	"server/app/pkg/log/model"
 	"server/app/pkg/migrator"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
@@ -93,17 +95,30 @@ func run() error {
 	envMode := flag.String("env-mode", "local", "Environment mode for log label: test, prod")
 	flag.Parse()
 
-	// Инициализируем логгер
-	if err := log.Init(
-		log.LogFormat(*logFormat),
-		map[string]string{
-			"env":     *envMode,
-			"version": version,
-			"build":   build,
-		},
-	); err != nil {
+	var logHandlers []log.Handler
+	switch *logFormat {
+	case "text":
+		logHandlers = append(logHandlers, log.NewConsoleHandler(os.Stdout, log.LevelDebug))
+	case "json":
+		logHandlers = append(logHandlers, log.NewJSONHandler(os.Stdout, log.LevelDebug))
+	}
+
+	// Получаем имя хоста
+	hostname, err := os.Hostname()
+	if err != nil {
 		return err
 	}
+
+	// Инициализируем логгер
+	log.Init(
+		model.SystemInfo{
+			Hostname: hostname,
+			Version:  version,
+			Build:    build,
+			Env:      *envMode,
+		},
+		logHandlers...,
+	)
 
 	// Получаем конфиг
 	log.Info(ctx, "Получаем конфиг")

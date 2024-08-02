@@ -1,6 +1,10 @@
 package contextKeys
 
-import "context"
+import (
+	"context"
+
+	"server/app/pkg/log/model"
+)
 
 type ContextKey int
 
@@ -41,4 +45,22 @@ func GetTaskID(ctx context.Context) *string {
 		return &v
 	}
 	return nil
+}
+
+// GetUserInfo извлекает дополнительную информацию из контекста
+func GetUserInfo(ctx context.Context) *model.UserInfo {
+
+	var userInfo model.UserInfo
+
+	if ctx == nil {
+		return nil
+	}
+
+	if userID := GetUserID(ctx); userID != nil && *userID != 0 {
+		userInfo.UserID = userID
+	}
+	userInfo.TaskID = GetTaskID(ctx)
+	userInfo.DeviceID = GetDeviceID(ctx)
+
+	return &userInfo
 }
