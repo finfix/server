@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server/app/pkg/server"
+	"server/app/pkg/server/chain"
 	"server/app/pkg/server/middleware"
 	tagService "server/app/services/tag/service"
 )
@@ -20,17 +20,17 @@ func NewEndpoint(service *tagService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.Option{
-		server.Before(middleware.DefaultAuthorization),
+	options := []chain.Option{
+		chain.Before(middleware.DefaultAuthorization),
 	}
 
 	router := chi.NewRouter()
 
-	router.Method("POST", "/", server.NewChain(s.createTag, options...))
-	router.Method("PATCH", "/", server.NewChain(s.updateTag, options...))
-	router.Method("DELETE", "/", server.NewChain(s.deleteTag, options...))
-	router.Method("GET", "/", server.NewChain(s.getTags, options...))
+	router.Method("POST", "/", chain.NewChain(s.createTag, options...))
+	router.Method("PATCH", "/", chain.NewChain(s.updateTag, options...))
+	router.Method("DELETE", "/", chain.NewChain(s.deleteTag, options...))
+	router.Method("GET", "/", chain.NewChain(s.getTags, options...))
 
-	router.Method("GET", "/to_transactions", server.NewChain(s.getTagsToTransaction, options...))
+	router.Method("GET", "/to_transactions", chain.NewChain(s.getTagsToTransaction, options...))
 	return router
 }

@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server/app/pkg/server"
+	"server/app/pkg/server/chain"
 	"server/app/pkg/server/middleware"
 	authService "server/app/services/auth/service"
 )
@@ -20,18 +20,18 @@ func NewEndpoint(service *authService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.Option{
-		server.Before(middleware.DefaultDeviceIDValidator),
+	options := []chain.Option{
+		chain.Before(middleware.DefaultDeviceIDValidator),
 	}
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/signIn", server.NewChain(s.signIn, options...))
-	r.Method("POST", "/signUp", server.NewChain(s.signUp, options...))
-	r.Method("POST", "/signOut", server.NewChain(s.signOut, options...))
-	r.Method("POST", "/refreshTokens", server.NewChain(s.refreshTokens,
-		server.Before(middleware.DefaultDeviceIDValidator),
-		server.Before(middleware.ExtractDataFromToken),
+	r.Method("POST", "/signIn", chain.NewChain(s.signIn, options...))
+	r.Method("POST", "/signUp", chain.NewChain(s.signUp, options...))
+	r.Method("POST", "/signOut", chain.NewChain(s.signOut, options...))
+	r.Method("POST", "/refreshTokens", chain.NewChain(s.refreshTokens,
+		chain.Before(middleware.DefaultDeviceIDValidator),
+		chain.Before(middleware.ExtractDataFromToken),
 	))
 	return r
 }
