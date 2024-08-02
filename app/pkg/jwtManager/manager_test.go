@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"server/app/pkg/testingFunc"
+	"server/app/pkg/testUtils"
 )
 
 func TestNewJWTToken(t *testing.T) {
@@ -16,7 +16,7 @@ func TestNewJWTToken(t *testing.T) {
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {
 			token, err := NewJWT(RefreshToken, 1, "deviceID")
-			if testingFunc.CheckError(t, nil, err) {
+			if testUtils.CheckError(t, nil, err) {
 				return
 			}
 			if _, ok := mapOfTokens[token]; ok {

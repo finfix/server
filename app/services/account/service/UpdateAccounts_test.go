@@ -10,7 +10,7 @@ import (
 	"server/app/pkg/datetime"
 	"server/app/pkg/log"
 	"server/app/pkg/pointer"
-	"server/app/pkg/testingFunc"
+	"server/app/pkg/testUtils"
 	"server/app/services/account/model"
 	accountRepoModel "server/app/services/account/repository/model"
 	mocks "server/mocks/server/app/services/account/service"
@@ -139,8 +139,8 @@ func TestService_update(t *testing.T) {
 			tt.mockActions(interfaces)
 
 			res, err := s.updateAccounts(tt.args.ctx, tt.args.account, tt.args.updateReqs, tt.args.userID)
-			testingFunc.CheckError(t, err, tt.wantError)
-			testingFunc.CheckStruct(t, res, tt.wantRes, nil)
+			testUtils.CheckError(t, err, tt.wantError)
+			testUtils.CheckStruct(t, res, tt.wantRes, nil)
 		})
 	}
 }

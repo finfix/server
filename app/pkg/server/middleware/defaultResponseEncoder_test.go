@@ -41,7 +41,7 @@ func TestEncodeResponse(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			err := DefaultResponseEncoder(context.Background(), w, tt.res)
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testUtils.CheckError(t, tt.err, err) {
 				return
 			}
 
@@ -60,7 +60,7 @@ func TestEncodeResponse(t *testing.T) {
 				t.Fatalf("Ошибка декодирования: %v", err)
 			}
 
-			testingFunc.CheckStruct(t, tt.res, get, nil)
+			testUtils.CheckStruct(t, tt.res, get, nil)
 		})
 	}
 }

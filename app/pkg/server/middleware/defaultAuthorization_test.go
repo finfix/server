@@ -118,7 +118,7 @@ func TestAuthorization(t *testing.T) {
 
 			ctx, err := DefaultAuthorization(context.Background(), req)
 
-			if testingFunc.CheckError(t, tt.err, err) {
+			if testUtils.CheckError(t, tt.err, err) {
 				return
 			}
 

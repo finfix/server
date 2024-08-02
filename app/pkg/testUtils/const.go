@@ -1,4 +1,4 @@
-package testingFunc
+package testUtils
 
 import (
 	"server/app/pkg/contextKeys"
