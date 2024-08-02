@@ -3,7 +3,7 @@ module server
 go 1.22
 
 require (
-	github.com/caarlos0/env/v7 v7.1.0
+	github.com/caarlos0/env/v11 v11.1.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.12
 	github.com/go-playground/validator/v10 v10.4.1
@@ -21,6 +21,7 @@ require (
 	github.com/swaggo/http-swagger v1.3.4
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/crypto v0.23.0
+	golang.org/x/sync v0.7.0
 	gopkg.in/telebot.v3 v3.2.1
 )
 
@@ -51,7 +52,6 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
