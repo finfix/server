@@ -135,6 +135,14 @@ func (s *Service) GetTransactions(ctx context.Context, filters transactionModel.
 	// Проверяем доступ пользователя к группам счетов
 	filters.AccountGroupIDs = s.generalRepository.GetAvailableAccountGroups(filters.Necessary.UserID)
 
+	// Если передан фильтр по счету
+	if filters.AccountID != nil {
+		// Проверяем доступ к этому счету
+		if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, filters.Necessary.UserID, []uint32{*filters.AccountID}); err != nil {
+			return nil, err
+		}
+	}
+
 	// Получаем все транзакции
 	if transactions, err = s.transactionRepository.GetTransactions(ctx, filters); err != nil {
 		return nil, err

@@ -71,7 +71,9 @@ func Decoder(
 
 	// Валидируем получившуюся структуру
 	if err = validator.Validate(dest); err != nil {
-		return err
+		return errors.BadRequest.Wrap(err,
+			errors.SkipThisCallOption(),
+		)
 	}
 
 	return nil

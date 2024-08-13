@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"slices"
-	"strings"
 
 	"server/app/pkg/errors"
 	"server/app/pkg/log/buffer/buffer"
@@ -91,10 +90,12 @@ func (h *ConsoleHandler) handle(_ context.Context, level LogLevel, log any, opts
 		logOpts.params["no_path_warn"] = "Не смогли получить путь для этого лога, ошибка при использовании log.Skip...Option()"
 	}
 
-	// Проверяем, чтобы исключить логи из pkg пакета
-	if strings.Contains(path, "pkg") {
-		logOpts.params["pkg_warn"] = "Используется лог из pkg. Добавь log.Skip...Option() к вызову лога"
-	}
+	/*
+		// Проверяем, чтобы исключить логи из pkg пакета
+		if strings.Contains(path, "pkg") {
+			logOpts.params["pkg_warn"] = "Используется лог из pkg. Добавь log.Skip...Option() к вызову лога"
+		}
+	*/
 
 	// Собираем лог в зависимости от его типа
 	switch v := log.(type) {

@@ -19,7 +19,7 @@ func (s *endpoint) updateCurrencies(ctx context.Context, r *http.Request) (any, 
 	var req model.UpdateCurrenciesReq
 
 	// Декодируем запрос
-	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
+	if err := decoder.Decoder(ctx, r, &req); err != nil {
 		return nil, err
 	}
 

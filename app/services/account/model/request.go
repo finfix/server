@@ -60,7 +60,7 @@ type CreateAccountReq struct {
 	DatetimeCreate     datetime.Time          `json:"datetimeCreate" validate:"required"`                                                // Дата создания счета
 	Remainder          decimal.Decimal        `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget             CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
-	IsParent           *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
+	IsParent           *bool                  `json:"isParent" validate:"required"`                                                      // Является ли счет родительским
 	ParentAccountID    *uint32                `json:"parentAccountID"`                                                                   // Идентификатор родительского счета
 	Visible            *bool                  `json:"-"`                                                                                 // Видимость счета
 }

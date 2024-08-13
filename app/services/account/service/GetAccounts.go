@@ -21,7 +21,9 @@ func (s *Service) GetAccounts(ctx context.Context, filters model.GetAccountsReq)
 			return nil, err
 		}
 	} else {
-		filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.Necessary.UserID)
+		if filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.Necessary.UserID); len(filters.AccountGroupIDs) == 0 {
+			return nil, errors.NotFound.New("У пользователя нет доступных групп счетов")
+		}
 	}
 
 	// Получаем все счета
