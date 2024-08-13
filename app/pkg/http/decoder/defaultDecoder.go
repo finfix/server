@@ -1,4 +1,4 @@
-package middleware
+package decoder
 
 import (
 	"context"
@@ -20,17 +20,14 @@ const (
 	DecodeJSON
 )
 
-type validatorProtocol interface {
-	Validate() error
-}
-
-func DefaultDecoder(
+func Decoder(
 	ctx context.Context,
 	r *http.Request,
-	decodeSchema DecodeMethod,
 	dest any,
+	decodeSchemas ...DecodeMethod,
 ) (err error) {
 
+	// Проверяем типы данных
 	reflectVar := reflect.ValueOf(dest)
 	if reflectVar.Kind() != reflect.Ptr || reflectVar.Elem().Kind() != reflect.Struct {
 		return errors.InternalServer.New("Пришедший интерфейс является указателем на структуру",
@@ -38,22 +35,17 @@ func DefaultDecoder(
 			errors.SkipThisCallOption())
 	}
 
-	switch decodeSchema {
-	case DecodeSchema:
-		err = schema.NewDecoder().Decode(dest, r.URL.Query())
-	case DecodeJSON:
-		err = json.NewDecoder(r.Body).Decode(dest)
-	}
-	if err != nil {
-		return errors.BadRequest.Wrap(
-			err,
-			errors.SkipThisCallOption(),
-		)
-	}
-
-	// Если структура реализует интерфейс валидатора, то валидируем ее с помощью функции
-	if v, ok := dest.(validatorProtocol); ok {
-		if err = v.Validate(); err != nil {
+	// Проходимся по каждому
+	for _, decodeSchema := range decodeSchemas {
+		switch decodeSchema {
+		case DecodeSchema:
+			err = schema.NewDecoder().Decode(dest, r.URL.Query())
+		case DecodeJSON:
+			err = json.NewDecoder(r.Body).Decode(dest)
+		default:
+			break
+		}
+		if err != nil {
 			return errors.BadRequest.Wrap(
 				err,
 				errors.SkipThisCallOption(),
@@ -70,16 +62,16 @@ func DefaultDecoder(
 		)
 	}
 
+	// Заполняем необходимую для каждого запроса информацию в структуру
 	if err = SetNecessary(necessaryInformation, dest); err != nil {
 		return errors.InternalServer.Wrap(err,
 			errors.SkipThisCallOption(),
 		)
 	}
 
+	// Валидируем получившуюся структуру
 	if err = validator.Validate(dest); err != nil {
-		return errors.BadRequest.Wrap(err,
-			errors.SkipThisCallOption(),
-		)
+		return err
 	}
 
 	return nil

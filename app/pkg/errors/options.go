@@ -18,8 +18,8 @@ type options struct {
 	logAs *LogOption
 	// Текст для пользователя
 	HumanText string
-	// Дополнительный текст к исходной ошибке
-	errorfMessage *string
+	// Дополнительная ошибка для errors.Is к исходной ошибке
+	errorf *error
 	// Параметр, указывающий, что тип ошибки затирать не надо при wrapping'е кастомной ошибки
 	dontEraseErrorType *struct{}
 }
@@ -56,8 +56,8 @@ func HumanTextOption(p string, args ...any) Option {
 	return func(o *options) { o.HumanText = humanText }
 }
 
-func ErrorfOption(p string) Option {
-	return func(o *options) { o.errorfMessage = &p }
+func ErrorfOption(err error) Option {
+	return func(o *options) { o.errorf = &err }
 }
 
 func DontEraseErrorType() Option {
@@ -71,7 +71,7 @@ func mergeOptions(opts ...Option) options {
 		logAs:              nil,
 		HumanText:          "",
 		dontEraseErrorType: nil,
-		errorfMessage:      nil,
+		errorf:             nil,
 	}
 
 	for _, opt := range opts {

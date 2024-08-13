@@ -133,8 +133,8 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 		customErr.StackTrace = stackTrace.GetStackTrace(skip + 1)
 
 		// Если передан текст ошибки, то добавляем его к исходной ошибке
-		if options.errorfMessage != nil {
-			customErr.Err = fmt.Errorf(*options.errorfMessage, customErr.Err)
+		if options.errorf != nil {
+			customErr.Err = fmt.Errorf("%w: %w", *options.errorf, customErr.Err)
 		}
 
 		if options.dontEraseErrorType == nil {
@@ -160,8 +160,8 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 			LogAs:         TypeToLogOption[typ],
 		}
 
-		if options.errorfMessage != nil {
-			customErr.Err = fmt.Errorf(*options.errorfMessage, err)
+		if options.errorf != nil {
+			customErr.Err = fmt.Errorf("%w: %w", *options.errorf, err)
 		}
 	}
 
@@ -238,4 +238,8 @@ func Is(err error, target error) bool {
 			return errors.Is(err, target) // default - default
 		}
 	}
+}
+
+func New(err string) error {
+	return errors.New(err)
 }

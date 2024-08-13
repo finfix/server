@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/user/model"
 )
 
@@ -21,7 +21,7 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	var req model.GetReq
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {
 		return nil, err
 	}
 

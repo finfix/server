@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/accountGroup/model"
 )
 
@@ -22,7 +22,7 @@ func (s *endpoint) updateAccountGroup(ctx context.Context, r *http.Request) (any
 	var req model.UpdateAccountGroupReq
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
 		return nil, err
 	}
 

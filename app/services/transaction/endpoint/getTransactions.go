@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/transaction/model"
 )
 
@@ -22,7 +22,7 @@ func (s *endpoint) getTransactions(ctx context.Context, r *http.Request) (any, e
 	var req model.GetTransactionsReq
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {
 		return nil, err
 	}
 

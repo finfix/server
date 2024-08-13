@@ -2,16 +2,9 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/google/uuid"
-
-	"server/app/pkg/contextKeys"
-	"server/app/pkg/log"
 	"server/app/pkg/panicRecover"
-	"server/app/pkg/server/middleware"
 )
 
 type Chain struct {
@@ -27,8 +20,8 @@ func NewChain(send SendFunc, opts ...Option) *Chain {
 		before:      nil,
 		send:        send,
 		after:       nil,
-		encode:      middleware.DefaultResponseEncoder,
-		errorEncode: middleware.DefaultErrorEncoder,
+		encode:      DefaultResponseEncoder,
+		errorEncode: DefaultErrorEncoder,
 	}
 	for _, option := range opts {
 		option(chain)
@@ -68,30 +61,15 @@ type LoggingFunc func(error)
 
 func (s *Chain) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	// Обрабатываем панику, если она случилась
-	defer panicRecover.PanicRecover(func(err error) {
-		log.Error(context.Background(), err)
-		middleware.DefaultErrorEncoder(context.Background(), w, err)
-	})
-
 	var (
-		//startTime = time.Now().Local()
 		ctx = r.Context()
 		err error
 		res any
 	)
 
-	ctx = contextKeys.SetTaskID(ctx, uuid.New().String())
-
-	defer func() {
-		log.Info(ctx, fmt.Sprintf("%v [%v]", r.URL.Path, strings.ToLower(r.Method)),
-			log.ParamsOption(
-				"method", r.Method,
-				"path", r.URL.Path,
-				//"duration", time.Since(startTime),
-			),
-		)
-	}()
+	defer panicRecover.PanicRecover(func(err error) {
+		s.errorEncode(ctx, w, err)
+	})
 
 	for _, f := range s.before {
 		ctx, err = f(ctx, r)

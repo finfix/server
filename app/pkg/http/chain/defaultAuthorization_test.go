@@ -1,4 +1,4 @@
-package middleware
+package chain
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/pointer"
-	"server/app/pkg/testingFunc"
+	"server/app/pkg/testUtils"
 )
 
 func TestAuthorization(t *testing.T) {

@@ -22,7 +22,7 @@ func SetUserID(ctx context.Context, userID uint32) context.Context {
 	return context.WithValue(ctx, UserIDKey, userID)
 }
 
-func SetTaskID(ctx context.Context, taskID string) context.Context {
+func SetRequestID(ctx context.Context, taskID string) context.Context {
 	return context.WithValue(ctx, TaskIDKey, taskID)
 }
 
@@ -40,7 +40,7 @@ func GetUserID(ctx context.Context) *uint32 {
 	return nil
 }
 
-func GetTaskID(ctx context.Context) *string {
+func GetRequestID(ctx context.Context) *string {
 	if v, ok := ctx.Value(TaskIDKey).(string); ok {
 		return &v
 	}
@@ -59,7 +59,7 @@ func GetUserInfo(ctx context.Context) *model.UserInfo {
 	if userID := GetUserID(ctx); userID != nil && *userID != 0 {
 		userInfo.UserID = userID
 	}
-	userInfo.TaskID = GetTaskID(ctx)
+	userInfo.TaskID = GetRequestID(ctx)
 	userInfo.DeviceID = GetDeviceID(ctx)
 
 	return &userInfo

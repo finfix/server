@@ -6,6 +6,10 @@ import (
 	"server/app/pkg/errors"
 )
 
+type validatorProtocol interface {
+	Validate() error
+}
+
 // Синглтон переменная валидатора
 var validate = validator.New()
 
@@ -24,8 +28,8 @@ func Validate(data any) error {
 	if stdErr != nil {
 
 		// Приводим полученную ошибку к внутренней ошибке валидатора
-		validatorErrs, ok := stdErr.(validator.ValidationErrors)
-		if !ok {
+		var validatorErrs validator.ValidationErrors
+		if !errors.As(stdErr, &validatorErrs) {
 			return errors.InternalServer.New("Не смогли закастить ошибку валидатора",
 				errors.SkipThisCallOption(),
 			)
@@ -48,6 +52,15 @@ func Validate(data any) error {
 				"values", values,
 			),
 		)
+	}
+
+	// Если структура реализует интерфейс валидатора, то валидируем ее с помощью функции
+	if v, ok := data.(validatorProtocol); ok {
+		if err := v.Validate(); err != nil {
+			return errors.BadRequest.Wrap(err,
+				errors.SkipThisCallOption(),
+			)
+		}
 	}
 
 	return nil

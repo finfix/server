@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"flag"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"golang.org/x/sync/errgroup"
+
+	"server/app/pkg/http/middleware"
+	"server/app/pkg/http/router"
+	"server/app/pkg/http/server"
 
 	"server/app/config"
 	_ "server/app/docs"
@@ -24,7 +26,6 @@ import (
 	"server/app/pkg/migrator"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
-	"server/app/pkg/server"
 	"server/app/pkg/stackTrace"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
@@ -132,7 +133,7 @@ func run() error {
 
 	// Инициализируем все синглтоны
 	log.Info(ctx, "Инициализируем синглтоны")
-	if err = initSingletones(cfg); err != nil {
+	if err = initSingletons(cfg); err != nil {
 		return err
 	}
 
@@ -145,6 +146,7 @@ func run() error {
 	defer postrgreSQL.Close()
 
 	// Запускаем миграции в базе данных
+	// TODO: Подумать, как откатывать миграции при ошибках
 	log.Info(ctx, "Запускаем миграции")
 	postgreSQLMigrator := migrator.NewMigrator(
 		postrgreSQL,
@@ -252,7 +254,7 @@ func run() error {
 		return err
 	}
 
-	r := chi.NewRouter()
+	r := router.NewRouter()
 	r.Mount("/account", accountEndpoint.NewEndpoint(accountService))
 	r.Mount("/accountGroup", accountGroupEndpoint.NewEndpoint(accountGroupService))
 	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
@@ -260,7 +262,6 @@ func run() error {
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
 	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService))
 	r.Mount("/user", userEndpoint.NewEndpoint(userService))
-	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	server, err := server.GetDefaultServer(cfg.HTTP, r)
@@ -283,14 +284,14 @@ func run() error {
 		// Плавно завершаем работу сервера
 		server.Shutdown(ctx)
 
-		return nil // ctx.Err() в нашем случае всегда возвращает "context canceled", что не дает нам никакой доп. информации
+		return nil
 	})
 
 	// Ждем завершения контекста или ошибок в горутинах
 	return eg.Wait()
 }
 
-func initSingletones(cfg config.Config) error {
+func initSingletons(cfg config.Config) error {
 
 	stackTrace.Init(cfg.ServiceName)
 
@@ -307,6 +308,10 @@ func initSingletones(cfg config.Config) error {
 		return errors.InternalServer.Wrap(err)
 	}
 	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL, refreshTokenTTL)
+
+	if err = middleware.Init(cfg.ServiceName); err != nil {
+		return err
+	}
 
 	return nil
 }

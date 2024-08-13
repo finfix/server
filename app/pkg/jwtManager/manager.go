@@ -9,6 +9,10 @@ import (
 	"server/app/pkg/errors"
 )
 
+var (
+	ErrUserUnauthorized = errors.New("user unauthorized")
+)
+
 type JWTManager struct {
 	accessTokenSigningKey []byte
 	ttls                  map[TokenType]time.Duration
@@ -100,16 +104,19 @@ func Parse(reqToken string) (uint32, string, error) {
 	if jwtErr != nil {
 		var validationError *jwt.ValidationError
 		if errors.As(jwtErr, &validationError) {
+
 			switch {
 			case validationError.Errors == jwt.ValidationErrorExpired:
 				jwtErr = errors.Unauthorized.Wrap(jwtErr,
 					errors.SkipPreviousCallerOption(),
+					errors.ErrorfOption(ErrUserUnauthorized),
 				)
 			default:
 				return 0, "", errors.Unauthorized.Wrap(jwtErr,
 					errors.SkipPreviousCallerOption(),
 				)
 			}
+
 		} else {
 			return 0, "", errors.InternalServer.Wrap(jwtErr,
 				errors.SkipPreviousCallerOption(),

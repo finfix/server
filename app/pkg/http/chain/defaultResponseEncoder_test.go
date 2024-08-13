@@ -1,4 +1,4 @@
-package middleware
+package chain
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"server/app/pkg/testingFunc"
+	"server/app/pkg/testUtils"
 )
 
 func TestEncodeResponse(t *testing.T) {

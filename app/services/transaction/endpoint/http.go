@@ -5,8 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server/app/pkg/server/chain"
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/chain"
 	transactionService "server/app/services/transaction/service"
 )
 
@@ -21,7 +20,7 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 	}
 
 	options := []chain.Option{
-		chain.Before(middleware.DefaultAuthorization),
+		chain.Before(chain.DefaultAuthorization),
 	}
 
 	router := chi.NewRouter()

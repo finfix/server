@@ -1,25 +1,13 @@
-package middleware
+package chain
 
 import (
 	"context"
 	"net/http"
 
-	"github.com/dgrijalva/jwt-go"
-
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 )
-
-func ExtractDataFromToken(ctx context.Context, r *http.Request) (context.Context, error) {
-	ctx, err := DefaultAuthorization(ctx, r)
-	if err != nil {
-		if !errors.As(err, jwt.ValidationErrorExpired) {
-			return ctx, err
-		}
-	}
-	return ctx, nil
-}
 
 func DefaultAuthorization(ctx context.Context, r *http.Request) (context.Context, error) {
 	userID, deviceID, err := jwtManager.Parse(r.Header.Get("Authorization"))
@@ -47,5 +35,6 @@ func DefaultAuthorization(ctx context.Context, r *http.Request) (context.Context
 	}
 	ctx = contextKeys.SetDeviceID(ctx, deviceID)
 	ctx = contextKeys.SetUserID(ctx, userID)
+
 	return ctx, nil
 }

@@ -1,4 +1,4 @@
-package middleware
+package chain
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/testingFunc"
 )
 
 func TestGetDeviceID(t *testing.T) {

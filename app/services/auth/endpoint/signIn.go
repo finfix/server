@@ -6,7 +6,7 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/auth/model"
 )
 
@@ -30,7 +30,7 @@ func (s *endpoint) signIn(ctx context.Context, r *http.Request) (any, error) {
 	req.DeviceID = *deviceID
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
 		return nil, err
 	}
 
