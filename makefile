@@ -36,3 +36,6 @@ migration-create-file:
 
 migration-up:
 	goose -dir migrations/pgsql up
+
+migration-down:
+	goose -dir migrations/pgsql down
