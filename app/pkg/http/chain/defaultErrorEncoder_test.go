@@ -9,6 +9,7 @@ import (
 
 	"server/app/pkg/errors"
 	"server/app/pkg/log"
+	"server/app/pkg/testUtils"
 )
 
 func TestEncodeErrorResponse(t *testing.T) {
@@ -52,10 +53,9 @@ func TestEncodeErrorResponse(t *testing.T) {
 			if err := json.NewDecoder(w.Body).Decode(&getCustomErr); err != nil {
 				t.Fatalf("Ошибка декодирования: %v", err)
 			}
+			getCustomErr.ErrorType = errors.ErrorType(w.Code)
 
-			if !errors.As(getCustomErr, tt.wantError) {
-				t.Fatalf("Полученная ошибка: %v, ожидаемая: %v", getCustomErr, tt.wantError)
-			}
+			testUtils.CheckError(t, tt.wantError, getCustomErr, false)
 
 		})
 	}

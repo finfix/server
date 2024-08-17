@@ -42,6 +42,10 @@ func Init(
 	}
 }
 
+func Off() {
+	logger = new(loggerSettings)
+}
+
 // Error логгирует сообщения для ошибок системы
 func Error(ctx context.Context, log any, opts ...Option) {
 	for _, handler := range logger.handlers {

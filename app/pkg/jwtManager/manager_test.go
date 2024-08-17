@@ -3,11 +3,14 @@ package jwtManager
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"server/app/pkg/testUtils"
 )
 
 func TestNewJWTToken(t *testing.T) {
+
+	Init([]byte(""), time.Hour, time.Hour)
 
 	mapOfTokens := make(map[string]struct{})
 
@@ -16,7 +19,7 @@ func TestNewJWTToken(t *testing.T) {
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {
 			token, err := NewJWT(RefreshToken, 1, "deviceID")
-			if testUtils.CheckError(t, nil, err) {
+			if testUtils.CheckError(t, nil, err, false) {
 				return
 			}
 			if _, ok := mapOfTokens[token]; ok {

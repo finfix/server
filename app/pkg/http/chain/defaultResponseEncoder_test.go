@@ -41,7 +41,7 @@ func TestEncodeResponse(t *testing.T) {
 			w := httptest.NewRecorder()
 
 			err := DefaultResponseEncoder(context.Background(), w, tt.res)
-			if testUtils.CheckError(t, tt.err, err) {
+			if testUtils.CheckError(t, tt.err, err, false) {
 				return
 			}
 

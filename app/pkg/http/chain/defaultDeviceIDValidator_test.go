@@ -7,6 +7,7 @@ import (
 
 	"server/app/pkg/contextKeys"
 	"server/app/pkg/errors"
+	"server/app/pkg/testUtils"
 )
 
 func TestGetDeviceID(t *testing.T) {
@@ -37,7 +38,7 @@ func TestGetDeviceID(t *testing.T) {
 
 			ctx, err := DefaultDeviceIDValidator(context.Background(), req)
 
-			if testUtils.CheckError(t, tt.err, err) {
+			if testUtils.CheckError(t, tt.err, err, false) {
 				return
 			}
 

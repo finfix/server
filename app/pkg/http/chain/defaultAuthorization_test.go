@@ -30,10 +30,11 @@ func TestAuthorization(t *testing.T) {
 	}
 
 	for _, tt := range []struct {
-		message string
-		token   *string
-		params  *createTokenParams
-		err     error
+		message        string
+		token          *string
+		params         *createTokenParams
+		err            error
+		needCompareErr bool
 	}{
 		{
 			"1.Валидный токен",
@@ -44,6 +45,7 @@ func TestAuthorization(t *testing.T) {
 				ttl:      validParams.ttl,
 			},
 			nil,
+			false,
 		},
 		{
 			"2.Токен с истекшим сроком",
@@ -53,7 +55,8 @@ func TestAuthorization(t *testing.T) {
 				deviceID: validParams.deviceID,
 				ttl:      -time.Hour,
 			},
-			errors.Unauthorized.New("token is expired by 1h0m0s"),
+			errors.Unauthorized.Wrap(jwtManager.ErrUserUnauthorized),
+			true,
 		},
 		{
 			"3.Невалидный токен",
@@ -64,6 +67,7 @@ func TestAuthorization(t *testing.T) {
 				ttl:      -time.Hour,
 			},
 			errors.Unauthorized.Wrap(jwt.ErrSignatureInvalid),
+			false,
 		},
 		{
 			"4.Пустой токен",
@@ -74,6 +78,7 @@ func TestAuthorization(t *testing.T) {
 				ttl:      time.Hour,
 			},
 			errors.Unauthorized.New("JWT-token is empty"),
+			false,
 		},
 		{
 			"5.Токен без DeviceID",
@@ -84,6 +89,7 @@ func TestAuthorization(t *testing.T) {
 				deviceID: "",
 			},
 			errors.Unauthorized.New("DeviceID is empty"),
+			false,
 		},
 		{
 			"6.Токен без UserID",
@@ -94,6 +100,7 @@ func TestAuthorization(t *testing.T) {
 				userID:   0,
 			},
 			errors.Unauthorized.New("UserID is empty"),
+			false,
 		},
 	} {
 		t.Run(tt.message, func(t *testing.T) {
@@ -118,7 +125,7 @@ func TestAuthorization(t *testing.T) {
 
 			ctx, err := DefaultAuthorization(context.Background(), req)
 
-			if testUtils.CheckError(t, tt.err, err) {
+			if testUtils.CheckError(t, tt.err, err, tt.needCompareErr) {
 				return
 			}
 

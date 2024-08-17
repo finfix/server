@@ -139,7 +139,7 @@ func TestService_update(t *testing.T) {
 			tt.mockActions(interfaces)
 
 			res, err := s.updateAccounts(tt.args.ctx, tt.args.account, tt.args.updateReqs, tt.args.userID)
-			testUtils.CheckError(t, err, tt.wantError)
+			testUtils.CheckError(t, err, tt.wantError, false)
 			testUtils.CheckStruct(t, res, tt.wantRes, nil)
 		})
 	}
