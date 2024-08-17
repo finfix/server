@@ -92,6 +92,12 @@ func (typ ErrorType) New(msg string, opts ...Option) error {
 
 	// Создаем новую ошибку
 	customErr := Error{
+		SystemInfo: model.SystemInfo{ // Будет заполняться автоматически в функции логгирования
+			Hostname: "",
+			Version:  "",
+			Build:    "",
+			Env:      "",
+		},
 		ErrorType:     typ,
 		DeveloperText: "",
 		HumanText:     options.HumanText,
@@ -150,6 +156,12 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
 		// Если это не обернутая ошибка, то создаем новую
 		customErr = Error{
+			SystemInfo: model.SystemInfo{ // Будет автоматически заполняться в функции логгирования
+				Hostname: "",
+				Version:  "",
+				Build:    "",
+				Env:      "",
+			},
 			ErrorType:     typ,
 			DeveloperText: "",
 			HumanText:     options.HumanText,

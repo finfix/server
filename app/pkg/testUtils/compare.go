@@ -77,6 +77,6 @@ func CheckStruct(t *testing.T, want, get, typ any) {
 	}
 
 	if diff != "" {
-		t.Fatalf("\nДолжны быть другие значения структуры: \n" + diff)
+		t.Fatalf("\nДолжны быть другие значения структуры: \n%s", diff)
 	}
 }

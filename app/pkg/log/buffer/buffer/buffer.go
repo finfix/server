@@ -19,7 +19,8 @@ type Buffer []byte
 
 // New возвращает экземпляр буфера из пула.
 func New() *Buffer {
-	return bufPool.Get().(*Buffer)
+	buffer, _ := bufPool.Get().(*Buffer)
+	return buffer
 }
 
 // Free высвобождает ресурсы и возвращает буфер в пул.
@@ -224,17 +225,17 @@ func (b *Buffer) WriteDuration(d time.Duration) {
 func fmtFrac(buf []byte, v uint64, prec int) (nw int, nv uint64) {
 	// Опустите конечные нули вплоть до десятичной точки включительно.
 	w := len(buf)
-	print := false
+	isPrint := false
 	for i := 0; i < prec; i++ {
 		digit := v % 10
-		print = print || digit != 0
-		if print {
+		isPrint = isPrint || digit != 0
+		if isPrint {
 			w--
 			buf[w] = byte(digit) + '0'
 		}
 		v /= 10
 	}
-	if print {
+	if isPrint {
 		w--
 		buf[w] = '.'
 	}
@@ -271,7 +272,7 @@ func (b *Buffer) WriteTime(t time.Time, layout string) {
 
 func (b *Buffer) writeDateTimeFormat(t time.Time) {
 	year, month, day := t.Date()
-	hour, min, sec := t.Clock()
+	hour, minute, second := t.Clock()
 	b.WriteUint64(uint64(year), 4)
 	*b = append(*b, '-')
 	b.WriteUint64(uint64(month), 2)
@@ -280,7 +281,7 @@ func (b *Buffer) writeDateTimeFormat(t time.Time) {
 	*b = append(*b, ' ')
 	b.WriteUint64(uint64(hour), 2)
 	*b = append(*b, ':')
-	b.WriteUint64(uint64(min), 2)
+	b.WriteUint64(uint64(minute), 2)
 	*b = append(*b, ':')
-	b.WriteUint64(uint64(sec), 2)
+	b.WriteUint64(uint64(second), 2)
 }

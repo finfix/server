@@ -23,7 +23,7 @@ func TestBuffer(t *testing.T) {
 	t.Cleanup(b.Free)
 
 	b.WriteByte('1')
-	b.Write([]byte(" 2 "))
+	_, _ = b.Write([]byte(" 2 "))
 	b.WriteString("3 ")
 	b.WriteBool(true)
 	b.WriteByte(' ')

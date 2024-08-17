@@ -43,7 +43,8 @@ func Skip3PreviousCallersOption() Option {
 
 func mergeOptions(opts ...Option) options {
 	options := &options{
-		params: make(map[string]string),
+		stackTraceSkip: nil,
+		params:         make(map[string]string),
 	}
 
 	for _, opt := range opts {

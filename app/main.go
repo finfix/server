@@ -73,10 +73,6 @@ import (
 const version = "@{version}"
 const build = "@{build}"
 
-const (
-	readHeaderTimeout = 10 * time.Second
-)
-
 func main() {
 	if err := run(); err != nil {
 		log.Fatal(context.Background(), err)

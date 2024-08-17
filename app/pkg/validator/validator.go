@@ -3,8 +3,6 @@ package validator
 import (
 	"reflect"
 
-	"github.com/go-playground/validator/v10"
-
 	"server/app/pkg/errors"
 	"server/app/pkg/stackTrace"
 )
@@ -12,9 +10,6 @@ import (
 type validatorProtocol interface {
 	Validate() error
 }
-
-// Синглтон переменная валидатора
-var validate = validator.New()
 
 // Validate валидирует полученную структуру по тегам в декларативном формате
 func Validate(data any) error {
@@ -43,13 +38,14 @@ func zeroValue(requestStruct any, tag string, depth int) (tags []string, err err
 	reflectValue := reflect.ValueOf(requestStruct)
 
 	// Если передана структура, а не указатель на структуру, приводим к указателю на структуру
-	if reflectValue.Kind() == reflect.Struct {
+	switch {
+	case reflectValue.Kind() == reflect.Struct:
 		reflectValue = reflect.New(reflectValue.Type()).Elem()
 		reflectValue.Set(reflect.ValueOf(requestStruct))
-	} else if reflectValue.Kind() == reflect.Ptr && reflectValue.Elem().Kind() == reflect.Struct {
+	case reflectValue.Kind() == reflect.Ptr && reflectValue.Elem().Kind() == reflect.Struct:
 		// Если передан указатель на структуру, разыменовываем
 		reflectValue = reflectValue.Elem()
-	} else {
+	default:
 		return tags, errors.InternalServer.New("Интерфейс должен быть структурой или указателем на структуру",
 			errors.ParamsOption("Тип интерфейса", reflectValue.Kind().String()),
 			errors.SkipThisCallOption())
@@ -116,7 +112,7 @@ func ZeroValue(requestStruct any) error {
 	}
 
 	if tags != nil {
-		params := make([]any, 0, len(tags)*2)
+		params := make([]any, 0, len(tags)*2) //nolint:gomnd
 		for _, tag := range tags {
 			params = append(params, tag, "required")
 		}

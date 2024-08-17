@@ -108,3 +108,8 @@ linters:
     - interfacer  # check for interface bloat
     - structcheck # check for struct tags
     - varcheck # check for unused variables
+issues:
+  exclude-rules:
+  - path: buffer # Часть библиотеки, которая перекочевала из SSP, я в ней не разбирался
+    linters:
+      - gomnd
