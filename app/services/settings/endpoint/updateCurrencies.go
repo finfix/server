@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/settings/model"
 )
 
@@ -19,7 +19,7 @@ func (s *endpoint) updateCurrencies(ctx context.Context, r *http.Request) (any, 
 	var req model.UpdateCurrenciesReq
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req); err != nil {
 		return nil, err
 	}
 

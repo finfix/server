@@ -29,6 +29,8 @@ func NewMigrator(conn *sql.DB, config MigratorConfig) Migrator {
 
 	goose.SetBaseFS(config.EmbedMigrations)
 
+	goose.SetLogger(newMigratorLogger())
+
 	return migrator{
 		conn: conn,
 		cfg:  config,

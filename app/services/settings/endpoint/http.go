@@ -5,8 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server/app/pkg/server"
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/chain"
 	settingsService "server/app/services/settings/service"
 )
 
@@ -20,19 +19,19 @@ func NewEndpoint(service *settingsService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.Option{
-		server.Before(middleware.DefaultAuthorization),
+	options := []chain.Option{
+		chain.Before(chain.DefaultAuthorization),
 	}
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/updateCurrencies", server.NewChain(e.updateCurrencies, options...))
-	r.Method("POST", "/sendNotification", server.NewChain(e.sendNotification, options...))
-	r.Method("GET", "/currencies", server.NewChain(e.getCurrencies, options...))
-	r.Method("GET", "/icons", server.NewChain(e.getIcons, options...))
+	r.Method("POST", "/updateCurrencies", chain.NewChain(e.updateCurrencies, options...))
+	r.Method("POST", "/sendNotification", chain.NewChain(e.sendNotification, options...))
+	r.Method("GET", "/currencies", chain.NewChain(e.getCurrencies, options...))
+	r.Method("GET", "/icons", chain.NewChain(e.getIcons, options...))
 
 	// Without authorization
-	r.Method("GET", "/version/{application}", server.NewChain(e.getVersion))
+	r.Method("GET", "/version/{application}", chain.NewChain(e.getVersion))
 
 	return r
 }

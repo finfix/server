@@ -78,7 +78,6 @@ func (repo *TransactionRepository) UpdateTransaction(ctx context.Context, fields
 		queryFields = append(queryFields, `amount_to = ?`)
 		args = append(args, fields.AmountTo)
 	}
-	// TODO: Убрать, когда реализуем конвертеры
 	if fields.DateTransaction != nil {
 		queryFields = append(queryFields, `date_transaction = ?`)
 		args = append(args, fields.DateTransaction)

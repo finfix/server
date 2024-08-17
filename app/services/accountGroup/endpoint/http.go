@@ -5,8 +5,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 
-	"server/app/pkg/server"
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/chain"
 	accountGroupService "server/app/services/accountGroup/service"
 )
 
@@ -20,16 +19,16 @@ func NewEndpoint(service *accountGroupService.Service) http.Handler {
 		service: service,
 	}
 
-	options := []server.Option{
-		server.Before(middleware.DefaultAuthorization),
+	options := []chain.Option{
+		chain.Before(chain.DefaultAuthorization),
 	}
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/", server.NewChain(e.createAccountGroup, options...))
-	r.Method("PATCH", "/", server.NewChain(e.updateAccountGroup, options...))
-	r.Method("DELETE", "/", server.NewChain(e.deleteAccountGroup, options...))
-	r.Method("GET", "/", server.NewChain(e.getAccountGroups, options...))
+	r.Method("POST", "/", chain.NewChain(e.createAccountGroup, options...))
+	r.Method("PATCH", "/", chain.NewChain(e.updateAccountGroup, options...))
+	r.Method("DELETE", "/", chain.NewChain(e.deleteAccountGroup, options...))
+	r.Method("GET", "/", chain.NewChain(e.getAccountGroups, options...))
 
 	return r
 }

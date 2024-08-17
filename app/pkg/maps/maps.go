@@ -1,9 +1,17 @@
 package maps
 
-func ToSlice[K comparable, V any](mapa map[K]V) []V {
+func Values[K comparable, V any](mapa map[K]V) []V {
 	slice := make([]V, 0, len(mapa))
 	for _, v := range mapa {
 		slice = append(slice, v)
+	}
+	return slice
+}
+
+func Keys[K comparable, V any](mapa map[K]V) []K {
+	slice := make([]K, 0, len(mapa))
+	for k := range mapa {
+		slice = append(slice, k)
 	}
 	return slice
 }

@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+const (
+	ThisCall = iota + 1
+	SkipThisCall
+	SkipPreviousCaller
+	Skip2PreviousCallers
+	Skip3PreviousCallers
+)
+
 type stackTracer struct {
 	serviceName string
 }

@@ -22,7 +22,7 @@ func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoMo
 
 	// Получаем текущий максимальный серийный номер
 	row, err := repo.db.QueryRow(ctx, `
-			SELECT MAX(serial_number) 
+			SELECT COALESCE(MAX(serial_number), 1) AS serial_number
 			FROM coin.accounts 
 			WHERE account_group_id = ?`,
 		account.AccountGroupID,

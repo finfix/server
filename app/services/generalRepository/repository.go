@@ -122,6 +122,13 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		)
 	}
 
+	typeToWord := map[checker.CheckType]string{
+		checker.Accounts:      "счетам",
+		checker.AccountGroups: "группам счетов",
+		checker.Transactions:  "транзакциям",
+		checker.Tags:          "подкатегориям",
+	}
+
 	var (
 		countAccess              uint32
 		questionsAccountGroupIDs string
@@ -129,7 +136,6 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		questionsIDs             string
 		argsIDs                  []any
 		args                     []any
-		errString                string
 		query                    string
 	)
 
@@ -159,7 +165,6 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		)
 		args = append(args, argsAGs...)
 		args = append(args, argsIDs...)
-		errString = "счетам"
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
@@ -167,7 +172,7 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 				return errors.Forbidden.New("Access denied",
 					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
-					errors.StackTraceOption(errors.PreviousCaller),
+					errors.SkipPreviousCallerOption(),
 				)
 			}
 		}
@@ -177,7 +182,6 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		if len(ids) != 1 {
 			return errors.InternalServer.New("Невозможно проверить доступ к нескольким транзакциям")
 		}
-		errString = "транзакциям"
 		query = fmt.Sprintf(`
 				SELECT COUNT(*)
 				FROM coin.transactions t 
@@ -220,7 +224,7 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	if countAccess != uint32(len(ids)) {
 		return errors.Forbidden.New("Access denied",
 			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
-			errors.HumanTextOption(fmt.Sprintf("Вы не имеете доступа к %s", errString)),
+			errors.HumanTextOption("Вы не имеете доступа к %s", typeToWord[checkType]),
 		)
 	}
 

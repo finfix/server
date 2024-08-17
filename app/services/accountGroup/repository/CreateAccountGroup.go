@@ -11,7 +11,7 @@ func (repo *Repository) CreateAccountGroup(ctx context.Context, accountGroup acc
 
 	// Получаем текущий максимальный серийный номер группы счетов
 	row, err := repo.db.QueryRow(ctx, `
-			SELECT MAX(serial_number) 
+			SELECT COALESCE(MAX(serial_number), 1) AS serial_number
 			FROM coin.account_groups`,
 	)
 	if err != nil {

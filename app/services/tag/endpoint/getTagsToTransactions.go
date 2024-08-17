@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/tag/model"
 )
 
@@ -21,7 +21,7 @@ func (s *endpoint) getTagsToTransaction(ctx context.Context, r *http.Request) (a
 	var req model.GetTagsToTransactionsReq
 
 	// Декодируем запрос
-	if err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, &req); err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {
 		return nil, err
 	}
 

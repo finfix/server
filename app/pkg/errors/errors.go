@@ -6,14 +6,8 @@ import (
 	"fmt"
 	"maps"
 
+	"server/app/pkg/log/model"
 	"server/app/pkg/stackTrace"
-)
-
-const (
-	thisCall = iota + 1
-	PreviousCaller
-	SkipPreviousCaller
-	Skip2PreviousCallers
 )
 
 // Error - Кастомная структура ошибки
@@ -38,8 +32,8 @@ type Error struct {
 	HumanText string `json:"humanText"`
 
 	// Стектрейс от места враппинга ошибки. Если необходимо начать стектрейс с уровня выше, то
-	// Необходимо воспользоваться errors.StackTraceOption(errors.<const>)
-	// const = PreviousCaller - начать стектрейс на один уровень выше враппера errors.Type.Wrap по дереву
+	// Необходимо воспользоваться errors.SkipThisCallOption(errors.<const>)
+	// const = SkipThisCall - начать стектрейс на один уровень выше враппера errors.Type.Wrap по дереву
 	// const = SkipPreviousCaller и остальные работают по аналогии, пропуская все больше уровней стека вызовов
 	StackTrace []string `json:"path"`
 
@@ -49,7 +43,11 @@ type Error struct {
 
 	// Служебное поле, которое автоматически заполняется в функции middleware.DefaultErrorEncoder
 	// вспомогательными данными из контекста
-	AdditionalInfo map[string]string `json:"additionalInfo"`
+	UserInfo *model.UserInfo `json:"userInfo"`
+
+	// Служебное поле, которое автоматически заполняется в функции middleware.DefaultErrorEncoder
+	// вспомогательными данными из контекста
+	SystemInfo model.SystemInfo `json:"systemInfo"`
 
 	// Параметр, определяющий уровень логгирования ошибки в функции middleware.DefaultErrorEncoder
 	// Настраивается через errors.LogAsOption(LogOption)
@@ -87,21 +85,27 @@ func (typ ErrorType) New(msg string, opts ...Option) error {
 
 	options := mergeOptions(opts...)
 
-	skip := thisCall
+	skip := stackTrace.ThisCall
 	if options.stackTrace != nil {
 		skip = *options.stackTrace
 	}
 
 	// Создаем новую ошибку
 	customErr := Error{
-		ErrorType:      typ,
-		DeveloperText:  "",
-		HumanText:      options.HumanText,
-		Err:            errors.New(msg),
-		StackTrace:     stackTrace.GetStackTrace(skip + 1),
-		Params:         options.params,
-		AdditionalInfo: nil,
-		LogAs:          TypeToLogOption[typ],
+		SystemInfo: model.SystemInfo{ // Будет заполняться автоматически в функции логгирования
+			Hostname: "",
+			Version:  "",
+			Build:    "",
+			Env:      "",
+		},
+		ErrorType:     typ,
+		DeveloperText: "",
+		HumanText:     options.HumanText,
+		Err:           errors.New(msg),
+		StackTrace:    stackTrace.GetStackTrace(skip + 1),
+		Params:        options.params,
+		UserInfo:      nil,
+		LogAs:         TypeToLogOption[typ],
 	}
 
 	// Если передан тип логирования, то добавляем его
@@ -117,11 +121,11 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
 	options := mergeOptions(opts...)
 
-	skip := thisCall
+	skip := stackTrace.ThisCall
 
 	var customErr Error
 
-	if errors.As(err, &customErr) { // Если это уже обернутая ошибка
+	if As(err, &customErr) { // Если это уже обернутая ошибка
 
 		// Если передан текст для пользователя, то затираем его
 		if options.HumanText != "" {
@@ -135,8 +139,8 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 		customErr.StackTrace = stackTrace.GetStackTrace(skip + 1)
 
 		// Если передан текст ошибки, то добавляем его к исходной ошибке
-		if options.errorfMessage != nil {
-			customErr.Err = fmt.Errorf(*options.errorfMessage, customErr.Err)
+		if options.errorf != nil {
+			customErr.Err = fmt.Errorf("%w: %w", *options.errorf, customErr.Err)
 		}
 
 		if options.dontEraseErrorType == nil {
@@ -152,18 +156,24 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 
 		// Если это не обернутая ошибка, то создаем новую
 		customErr = Error{
-			ErrorType:      typ,
-			DeveloperText:  "",
-			HumanText:      options.HumanText,
-			Err:            err,
-			StackTrace:     stackTrace.GetStackTrace(skip + 1),
-			Params:         options.params,
-			AdditionalInfo: nil,
-			LogAs:          TypeToLogOption[typ],
+			SystemInfo: model.SystemInfo{ // Будет автоматически заполняться в функции логгирования
+				Hostname: "",
+				Version:  "",
+				Build:    "",
+				Env:      "",
+			},
+			ErrorType:     typ,
+			DeveloperText: "",
+			HumanText:     options.HumanText,
+			Err:           err,
+			StackTrace:    stackTrace.GetStackTrace(skip + 1),
+			Params:        options.params,
+			UserInfo:      nil,
+			LogAs:         TypeToLogOption[typ],
 		}
 
-		if options.errorfMessage != nil {
-			customErr.Err = fmt.Errorf(*options.errorfMessage, err)
+		if options.errorf != nil {
+			customErr.Err = fmt.Errorf("%w: %w", *options.errorf, err)
 		}
 	}
 
@@ -181,12 +191,12 @@ func (typ ErrorType) Wrap(err error, opts ...Option) error {
 // То оборачиает ее и добавляет данные о том, что ошибка не обернута
 func CastError(err error) Error {
 	var customErr Error
-	if !errors.As(err, &customErr) {
+	if !As(err, &customErr) {
 		err = InternalServer.Wrap(err,
-			StackTraceOption(PreviousCaller),
+			SkipThisCallOption(),
 			ParamsOption("error", "Ошибка не обернута, путь неверный"),
 		)
-		_ = errors.As(err, &customErr)
+		_ = As(err, &customErr)
 	}
 	return customErr
 }
@@ -207,7 +217,7 @@ func JSON(err Error) ([]byte, error) {
 
 // As используется для вызова стандартной функции As
 func As(get error, target any) bool {
-	return errors.As(get, &target)
+	return errors.As(get, target)
 }
 
 // Unwrap используется для разворачивания завернутых с помощью fmt.Errorf("%w", err) ошибок
@@ -215,7 +225,7 @@ func As(get error, target any) bool {
 // custom(default(default(1))) -> custom(default(1))
 func Unwrap(err error) error {
 	var customErr Error
-	if errors.As(err, &customErr) {
+	if As(err, &customErr) {
 		customErr.Err = errors.Unwrap(customErr.Err)
 		return customErr
 	} else {
@@ -227,17 +237,21 @@ func Unwrap(err error) error {
 func Is(err error, target error) bool {
 
 	var customErr, customTarget Error
-	if errors.As(err, &customErr) {
-		if errors.As(target, &customTarget) {
+	if As(err, &customErr) {
+		if As(target, &customTarget) {
 			return errors.Is(customErr.Err, customTarget.Err) // custom - custom
 		} else {
 			return errors.Is(customErr.Err, target) // custom - default
 		}
 	} else {
-		if errors.As(target, &customTarget) {
+		if As(target, &customTarget) {
 			return errors.Is(err, customTarget.Err) // default - custom
 		} else {
 			return errors.Is(err, target) // default - default
 		}
 	}
+}
+
+func New(err string) error {
+	return errors.New(err)
 }

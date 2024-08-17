@@ -1,61 +1,88 @@
 package log
 
-import "server/app/pkg/errors"
+import (
+	"context"
+	"os"
+	"time"
 
-// Log - Структура лога
-type Log struct {
-	Level            logLevel          `json:"level"`
-	Message          string            `json:"message"`
-	Path             []string          `json:"path"`
-	Params           map[string]string `json:"params,omitempty"`
-	AdditionalFields map[string]string `json:"additionalFields,omitempty"`
-}
-
-type LogFormat string
-
-const (
-	JSONFormat LogFormat = "json"
-	TextFormat LogFormat = "text"
+	"server/app/pkg/log/model"
 )
 
-func validateLogFormat(format LogFormat) error {
-	switch format {
-	case JSONFormat, TextFormat:
-		return nil
-	default:
-		return errors.InternalServer.New("invalid log format")
-	}
-}
-
-// loggerSettings - Конфигурация логгера
+// loggerSettings - конфигурация логгера
 type loggerSettings struct {
-	isOn             bool
-	logFormat        LogFormat
-	additionalFields map[string]string
+
+	// Массив обработчиков лога
+	handlers []Handler
+
+	// Дополнительные параметры, которые добавляются в каждый тег и настраиваются при инициализации
+	systemInfo model.SystemInfo
 }
 
+// logger - синглтон переменная логгера
 var logger = &loggerSettings{
-	isOn:             true,
-	logFormat:        JSONFormat,
-	additionalFields: make(map[string]string),
-}
-
-// Off выключает логгер
-func Off() {
-	logger.isOn = false
+	handlers: []Handler{
+		NewJSONHandler(os.Stdout, LevelDebug),
+	},
+	systemInfo: model.SystemInfo{
+		Hostname: "",
+		Version:  "",
+		Build:    "",
+		Env:      "",
+	},
 }
 
 // Init конфигурирует логгер
 func Init(
-	logFormat LogFormat,
-	additionalFields map[string]string,
-) error {
-
-	if err := validateLogFormat(logFormat); err != nil {
-		return err
+	systemInfo model.SystemInfo,
+	handlers ...Handler,
+) {
+	logger = &loggerSettings{
+		systemInfo: systemInfo,
+		handlers:   handlers,
 	}
-	logger.logFormat = logFormat
-	logger.additionalFields = additionalFields
+}
 
-	return nil
+func Off() {
+	logger = new(loggerSettings)
+}
+
+// Error логгирует сообщения для ошибок системы
+func Error(ctx context.Context, log any, opts ...Option) {
+	for _, handler := range logger.handlers {
+		handler.handle(ctx, LevelError, log, opts...)
+	}
+}
+
+// Warning логгирует сообщения для ошибок пользователя
+func Warning(ctx context.Context, log any, opts ...Option) {
+	for _, handler := range logger.handlers {
+		handler.handle(ctx, LevelWarning, log, opts...)
+	}
+}
+
+// Info логгирует сообщения для информации
+func Info(ctx context.Context, log any, opts ...Option) {
+	for _, handler := range logger.handlers {
+		handler.handle(ctx, LevelInfo, log, opts...)
+	}
+}
+
+// Fatal логгирует сообщения для фатальных ошибок и завершает работу программы
+func Fatal(ctx context.Context, log any, opts ...Option) {
+	for _, handler := range logger.handlers {
+		handler.handle(ctx, LevelFatal, log, opts...)
+	}
+	time.Sleep(1 * time.Second)
+	os.Exit(1)
+}
+
+// Debug логгирует сообщения для дебага
+func Debug(ctx context.Context, log any, opts ...Option) {
+	for _, handler := range logger.handlers {
+		handler.handle(ctx, LevelDebug, log, opts...)
+	}
+}
+
+func GetSystemInfo() model.SystemInfo {
+	return logger.systemInfo
 }

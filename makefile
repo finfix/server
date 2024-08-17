@@ -5,11 +5,14 @@ check-swagger:
 	swag init -o tmp -d app --parseInternal
 	rm -rf tmp
 
-lint:
+easyjson:
+	 easyjson app/pkg/log/jsonHandler.go
+
+lint: easyjson
 	brew upgrade golangci-lint
 	golangci-lint run -v
 
-mockery:
+mockery: easyjson
 	rm -rf mocks
 	mockery
 
@@ -33,3 +36,6 @@ migration-create-file:
 
 migration-up:
 	goose -dir migrations/pgsql up
+
+migration-down:
+	goose -dir migrations/pgsql down

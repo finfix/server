@@ -9,6 +9,10 @@ import (
 	"server/app/pkg/errors"
 )
 
+var (
+	ErrUserUnauthorized = errors.New("user unauthorized")
+)
+
 type JWTManager struct {
 	accessTokenSigningKey []byte
 	ttls                  map[TokenType]time.Duration
@@ -77,13 +81,13 @@ func Parse(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
 		return 0, "", errors.InternalServer.New("JWTManager is not initialized",
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 
 	if reqToken == "" {
 		return 0, "", errors.Unauthorized.New("JWT-token is empty",
-			errors.StackTraceOption(errors.PreviousCaller),
+			errors.SkipThisCallOption(),
 		)
 	}
 
@@ -91,20 +95,31 @@ func Parse(reqToken string) (uint32, string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.InternalServer.New("Unexpected signing method",
 				errors.ParamsOption("token", token.Header["alg"]),
-				errors.StackTraceOption(errors.PreviousCaller),
+				errors.SkipThisCallOption(),
 			)
 		}
 
 		return jwtManager.accessTokenSigningKey, nil
 	})
 	if jwtErr != nil {
-		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
-			return 0, "", errors.BadRequest.Wrap(jwtErr,
-				errors.StackTraceOption(errors.PreviousCaller),
-			)
+		var validationError *jwt.ValidationError
+		if errors.As(jwtErr, &validationError) {
+
+			switch {
+			case validationError.Errors == jwt.ValidationErrorExpired:
+				jwtErr = errors.Unauthorized.Wrap(jwtErr,
+					errors.SkipPreviousCallerOption(),
+					errors.ErrorfOption(ErrUserUnauthorized),
+				)
+			default:
+				return 0, "", errors.Unauthorized.Wrap(jwtErr,
+					errors.SkipPreviousCallerOption(),
+				)
+			}
+
 		} else {
-			jwtErr = errors.Unauthorized.Wrap(jwtErr,
-				errors.StackTraceOption(errors.PreviousCaller),
+			return 0, "", errors.InternalServer.Wrap(jwtErr,
+				errors.SkipPreviousCallerOption(),
 			)
 		}
 	}
