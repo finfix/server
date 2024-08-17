@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/auth/model"
 )
 
@@ -14,13 +14,14 @@ import (
 // @Produce json
 // @Security AuthJWT
 // @Success 200 "При успешном выходе возвращается null"
-// @Failure 400,404,500 {object} errors.CustomError
+// @Failure 400,404,500 {object} errors.Error
 // @Router /auth/signOut [post]
 func (s *endpoint) signOut(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.SignOutReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SignOutReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
 		return nil, err
 	}
 

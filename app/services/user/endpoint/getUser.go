@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/server/middleware"
-	userModel "server/app/services/user/model"
+	"server/app/pkg/http/decoder"
+	"server/app/services/user/model"
 )
 
 // @Summary Получение данных пользователя
@@ -14,13 +14,14 @@ import (
 // @Security AuthJWT
 // @Produce json
 // @Success 200 {object} model.User
-// @Failure 401,404,500 {object} errors.CustomError
+// @Failure 401,404,500 {object} errors.Error
 // @Router /user [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.GetReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, userModel.GetReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {
 		return nil, err
 	}
 
@@ -31,9 +32,9 @@ func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 	}
 
 	if len(users) == 0 {
-		return nil, errors.InternalServer.New("Пользователь не найден", []errors.Option{
+		return nil, errors.InternalServer.New("Пользователь не найден",
 			errors.ParamsOption("UserID", req.Necessary.UserID),
-		}...)
+		)
 	}
 
 	// Конвертируем ответ во внутреннюю структуру

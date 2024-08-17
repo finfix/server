@@ -21,11 +21,11 @@ func (t *Type) Validate() error {
 	switch *t {
 	case IOs, Android, Web, Server:
 	default:
-		return errors.BadRequest.New("Unknown application type", []errors.Option{
-			errors.PathDepthOption(errors.SecondPathDepth),
+		return errors.BadRequest.New("Unknown application type",
+			errors.SkipThisCallOption(),
 			errors.ParamsOption("type", *t),
 			errors.HumanTextOption("Неизвестный тип приложения"),
-		}...)
+		)
 	}
 	return nil
 }

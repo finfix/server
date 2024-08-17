@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
+	"server/app/pkg/passwordManager"
 	"server/app/services/auth/model"
 	userModel "server/app/services/user/model"
 )
@@ -18,16 +18,16 @@ func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (access
 		return accessData, err
 	}
 	if len(users) == 0 {
-		return accessData, errors.NotFound.New("User not found", []errors.Option{
+		return accessData, errors.NotFound.New("User not found",
 			errors.HumanTextOption("Пользователь не найден"),
-		}...)
+		)
 	}
 	user := users[0]
 
 	accessData.ID = user.ID
 
 	// Сравниваем пришедший пароль и хэш пароля из базы данных
-	if err = hasher.CompareHashAndPassword(user.PasswordHash, []byte(loginData.Password), user.PasswordSalt, s.generalSalt); err != nil {
+	if err = passwordManager.CompareHashAndPassword(user.PasswordHash, []byte(loginData.Password), user.PasswordSalt, s.generalSalt); err != nil {
 		return accessData, err
 	}
 

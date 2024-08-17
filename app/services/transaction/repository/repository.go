@@ -78,7 +78,6 @@ func (repo *TransactionRepository) UpdateTransaction(ctx context.Context, fields
 		queryFields = append(queryFields, `amount_to = ?`)
 		args = append(args, fields.AmountTo)
 	}
-	// TODO: Убрать, когда реализуем конвертеры
 	if fields.DateTransaction != nil {
 		queryFields = append(queryFields, `date_transaction = ?`)
 		args = append(args, fields.DateTransaction)
@@ -130,9 +129,9 @@ func (repo *TransactionRepository) DeleteTransaction(ctx context.Context, id, us
 
 	// Проверяем, что в базе данных что-то изменилось
 	if rows == 0 {
-		return errors.NotFound.New("No such model found for model", []errors.Option{
+		return errors.NotFound.New("No such model found for model",
 			errors.ParamsOption("UserID", userID, "TransactionID", id),
-		}...)
+		)
 	}
 
 	return nil

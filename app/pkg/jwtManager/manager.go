@@ -1,12 +1,16 @@
 package jwtManager
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 
 	"server/app/pkg/errors"
+)
+
+var (
+	ErrUserUnauthorized = errors.New("user unauthorized")
 )
 
 type JWTManager struct {
@@ -32,6 +36,7 @@ func Init(
 
 type MyCustomClaims struct {
 	DeviceID string `json:"deviceID"`
+	UserID   uint32 `json:"userID"`
 	jwt.StandardClaims
 }
 
@@ -50,14 +55,15 @@ func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error)
 
 	claims := MyCustomClaims{
 		DeviceID: deviceID,
+		UserID:   userID,
 		StandardClaims: jwt.StandardClaims{
 			Audience:  "",
 			ExpiresAt: time.Now().Add(jwtManager.ttls[tokenType]).Unix(),
-			Id:        "",
-			IssuedAt:  0,
-			Issuer:    "",
+			Id:        uuid.New().String(),
+			IssuedAt:  time.Now().Unix(),
+			Issuer:    "bonavii.com",
 			NotBefore: 0,
-			Subject:   strconv.Itoa(int(userID)),
+			Subject:   "",
 		},
 	}
 
@@ -74,36 +80,47 @@ func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error)
 func Parse(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
-		return 0, "", errors.InternalServer.New("JWTManager is not initialized", []errors.Option{
-			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		return 0, "", errors.InternalServer.New("JWTManager is not initialized",
+			errors.SkipThisCallOption(),
+		)
 	}
 
 	if reqToken == "" {
-		return 0, "", errors.Unauthorized.New("JWT-token is empty", []errors.Option{
-			errors.PathDepthOption(errors.SecondPathDepth),
-		}...)
+		return 0, "", errors.Unauthorized.New("JWT-token is empty",
+			errors.SkipThisCallOption(),
+		)
 	}
 
 	token, jwtErr := jwt.ParseWithClaims(reqToken, &MyCustomClaims{}, func(token *jwt.Token) (i any, err error) { //nolint:exhaustruct
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.InternalServer.New("Unexpected signing method", []errors.Option{
+			return nil, errors.InternalServer.New("Unexpected signing method",
 				errors.ParamsOption("token", token.Header["alg"]),
-				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+				errors.SkipThisCallOption(),
+			)
 		}
 
 		return jwtManager.accessTokenSigningKey, nil
 	})
 	if jwtErr != nil {
-		if !errors.As(jwtErr, jwt.ValidationErrorExpired) {
-			return 0, "", errors.BadRequest.Wrap(jwtErr, []errors.Option{
-				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+		var validationError *jwt.ValidationError
+		if errors.As(jwtErr, &validationError) {
+
+			switch {
+			case validationError.Errors == jwt.ValidationErrorExpired:
+				jwtErr = errors.Unauthorized.Wrap(jwtErr,
+					errors.SkipPreviousCallerOption(),
+					errors.ErrorfOption(ErrUserUnauthorized),
+				)
+			default:
+				return 0, "", errors.Unauthorized.Wrap(jwtErr,
+					errors.SkipPreviousCallerOption(),
+				)
+			}
+
 		} else {
-			jwtErr = errors.Unauthorized.Wrap(jwtErr, []errors.Option{
-				errors.PathDepthOption(errors.SecondPathDepth),
-			}...)
+			return 0, "", errors.InternalServer.Wrap(jwtErr,
+				errors.SkipPreviousCallerOption(),
+			)
 		}
 	}
 
@@ -112,13 +129,5 @@ func Parse(reqToken string) (uint32, string, error) {
 		return 0, "", errors.InternalServer.New("Error get user claims from token")
 	}
 
-	idStr := claims.Subject
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return 0, "", errors.BadRequest.Wrap(err, []errors.Option{
-			errors.ParamsOption("ID", idStr),
-		}...)
-	}
-
-	return uint32(id), claims.DeviceID, jwtErr
+	return claims.UserID, claims.DeviceID, jwtErr
 }

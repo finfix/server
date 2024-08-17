@@ -1,21 +1,26 @@
 package errors
 
-import "fmt"
+import (
+	"fmt"
+
+	"server/app/pkg/pointer"
+	"server/app/pkg/stackTrace"
+)
 
 type Option func(*options)
 
 type options struct {
-	// Дополнительные данные для ошибки
+	// Дополнительные данные для добавления контекста ошибки и дополнительных данных
 	params map[string]string
-	// Параметры
-	pathDepth *int
+	// Параметр, указывающий, сколько вызовов стека относительно текущего вызова вверх пропустить
+	stackTrace *int
 	// Тип логирования
 	logAs *LogOption
 	// Текст для пользователя
 	HumanText string
-	// Дополнительный текст к исходной ошибке
-	errMessage *string
-	// Не затирать тип ошибки
+	// Дополнительная ошибка для errors.Is к исходной ошибке
+	errorf *error
+	// Параметр, указывающий, что тип ошибки затирать не надо при wrapping'е кастомной ошибки
 	dontEraseErrorType *struct{}
 }
 
@@ -30,8 +35,16 @@ func ParamsOption(parameters ...any) Option {
 	return func(o *options) { o.params = p }
 }
 
-func PathDepthOption(p int) Option {
-	return func(o *options) { o.pathDepth = &p }
+func SkipThisCallOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.SkipThisCall) }
+}
+
+func SkipPreviousCallerOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.SkipPreviousCaller) }
+}
+
+func Skip2PreviousCallersOption() Option {
+	return func(o *options) { o.stackTrace = pointer.Pointer(stackTrace.Skip2PreviousCallers) }
 }
 
 func LogAsOption(p LogOption) Option {
@@ -43,8 +56,8 @@ func HumanTextOption(p string, args ...any) Option {
 	return func(o *options) { o.HumanText = humanText }
 }
 
-func ErrMessageOption(p string) Option {
-	return func(o *options) { o.errMessage = &p }
+func ErrorfOption(err error) Option {
+	return func(o *options) { o.errorf = &err }
 }
 
 func DontEraseErrorType() Option {
@@ -52,13 +65,13 @@ func DontEraseErrorType() Option {
 }
 
 func mergeOptions(opts ...Option) options {
-	options := &options{
+	var options = &options{
 		params:             nil,
-		pathDepth:          nil,
+		stackTrace:         nil,
 		logAs:              nil,
 		HumanText:          "",
 		dontEraseErrorType: nil,
-		errMessage:         nil,
+		errorf:             nil,
 	}
 
 	for _, opt := range opts {

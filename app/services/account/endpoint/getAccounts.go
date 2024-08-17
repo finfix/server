@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/account/model"
 )
 
@@ -14,13 +14,14 @@ import (
 // @Param Query query model.GetAccountsReq false "model.GetAccountsReq"
 // @Produce json
 // @Success 200 {object} []model.Account
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /account [get]
 func (s *endpoint) get(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.GetAccountsReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeSchema, model.GetAccountsReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {
 		return nil, err
 	}
 

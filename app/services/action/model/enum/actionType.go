@@ -21,11 +21,11 @@ func (a *ActionType) Validate() error {
 	switch *a {
 	case CreateTransaction, UpdateTransaction, DeleteTransaction, CreateAccount, UpdateAccount, DeleteAccount, CreateUser, UpdateUser:
 	default:
-		return errors.BadRequest.New("Unknown action type", []errors.Option{
-			errors.PathDepthOption(errors.SecondPathDepth),
+		return errors.BadRequest.New("Unknown action type",
+			errors.SkipThisCallOption(),
 			errors.ParamsOption("type", *a),
 			errors.HumanTextOption("Неизвестный тип действия"),
-		}...)
+		)
 	}
 	return nil
 }

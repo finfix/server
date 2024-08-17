@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/caarlos0/env/v7"
+	"github.com/caarlos0/env/v11"
 
-	"server/app/pkg/database"
+	"server/app/pkg/database/postgresql"
 	"server/app/pkg/errors"
 )
 
@@ -11,42 +11,44 @@ import (
 type Config struct {
 
 	// Адрес для http-сервера
-	HTTP string `env:"LISTEN_HTTP"`
+	HTTP string `env:"LISTEN_HTTP" envDefault:":8080"`
 
 	// Данные базы данных
-	Repository database.RepoConfig
-	DBName     string `env:"DB_NAME"`
+	Repository postgresql.PostgreSQLConfig
+	DBName     string `env:"DB_NAME" envDefault:"coin"`
 
 	// Информация для JWT-токенов
 	Token struct {
-		AccessTokenTTL  string `env:"AUTH_ACCESS_TOKEN_TTL"`
-		RefreshTokenTTL string `env:"AUTH_REFRESH_TOKEN_TTL"`
-		SigningKey      string `env:"AUTH_TOKEN_SIGNING_KEY"`
+		AccessTokenTTL  string `env:"AUTH_ACCESS_TOKEN_TTL" envDefault:"15m"`
+		RefreshTokenTTL string `env:"AUTH_REFRESH_TOKEN_TTL" envDefault:"720h"`
+		SigningKey      string `env:"AUTH_TOKEN_SIGNING_KEY" envDefault:"secret"`
 	}
 
 	// Информация для шифрования паролей
-	GeneralSalt string `env:"SHA_SALT"`
+	GeneralSalt string `env:"SHA_SALT" envDefault:"secret"`
 
 	// Ключи для работы с внешним API
 	APIKeys struct {
-		CurrencyProvider string `env:"API_KEY_CURRENCY_PROVIDER"`
+		CurrencyProvider string `env:"API_KEY_CURRENCY_PROVIDER"  envDefault:"secret"`
 	}
 
 	// Доступы к телеграм-боту
 	Telegram struct {
-		Enabled bool   `env:"TG_BOT_ENABLED"`
-		Token   string `env:"TG_BOT_TOKEN"`
-		ChatID  int64  `env:"TG_CHAT_ID"`
+		Enabled bool   `env:"TG_BOT_ENABLED" envDefault:"false"`
+		Token   string `env:"TG_BOT_TOKEN" envDefault:"secret"`
+		ChatID  int64  `env:"TG_CHAT_ID" envDefault:"secret"`
 	}
 
 	Notifications struct {
-		Enabled bool `env:"NOTIFICATIONS_ENABLED"`
+		Enabled bool `env:"NOTIFICATIONS_ENABLED" envDefault:"false"`
 		APNs    struct {
-			TeamID      string `env:"NOTIFICATIONS_APNS_TEAM_ID"`
-			KeyID       string `env:"NOTIFICATIONS_APNS_KEY_ID"`
-			KeyFilePath string `env:"NOTIFICATIONS_APNS_KEY_FILE_PATH"`
+			TeamID      string `env:"NOTIFICATIONS_APNS_TEAM_ID" envDefault:"secret"`
+			KeyID       string `env:"NOTIFICATIONS_APNS_KEY_ID" envDefault:"secret"`
+			KeyFilePath string `env:"NOTIFICATIONS_APNS_KEY_FILE_PATH" envDefault:"secret"`
 		}
 	}
+
+	ServiceName string `env:"SERVICE_NAME" envDefault:"coin"`
 }
 
 // GetConfig возвращает конфигурацию из .env файла

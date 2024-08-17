@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"server/app/pkg/errors"
-	"server/app/pkg/hasher"
+	"server/app/pkg/passwordManager"
 	"server/app/services/auth/model"
 	userModel "server/app/services/user/model"
 )
@@ -17,14 +17,14 @@ func (s *Service) SignUp(ctx context.Context, loginData model.SignUpReq) (access
 	if _users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}); err != nil { //nolint:exhaustruct
 		return accessData, err
 	} else if len(_users) != 0 {
-		return accessData, errors.Forbidden.New("User with this email is already registered", []errors.Option{
+		return accessData, errors.Forbidden.New("User with this email is already registered",
 			errors.HumanTextOption("Пользователь с таким email уже зарегистрирован"),
 			errors.ParamsOption("email", loginData.Email),
-		}...)
+		)
 	}
 
 	// Получаем хэш пароля пользователя
-	passwordHash, passwordSalt, err := hasher.CreateNewPassword([]byte(loginData.Password), s.generalSalt)
+	passwordHash, passwordSalt, err := passwordManager.CreateNewPassword([]byte(loginData.Password), s.generalSalt)
 	if err != nil {
 		return accessData, err
 	}

@@ -60,9 +60,9 @@ func GetCurrencyRates(ctx context.Context, apiKey string) (map[string]decimal.De
 			return nil, errors.InternalServer.Wrap(err)
 		}
 	default:
-		return nil, errors.BadGateway.New("Error while getting currency rates", []errors.Option{
+		return nil, errors.BadGateway.New("Error while getting currency rates",
 			errors.ParamsOption("HTTP code", resp.StatusCode),
-		}...)
+		)
 	}
 
 	rates := make(map[string]decimal.Decimal, len(providerModel.Rates))

@@ -3,22 +3,30 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
-	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/shopspring/decimal"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"golang.org/x/sync/errgroup"
+
+	"server/app/pkg/http/middleware"
+	"server/app/pkg/http/router"
+	"server/app/pkg/http/server"
 
 	"server/app/config"
 	_ "server/app/docs"
-	"server/app/pkg/database"
+	"server/app/pkg/database/postgresql"
 	"server/app/pkg/errors"
 	"server/app/pkg/jwtManager"
 	"server/app/pkg/log"
+	"server/app/pkg/log/model"
+	"server/app/pkg/migrator"
 	"server/app/pkg/panicRecover"
 	"server/app/pkg/pushNotificator"
+	"server/app/pkg/stackTrace"
 	"server/app/pkg/tgBot"
 	accountEndpoint "server/app/services/account/endpoint"
 	accountRepository "server/app/services/account/repository"
@@ -43,6 +51,7 @@ import (
 	userEndpoint "server/app/services/user/endpoint"
 	userRepository "server/app/services/user/repository"
 	userService "server/app/services/user/service"
+	"server/migrations"
 )
 
 // @title COIN Server Documentation
@@ -64,20 +73,16 @@ import (
 const version = "@{version}"
 const build = "@{build}"
 
-const (
-	readHeaderTimeout = 10 * time.Second
-)
-
 func main() {
-	if err := mainNoExit(); err != nil {
+	if err := run(); err != nil {
 		log.Fatal(context.Background(), err)
 	}
 }
 
-func mainNoExit() error {
+func run() error {
 
-	// Создаем контекст с отменой по вызову функции
-	ctx, cancel := context.WithCancel(context.Background())
+	// Основной контекст приложения
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
 	// Перехватываем возможную панику
@@ -90,17 +95,30 @@ func mainNoExit() error {
 	envMode := flag.String("env-mode", "local", "Environment mode for log label: test, prod")
 	flag.Parse()
 
-	// Инициализируем логгер
-	if err := log.Init(
-		log.LogFormat(*logFormat),
-		map[string]string{
-			"env":     *envMode,
-			"version": version,
-			"build":   build,
-		},
-	); err != nil {
+	var logHandlers []log.Handler
+	switch *logFormat {
+	case "text":
+		logHandlers = append(logHandlers, log.NewConsoleHandler(os.Stdout, log.LevelDebug))
+	case "json":
+		logHandlers = append(logHandlers, log.NewJSONHandler(os.Stdout, log.LevelDebug))
+	}
+
+	// Получаем имя хоста
+	hostname, err := os.Hostname()
+	if err != nil {
 		return err
 	}
+
+	// Инициализируем логгер
+	log.Init(
+		model.SystemInfo{
+			Hostname: hostname,
+			Version:  version,
+			Build:    build,
+			Env:      *envMode,
+		},
+		logHandlers...,
+	)
 
 	// Получаем конфиг
 	log.Info(ctx, "Получаем конфиг")
@@ -109,19 +127,33 @@ func mainNoExit() error {
 		return err
 	}
 
-	// Инициализируем все сервисы
-	log.Info(ctx, "Инициализируем сервисы")
-	if err = initServices(cfg); err != nil {
+	// Инициализируем все синглтоны
+	log.Info(ctx, "Инициализируем синглтоны")
+	if err = initSingletons(cfg); err != nil {
 		return err
 	}
 
 	// Подключаемся к базе данных
 	log.Info(ctx, "Подключаемся к БД")
-	db, err := database.NewClientSQL(cfg.Repository, cfg.DBName)
+	postrgreSQL, err := postgresql.NewClientSQL(cfg.Repository, cfg.DBName)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
+	defer postrgreSQL.Close()
+
+	// Запускаем миграции в базе данных
+	// TODO: Подумать, как откатывать миграции при ошибках
+	log.Info(ctx, "Запускаем миграции")
+	postgreSQLMigrator := migrator.NewMigrator(
+		postrgreSQL,
+		migrator.MigratorConfig{
+			EmbedMigrations: migrations.EmbedMigrationsPostgreSQL,
+			Dir:             "pgsql",
+		},
+	)
+	if err = postgreSQLMigrator.Up(ctx); err != nil {
+		return err
+	}
 
 	// Инициализируем клиента телеграм
 	log.Info(ctx, "Инициализируем телеграм клиента")
@@ -144,19 +176,19 @@ func mainNoExit() error {
 	}
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.New(db)
+	generalRepository, err := generalRepository.New(postrgreSQL)
 	if err != nil {
 		return err
 	}
-	accountGroupRepository := accountGroupRepository.New(db)
-	accountRepository := accountRepository.New(db)
-	tagRepository := tagRepository.New(db)
-	transactionRepository := transactionRepository.New(db)
-	settingsRepository := settingsRepository.New(db)
-	userRepository := userRepository.New(db)
+	accountGroupRepository := accountGroupRepository.New(postrgreSQL)
+	accountRepository := accountRepository.New(postrgreSQL)
+	tagRepository := tagRepository.New(postrgreSQL)
+	transactionRepository := transactionRepository.New(postrgreSQL)
+	settingsRepository := settingsRepository.New(postrgreSQL)
+	userRepository := userRepository.New(postrgreSQL)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.New(db)
+	accountPermisssionsService, err := accountPermisssionsService.New(postrgreSQL)
 	if err != nil {
 		return err
 	}
@@ -218,7 +250,7 @@ func mainNoExit() error {
 		return err
 	}
 
-	r := chi.NewRouter()
+	r := router.NewRouter()
 	r.Mount("/account", accountEndpoint.NewEndpoint(accountService))
 	r.Mount("/accountGroup", accountGroupEndpoint.NewEndpoint(accountGroupService))
 	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
@@ -226,41 +258,38 @@ func mainNoExit() error {
 	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
 	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService))
 	r.Mount("/user", userEndpoint.NewEndpoint(userService))
-	r.Get("/health", func(w http.ResponseWriter, _ *http.Request) { _, _ = w.Write([]byte("OK")) })
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
-	errs := make(chan error)
-
-	log.Info(ctx, "Запускаем HTTP-сервер")
-	if cfg.HTTP == "" {
-		return errors.InternalServer.New("Переменная окружения LISTEN_HTTP не задана")
+	server, err := server.GetDefaultServer(cfg.HTTP, r)
+	if err != nil {
+		return err
 	}
-	log.Info(ctx, fmt.Sprintf("Server is listening %v", cfg.HTTP))
 
-	go func() {
-		server := &http.Server{
-			Addr:                         cfg.HTTP,
-			Handler:                      r,
-			DisableGeneralOptionsHandler: false,
-			TLSConfig:                    nil,
-			ReadTimeout:                  0,
-			ReadHeaderTimeout:            readHeaderTimeout,
-			WriteTimeout:                 0,
-			IdleTimeout:                  0,
-			MaxHeaderBytes:               0,
-			TLSNextProto:                 nil,
-			ConnState:                    nil,
-			ErrorLog:                     nil,
-			BaseContext:                  nil,
-			ConnContext:                  nil,
-		}
-		errs <- errors.InternalServer.Wrap(server.ListenAndServe())
-	}()
+	// Создаем wait группу
+	eg, ctx := errgroup.WithContext(ctx)
 
-	return <-errs
+	// Запускаем HTTP-сервер
+	eg.Go(func() error { return server.Serve(ctx) })
+
+	// Запускаем горутину, ожидающую завершение контекста
+	eg.Go(func() error {
+
+		// Если контекст завершился, значит процесс убили
+		<-ctx.Done()
+
+		// Плавно завершаем работу сервера
+		server.Shutdown(ctx)
+
+		return nil
+	})
+
+	// Ждем завершения контекста или ошибок в горутинах
+	return eg.Wait()
 }
 
-func initServices(cfg config.Config) error {
+func initSingletons(cfg config.Config) error {
+
+	stackTrace.Init(cfg.ServiceName)
 
 	// Конфигурируем decimal, чтобы в JSON не было кавычек
 	decimal.MarshalJSONWithoutQuotes = true
@@ -275,6 +304,10 @@ func initServices(cfg config.Config) error {
 		return errors.InternalServer.Wrap(err)
 	}
 	jwtManager.Init([]byte(cfg.Token.SigningKey), accessTokenTTL, refreshTokenTTL)
+
+	if err = middleware.Init(cfg.ServiceName); err != nil {
+		return err
+	}
 
 	return nil
 }

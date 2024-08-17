@@ -117,9 +117,16 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 
 	if len(accessedAccountGroupIDs) == 0 {
-		return errors.NotFound.New("Нет доступных объектов", []errors.Option{
+		return errors.NotFound.New("Нет доступных объектов",
 			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
-		}...)
+		)
+	}
+
+	typeToWord := map[checker.CheckType]string{
+		checker.Accounts:      "счетам",
+		checker.AccountGroups: "группам счетов",
+		checker.Transactions:  "транзакциям",
+		checker.Tags:          "подкатегориям",
 	}
 
 	var (
@@ -129,7 +136,6 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		questionsIDs             string
 		argsIDs                  []any
 		args                     []any
-		errString                string
 		query                    string
 	)
 
@@ -159,16 +165,15 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		)
 		args = append(args, argsAGs...)
 		args = append(args, argsIDs...)
-		errString = "счетам"
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
 			if _, ok := repo.accesses.Get()[userID][accountGroupID]; !ok {
-				return errors.Forbidden.New("Access denied", []errors.Option{
+				return errors.Forbidden.New("Access denied",
 					errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
 					errors.HumanTextOption("Вы не имеете доступа к группе счетов с ID %v", accountGroupID),
-					errors.PathDepthOption(errors.SecondPathDepth),
-				}...)
+					errors.SkipPreviousCallerOption(),
+				)
 			}
 		}
 		return nil
@@ -177,7 +182,6 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 		if len(ids) != 1 {
 			return errors.InternalServer.New("Невозможно проверить доступ к нескольким транзакциям")
 		}
-		errString = "транзакциям"
 		query = fmt.Sprintf(`
 				SELECT COUNT(*)
 				FROM coin.transactions t 
@@ -218,10 +222,10 @@ func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType 
 
 	// Если количество записей не равно количеству проверяемых идентификаторов, то возвращаем ошибку
 	if countAccess != uint32(len(ids)) {
-		return errors.Forbidden.New("Access denied", []errors.Option{
+		return errors.Forbidden.New("Access denied",
 			errors.ParamsOption("UserID", userID, "IDs", ids, "Type", checkType),
-			errors.HumanTextOption(fmt.Sprintf("Вы не имеете доступа к %s", errString)),
-		}...)
+			errors.HumanTextOption("Вы не имеете доступа к %s", typeToWord[checkType]),
+		)
 	}
 
 	return nil

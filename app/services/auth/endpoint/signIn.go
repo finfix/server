@@ -4,7 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/contextKeys"
+	"server/app/pkg/errors"
+	"server/app/pkg/http/decoder"
 	"server/app/services/auth/model"
 )
 
@@ -15,13 +17,20 @@ import (
 // @Param DeviceID header string true "Нужен для идентификации устройства"
 // @Produce json
 // @Success 200 {object} model.AuthRes
-// @Failure 400,404,500 {object} errors.CustomError
+// @Failure 400,404,500 {object} errors.Error
 // @Router /auth/signIn [post]
 func (s *endpoint) signIn(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.SignInReq
+
+	deviceID := contextKeys.GetDeviceID(ctx)
+	if deviceID == nil {
+		return nil, errors.BadRequest.New("DeviceID не задан")
+	}
+	req.DeviceID = *deviceID
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.SignInReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
 		return nil, err
 	}
 

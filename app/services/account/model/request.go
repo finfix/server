@@ -29,11 +29,6 @@ func (s GetAccountsReq) Validate() error {
 	return s.Type.Validate()
 }
 
-func (s GetAccountsReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
-}
-
 // TODO: Переписать
 func (s *GetAccountsReq) ConvertToRepoReq() repoModel.GetAccountsReq {
 	var req repoModel.GetAccountsReq
@@ -65,7 +60,7 @@ type CreateAccountReq struct {
 	DatetimeCreate     datetime.Time          `json:"datetimeCreate" validate:"required"`                                                // Дата создания счета
 	Remainder          decimal.Decimal        `json:"remainder"`                                                                         // Остаток средств на счету
 	Budget             CreateAccountBudgetReq `json:"budget"`                                                                            // Бюджет
-	IsParent           *bool                  `json:"isParent"`                                                                          // Является ли счет родительским
+	IsParent           *bool                  `json:"isParent" validate:"required"`                                                      // Является ли счет родительским
 	ParentAccountID    *uint32                `json:"parentAccountID"`                                                                   // Идентификатор родительского счета
 	Visible            *bool                  `json:"-"`                                                                                 // Видимость счета
 }
@@ -74,12 +69,7 @@ func (s CreateAccountReq) Validate() error {
 	return s.Type.Validate()
 }
 
-func (s CreateAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
-}
-
-func (s CreateAccountReq) ContertToAccount() Account {
+func (s CreateAccountReq) ConvertToAccount() Account {
 	return Account{
 		ID:                 0,
 		Remainder:          s.Remainder,
@@ -156,13 +146,6 @@ type UpdateAccountReq struct {
 	Budget             UpdateAccountBudgetReq `json:"budget"`                             // Месячный бюджет
 }
 
-func (s UpdateAccountReq) Validate() error { return nil }
-
-func (s UpdateAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
-}
-
 func (s *UpdateAccountReq) ConvertToRepoReq() repoModel.UpdateAccountReq {
 	return repoModel.UpdateAccountReq{
 		Remainder:          s.Remainder,
@@ -197,11 +180,4 @@ func (s *UpdateAccountBudgetReq) ConvertToRepoReq() repoModel.UpdateAccountBudge
 type DeleteAccountReq struct {
 	Necessary services.NecessaryUserInformation
 	ID        uint32 `json:"id" schema:"id" validate:"required" minimum:"1"` // Идентификатор счета
-}
-
-func (s DeleteAccountReq) Validate() error { return nil }
-
-func (s DeleteAccountReq) SetNecessary(necessary services.NecessaryUserInformation) any {
-	s.Necessary = necessary
-	return s
 }

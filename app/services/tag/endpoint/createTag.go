@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/app/pkg/server/middleware"
+	"server/app/pkg/http/decoder"
 	"server/app/services/tag/model"
 )
 
@@ -16,13 +16,14 @@ import (
 // @Param Body body model.CreateTagReq true "model.CreateTagReq"
 // @Produce json
 // @Success 200 {object} model.CreateTagRes
-// @Failure 400,401,403,404,500 {object} errors.CustomError
+// @Failure 400,401,403,404,500 {object} errors.Error
 // @Router /tag [post]
 func (s *endpoint) createTag(ctx context.Context, r *http.Request) (any, error) {
 
+	var req model.CreateTagReq
+
 	// Декодируем запрос
-	req, err := middleware.DefaultDecoder(ctx, r, middleware.DecodeJSON, model.CreateTagReq{}) //nolint:exhaustruct
-	if err != nil {
+	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeJSON); err != nil {
 		return nil, err
 	}
 
