@@ -113,3 +113,6 @@ issues:
   - path: buffer # Часть библиотеки, которая перекочевала из SSP, я в ней не разбирался
     linters:
       - gomnd
+  - text: "G115"
+    linters:
+      - gosec
