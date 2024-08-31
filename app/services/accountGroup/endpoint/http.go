@@ -1,19 +1,31 @@
 package endpoint
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/http/chain"
-	accountGroupService "server/app/services/accountGroup/service"
+	"server/app/services/accountGroup/model"
 )
 
 type endpoint struct {
-	service *accountGroupService.Service
+	service accountGroupService
 }
 
-func NewEndpoint(service *accountGroupService.Service) http.Handler {
+type accountGroupService interface {
+	CreateAccountGroup(context.Context, model.CreateAccountGroupReq) (model.CreateAccountGroupRes, error)
+	GetAccountGroups(context.Context, model.GetAccountGroupsReq) ([]model.AccountGroup, error)
+	UpdateAccountGroup(context.Context, model.UpdateAccountGroupReq) error
+	DeleteAccountGroup(context.Context, model.DeleteAccountGroupReq) error
+}
+
+func MountAccountGroupEndpoints(mux *chi.Mux, service accountGroupService) {
+	mux.Mount("/accountGroup", newAccountGroupEndpoint(service))
+}
+
+func newAccountGroupEndpoint(service accountGroupService) http.Handler {
 
 	e := &endpoint{
 		service: service,
@@ -25,10 +37,10 @@ func NewEndpoint(service *accountGroupService.Service) http.Handler {
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/", chain.NewChain(e.createAccountGroup, options...))
-	r.Method("PATCH", "/", chain.NewChain(e.updateAccountGroup, options...))
-	r.Method("DELETE", "/", chain.NewChain(e.deleteAccountGroup, options...))
-	r.Method("GET", "/", chain.NewChain(e.getAccountGroups, options...))
+	r.Method(http.MethodPost, "/", chain.NewChain(e.createAccountGroup, options...))
+	r.Method(http.MethodGet, "/", chain.NewChain(e.getAccountGroups, options...))
+	r.Method(http.MethodPatch, "/", chain.NewChain(e.updateAccountGroup, options...))
+	r.Method(http.MethodDelete, "/", chain.NewChain(e.deleteAccountGroup, options...))
 
 	return r
 }

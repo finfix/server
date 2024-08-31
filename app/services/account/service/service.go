@@ -46,7 +46,7 @@ type TransactionRepository interface {
 }
 
 type UserRepository interface {
-	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)
 }
 
 type AccountPermissionsService interface {

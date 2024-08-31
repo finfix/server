@@ -13,7 +13,7 @@ var _ UserRepository = &userRepository.Repository{}
 var _ GeneralRepository = &generalRepository.Repository{}
 
 type UserRepository interface {
-	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)
 	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
 
 	CreateDevice(context.Context, userModel.Device) (uint32, error)

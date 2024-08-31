@@ -9,7 +9,7 @@ import (
 )
 
 // GetUsers Возвращает пользователей по фильтрам
-func (repo *Repository) GetUsers(ctx context.Context, filters userModel.GetReq) (user []userModel.User, err error) {
+func (repo *Repository) GetUsers(ctx context.Context, filters userModel.GetUsersReq) (user []userModel.User, err error) {
 
 	query := `
 			SELECT *

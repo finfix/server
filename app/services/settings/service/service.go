@@ -29,7 +29,7 @@ type SettingsRepository interface {
 
 type UserService interface {
 	SendNotification(ctx context.Context, userID uint32, push userModel.Notification) (uint8, error)
-	GetUsers(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error)
+	GetUsers(ctx context.Context, filters userModel.GetUsersReq) (users []userModel.User, err error)
 }
 
 type Credentials struct {
@@ -145,7 +145,7 @@ func (s *Service) SendNotification(ctx context.Context, req settingsModel.SendNo
 }
 
 func (s *Service) checkAdmin(ctx context.Context, userID uint32) error {
-	users, err := s.userService.GetUsers(ctx, userModel.GetReq{ //nolint:exhaustruct
+	users, err := s.userService.GetUsers(ctx, userModel.GetUsersReq{ //nolint:exhaustruct
 		IDs: []uint32{userID},
 	})
 	if err != nil {

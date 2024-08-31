@@ -9,14 +9,25 @@ import (
 	"server/app/pkg/errors"
 	"server/app/pkg/http/chain"
 	"server/app/pkg/jwtManager"
-	authService "server/app/services/auth/service"
+	"server/app/services/auth/model"
 )
 
 type endpoint struct {
-	service *authService.Service
+	service authService
 }
 
-func NewEndpoint(service *authService.Service) http.Handler {
+type authService interface {
+	SignIn(context.Context, model.SignInReq) (model.AuthRes, error)
+	SignUp(context.Context, model.SignUpReq) (model.AuthRes, error)
+	SignOut(context.Context, model.SignOutReq) error
+	RefreshTokens(context.Context, model.RefreshTokensReq) (model.RefreshTokensRes, error)
+}
+
+func MountAuthEndpoints(mux *chi.Mux, service authService) {
+	mux.Mount("/auth", newAuthEndpoint(service))
+}
+
+func newAuthEndpoint(service authService) http.Handler {
 
 	s := &endpoint{
 		service: service,
@@ -28,10 +39,10 @@ func NewEndpoint(service *authService.Service) http.Handler {
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/signIn", chain.NewChain(s.signIn, options...))
-	r.Method("POST", "/signUp", chain.NewChain(s.signUp, options...))
-	r.Method("POST", "/signOut", chain.NewChain(s.signOut, options...))
-	r.Method("POST", "/refreshTokens", chain.NewChain(s.refreshTokens, append(options, chain.Before(extractDataFromToken))...))
+	r.Method(http.MethodPost, "/signIn", chain.NewChain(s.signIn, options...))
+	r.Method(http.MethodPost, "/signUp", chain.NewChain(s.signUp, options...))
+	r.Method(http.MethodPost, "/signOut", chain.NewChain(s.signOut, options...))
+	r.Method(http.MethodPost, "/refreshTokens", chain.NewChain(s.refreshTokens, append(options, chain.Before(extractDataFromToken))...))
 	return r
 }
 
@@ -42,9 +53,10 @@ func extractDataFromToken(ctx context.Context, r *http.Request) (context.Context
 	if err != nil {
 
 		// Если ошибка истекшего токена, то это ок, так как мы смогли его распарсить и получить оттуда данные
-		if !errors.Is(err, jwtManager.ErrUserUnauthorized) {
-			return ctx, err
+		if errors.Is(err, jwtManager.ErrUserUnauthorized) {
+			return ctx, nil
 		}
+		return ctx, err
 	}
 
 	return ctx, nil

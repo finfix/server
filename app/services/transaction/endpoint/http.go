@@ -1,19 +1,31 @@
 package endpoint
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/http/chain"
-	transactionService "server/app/services/transaction/service"
+	"server/app/services/transaction/model"
 )
 
 type endpoint struct {
-	service *transactionService.Service
+	service transactionService
 }
 
-func NewEndpoint(service *transactionService.Service) http.Handler {
+type transactionService interface {
+	CreateTransaction(context.Context, model.CreateTransactionReq) (uint32, error)
+	GetTransactions(context.Context, model.GetTransactionsReq) ([]model.Transaction, error)
+	UpdateTransaction(context.Context, model.UpdateTransactionReq) error
+	DeleteTransaction(context.Context, model.DeleteTransactionReq) error
+}
+
+func MountTransactionEndpoints(mux *chi.Mux, service transactionService) {
+	mux.Mount("/transaction", newTransactionEndpoint(service))
+}
+
+func newTransactionEndpoint(service transactionService) http.Handler {
 
 	s := &endpoint{
 		service: service,
@@ -25,9 +37,9 @@ func NewEndpoint(service *transactionService.Service) http.Handler {
 
 	router := chi.NewRouter()
 
-	router.Method("POST", "/", chain.NewChain(s.createTransaction, options...))
-	router.Method("PATCH", "/", chain.NewChain(s.updateTransaction, options...))
-	router.Method("DELETE", "/", chain.NewChain(s.deleteTransaction, options...))
-	router.Method("GET", "/", chain.NewChain(s.getTransactions, options...))
+	router.Method(http.MethodPost, "/", chain.NewChain(s.createTransaction, options...))
+	router.Method(http.MethodPatch, "/", chain.NewChain(s.updateTransaction, options...))
+	router.Method(http.MethodDelete, "/", chain.NewChain(s.deleteTransaction, options...))
+	router.Method(http.MethodGet, "/", chain.NewChain(s.getTransactions, options...))
 	return router
 }

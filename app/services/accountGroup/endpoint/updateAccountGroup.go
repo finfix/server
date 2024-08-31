@@ -27,5 +27,5 @@ func (s *endpoint) updateAccountGroup(ctx context.Context, r *http.Request) (any
 	}
 
 	// Вызываем метод сервиса
-	return nil, s.service.Update(ctx, req)
+	return nil, s.service.UpdateAccountGroup(ctx, req)
 }

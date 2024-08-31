@@ -15,7 +15,7 @@ type MockUserService struct {
 }
 
 // GetUsers provides a mock function with given fields: ctx, filters
-func (_m *MockUserService) GetUsers(ctx context.Context, filters model.GetReq) ([]model.User, error) {
+func (_m *MockUserService) GetUsers(ctx context.Context, filters model.GetUsersReq) ([]model.User, error) {
 	ret := _m.Called(ctx, filters)
 
 	if len(ret) == 0 {
@@ -24,10 +24,10 @@ func (_m *MockUserService) GetUsers(ctx context.Context, filters model.GetReq) (
 
 	var r0 []model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) ([]model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetUsersReq) ([]model.User, error)); ok {
 		return rf(ctx, filters)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) []model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetUsersReq) []model.User); ok {
 		r0 = rf(ctx, filters)
 	} else {
 		if ret.Get(0) != nil {
@@ -35,7 +35,7 @@ func (_m *MockUserService) GetUsers(ctx context.Context, filters model.GetReq) (
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.GetReq) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.GetUsersReq) error); ok {
 		r1 = rf(ctx, filters)
 	} else {
 		r1 = ret.Error(1)

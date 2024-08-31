@@ -251,13 +251,13 @@ func run() error {
 	}
 
 	r := router.NewRouter()
-	r.Mount("/account", accountEndpoint.NewEndpoint(accountService))
-	r.Mount("/accountGroup", accountGroupEndpoint.NewEndpoint(accountGroupService))
-	r.Mount("/transaction", transactionEndpoint.NewEndpoint(transactionService))
-	r.Mount("/tag", tagEndpoint.NewEndpoint(tagService))
-	r.Mount("/auth", authEndpoint.NewEndpoint(authService))
-	r.Mount("/settings", settingsEndpoint.NewEndpoint(settingsService))
-	r.Mount("/user", userEndpoint.NewEndpoint(userService))
+	accountEndpoint.MountAccountEndpoints(r, accountService)                // ANY /account*
+	accountGroupEndpoint.MountAccountGroupEndpoints(r, accountGroupService) // ANY /accountGroup*
+	transactionEndpoint.MountTransactionEndpoints(r, transactionService)    // ANY /transaction*
+	tagEndpoint.MountTagEndpoints(r, tagService)                            // ANY /tag*
+	authEndpoint.MountAuthEndpoints(r, authService)                         // ANY /auth*
+	userEndpoint.MountUserEndpoints(r, userService)                         // ANY /user*
+	settingsEndpoint.MountSettingsEndpoints(r, settingsService)             // ANY /settings*
 	r.Mount("/swagger", httpSwagger.WrapHandler)
 
 	server, err := server.GetDefaultServer(cfg.HTTP, r)

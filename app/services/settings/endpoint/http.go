@@ -1,19 +1,33 @@
 package endpoint
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/http/chain"
-	settingsService "server/app/services/settings/service"
+	"server/app/services/settings/model"
+	"server/app/services/settings/model/applicationType"
 )
 
 type endpoint struct {
-	service *settingsService.Service
+	service settingsService
 }
 
-func NewEndpoint(service *settingsService.Service) http.Handler {
+type settingsService interface {
+	UpdateCurrencies(context.Context, model.UpdateCurrenciesReq) error
+	SendNotification(context.Context, model.SendNotificationReq) (model.SendNotificationRes, error)
+	GetCurrencies(context.Context) ([]model.Currency, error)
+	GetIcons(context.Context) ([]model.Icon, error)
+	GetVersion(context.Context, applicationType.Type) (model.Version, error)
+}
+
+func MountSettingsEndpoints(mux *chi.Mux, service settingsService) {
+	mux.Mount("/settings", newSettingsEndpoint(service))
+}
+
+func newSettingsEndpoint(service settingsService) http.Handler {
 
 	e := &endpoint{
 		service: service,
@@ -25,13 +39,13 @@ func NewEndpoint(service *settingsService.Service) http.Handler {
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/updateCurrencies", chain.NewChain(e.updateCurrencies, options...))
-	r.Method("POST", "/sendNotification", chain.NewChain(e.sendNotification, options...))
-	r.Method("GET", "/currencies", chain.NewChain(e.getCurrencies, options...))
-	r.Method("GET", "/icons", chain.NewChain(e.getIcons, options...))
+	r.Method(http.MethodPost, "/updateCurrencies", chain.NewChain(e.updateCurrencies, options...))
+	r.Method(http.MethodPost, "/sendNotification", chain.NewChain(e.sendNotification, options...))
+	r.Method(http.MethodGet, "/currencies", chain.NewChain(e.getCurrencies, options...))
+	r.Method(http.MethodGet, "/icons", chain.NewChain(e.getIcons, options...))
 
 	// Without authorization
-	r.Method("GET", "/version/{application}", chain.NewChain(e.getVersion))
+	r.Method(http.MethodGet, "/version/{application}", chain.NewChain(e.getVersion))
 
 	return r
 }

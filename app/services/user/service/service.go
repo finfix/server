@@ -23,7 +23,7 @@ type GeneralRepository interface {
 
 type UserRepository interface {
 	CreateUser(context.Context, userModel.CreateReq) (uint32, error)
-	GetUsers(context.Context, userModel.GetReq) ([]userModel.User, error)
+	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)
 	UpdateUser(context.Context, userRepoModel.UpdateUserReq) error
 
 	LinkUserToAccountGroup(context.Context, uint32, uint32) error
@@ -45,7 +45,7 @@ func (s *Service) CreateUser(ctx context.Context, user userModel.CreateReq) (id 
 }
 
 // GetUsers возвращает всех юзеров по фильтрам
-func (s *Service) GetUsers(ctx context.Context, filters userModel.GetReq) (users []userModel.User, err error) {
+func (s *Service) GetUsers(ctx context.Context, filters userModel.GetUsersReq) (users []userModel.User, err error) {
 	return s.userRepository.GetUsers(ctx, filters)
 }
 
@@ -86,7 +86,7 @@ func (s *Service) UpdateUser(ctx context.Context, req userModel.UpdateUserReq) e
 			}
 
 			// Получаем актуальный пароль пользователя
-			users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{ //nolint:exhaustruct
+			users, err := s.userRepository.GetUsers(ctx, userModel.GetUsersReq{ //nolint:exhaustruct
 				IDs: []uint32{req.Necessary.UserID},
 			})
 			if err != nil {

@@ -1,19 +1,29 @@
 package endpoint
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/http/chain"
-	userService "server/app/services/user/service"
+	"server/app/services/user/model"
 )
 
 type endpoint struct {
-	service *userService.Service
+	service userService
 }
 
-func NewEndpoint(service *userService.Service) http.Handler {
+type userService interface {
+	GetUsers(context.Context, model.GetUsersReq) ([]model.User, error)
+	UpdateUser(context.Context, model.UpdateUserReq) error
+}
+
+func MountUserEndpoints(mux *chi.Mux, service userService) {
+	mux.Mount("/user", newUserEndpoint(service))
+}
+
+func newUserEndpoint(service userService) http.Handler {
 
 	e := &endpoint{
 		service: service,
@@ -25,7 +35,7 @@ func NewEndpoint(service *userService.Service) http.Handler {
 
 	r := chi.NewRouter()
 
-	r.Method("GET", "/", chain.NewChain(e.getUser, options...))
-	r.Method("PATCH", "/", chain.NewChain(e.updateUser, options...))
+	r.Method(http.MethodGet, "/", chain.NewChain(e.getUser, options...))
+	r.Method(http.MethodPatch, "/", chain.NewChain(e.updateUser, options...))
 	return r
 }

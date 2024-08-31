@@ -7,8 +7,8 @@ import (
 	"server/app/services/generalRepository/checker"
 )
 
-// Update обновляет счета по конкретным полям
-func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountGroupReq) error {
+// UpdateAccountGroup обновляет группу счетов по конкретным полям
+func (s *Service) UpdateAccountGroup(ctx context.Context, updateReq model.UpdateAccountGroupReq) error {
 
 	// Проверяем доступ пользователя к группе счетов
 	if err := s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {

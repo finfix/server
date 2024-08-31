@@ -121,7 +121,7 @@ func (_m *MockUserRepository) GetDevices(_a0 context.Context, _a1 repositorymode
 }
 
 // GetUsers provides a mock function with given fields: _a0, _a1
-func (_m *MockUserRepository) GetUsers(_a0 context.Context, _a1 model.GetReq) ([]model.User, error) {
+func (_m *MockUserRepository) GetUsers(_a0 context.Context, _a1 model.GetUsersReq) ([]model.User, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
@@ -130,10 +130,10 @@ func (_m *MockUserRepository) GetUsers(_a0 context.Context, _a1 model.GetReq) ([
 
 	var r0 []model.User
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) ([]model.User, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetUsersReq) ([]model.User, error)); ok {
 		return rf(_a0, _a1)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.GetReq) []model.User); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, model.GetUsersReq) []model.User); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
@@ -141,7 +141,7 @@ func (_m *MockUserRepository) GetUsers(_a0 context.Context, _a1 model.GetReq) ([
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, model.GetReq) error); ok {
+	if rf, ok := ret.Get(1).(func(context.Context, model.GetUsersReq) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)

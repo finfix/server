@@ -18,7 +18,7 @@ import (
 // @Router /user [get]
 func (s *endpoint) getUser(ctx context.Context, r *http.Request) (any, error) {
 
-	var req model.GetReq
+	var req model.GetUsersReq
 
 	// Декодируем запрос
 	if err := decoder.Decoder(ctx, r, &req, decoder.DecodeSchema); err != nil {

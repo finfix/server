@@ -28,5 +28,5 @@ func (s *endpoint) updateAccount(ctx context.Context, r *http.Request) (any, err
 	}
 
 	// Вызываем метод сервиса
-	return s.service.Update(ctx, req)
+	return s.service.UpdateAccount(ctx, req)
 }

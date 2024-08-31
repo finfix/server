@@ -13,7 +13,7 @@ import (
 func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (accessData model.AuthRes, err error) {
 
 	// Получаем пользователя по email
-	users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct
+	users, err := s.userRepository.GetUsers(ctx, userModel.GetUsersReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct
 	if err != nil {
 		return accessData, err
 	}

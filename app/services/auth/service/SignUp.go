@@ -14,7 +14,7 @@ import (
 func (s *Service) SignUp(ctx context.Context, loginData model.SignUpReq) (accessData model.AuthRes, err error) {
 
 	// Проверяем, есть ли пользователь в бд с таким email
-	if _users, err := s.userRepository.GetUsers(ctx, userModel.GetReq{Emails: []string{loginData.Email}}); err != nil { //nolint:exhaustruct
+	if _users, err := s.userRepository.GetUsers(ctx, userModel.GetUsersReq{Emails: []string{loginData.Email}}); err != nil { //nolint:exhaustruct
 		return accessData, err
 	} else if len(_users) != 0 {
 		return accessData, errors.Forbidden.New("User with this email is already registered",

@@ -10,8 +10,8 @@ import (
 	"server/app/services/generalRepository/checker"
 )
 
-// Update обновляет счета по конкретным полям
-func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) (res model.UpdateAccountRes, err error) {
+// UpdateAccount обновляет счет по конкретным полям
+func (s *Service) UpdateAccount(ctx context.Context, updateReq model.UpdateAccountReq) (res model.UpdateAccountRes, err error) {
 
 	repoUpdateReqs := make(map[uint32]accountRepoModel.UpdateAccountReq)
 	repoUpdateReqs[updateReq.ID] = updateReq.ConvertToRepoReq()

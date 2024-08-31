@@ -1,19 +1,32 @@
 package endpoint
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
 
 	"server/app/pkg/http/chain"
-	accountService "server/app/services/account/service"
+	"server/app/services/account/model"
 )
 
 type endpoint struct {
-	service *accountService.Service
+	service accountService
 }
 
-func NewEndpoint(service *accountService.Service) http.Handler {
+type accountService interface {
+	CreateAccount(context.Context, model.CreateAccountReq) (model.CreateAccountRes, error)
+	GetAccounts(context.Context, model.GetAccountsReq) ([]model.Account, error)
+	UpdateAccount(context.Context, model.UpdateAccountReq) (model.UpdateAccountRes, error)
+	DeleteAccount(context.Context, model.DeleteAccountReq) error
+}
+
+// MountAccountEndpoints mounts account endpoints to the router
+func MountAccountEndpoints(mux *chi.Mux, service accountService) {
+	mux.Mount("/account", newAccountEndpoint(service))
+}
+
+func newAccountEndpoint(service accountService) http.Handler {
 
 	e := &endpoint{
 		service: service,
@@ -25,10 +38,10 @@ func NewEndpoint(service *accountService.Service) http.Handler {
 
 	r := chi.NewRouter()
 
-	r.Method("POST", "/", chain.NewChain(e.createAccount, options...))
-	r.Method("GET", "/", chain.NewChain(e.get, options...))
-	r.Method("PATCH", "/", chain.NewChain(e.updateAccount, options...))
-	r.Method("DELETE", "/", chain.NewChain(e.deleteAccount, options...))
+	r.Method(http.MethodPost, "/", chain.NewChain(e.createAccount, options...))
+	r.Method(http.MethodGet, "/", chain.NewChain(e.get, options...))
+	r.Method(http.MethodPatch, "/", chain.NewChain(e.updateAccount, options...))
+	r.Method(http.MethodDelete, "/", chain.NewChain(e.deleteAccount, options...))
 
 	return r
 }

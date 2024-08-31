@@ -16,13 +16,13 @@ type CreateReq struct {
 	DefaultCurrency string
 }
 
-type GetReq struct {
+type GetUsersReq struct {
 	Necessary services.NecessaryUserInformation
 	IDs       []uint32
 	Emails    []string
 }
 
-func (s GetReq) SetNecessary(information services.NecessaryUserInformation) any {
+func (s GetUsersReq) SetNecessary(information services.NecessaryUserInformation) any {
 	s.Necessary = information
 	return s
 }
