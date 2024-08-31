@@ -42,8 +42,10 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 
 			// Получаем счет
 			account, err := slices.FirstWithError(s.accountRepository.GetAccounts(ctx,
-				accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}},
-			)) //nolint:exhaustruct
+				accountRepoModel.GetAccountsReq{ //nolint:exhaustruct
+					IDs: []uint32{res.ID},
+				},
+			))
 			if err != nil {
 				return err
 			}

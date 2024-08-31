@@ -1,10 +1,14 @@
 package testUtils
 
-import "fmt"
+import (
+	"context"
+
+	"server/app/pkg/log"
+)
 
 func IgnoreError[T any](v T, err error) T {
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(context.Background(), err)
 	}
 	return v
 }

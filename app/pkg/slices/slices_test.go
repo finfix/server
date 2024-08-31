@@ -335,20 +335,16 @@ func TestFirst(t *testing.T) {
 	for _, tt := range tests2 {
 		t.Run(tt.name, func(t *testing.T) {
 			got := First(tt.args.array)
-			if got == nil || tt.want == nil {
+			switch {
+			case got == nil || tt.want == nil:
 				if got != tt.want {
 					t.Errorf("First() = %v, want %v", got, tt.want)
 				}
-			} else {
-				if *got == nil || *tt.want == nil {
-					if *got != *tt.want {
-						t.Errorf("First() = %v, want %v", *got, *tt.want)
-					} else {
-						if **got != **tt.want {
-							t.Errorf("First() = %v, want %v", **got, **tt.want)
-						}
-					}
-				}
+			case *got != *tt.want:
+				t.Errorf("First() = %v, want %v", *got, *tt.want)
+			case **got != **tt.want:
+				t.Errorf("First() = %v, want %v", **got, **tt.want)
+
 			}
 		})
 	}
@@ -738,14 +734,8 @@ func TestGetMapValueStruct(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := GetMapValueStruct(tt.args.slice, tt.args.field)
 			for key := range got {
-				if key == nil {
-					if _, ok := tt.want[key]; !ok {
-						t.Errorf("GetMapValueStruct() = %v, want %v", got, tt.want)
-					}
-				} else {
-					if _, ok := tt.want[key]; !ok {
-						t.Errorf("GetMapValueStruct() = %v, want %v", got, tt.want)
-					}
+				if _, ok := tt.want[key]; !ok {
+					t.Errorf("GetMapValueStruct() = %v, want %v", got, tt.want)
 				}
 			}
 		})

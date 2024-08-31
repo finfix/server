@@ -8,13 +8,17 @@ check-swagger:
 easyjson:
 	 easyjson app/pkg/log/jsonHandler.go
 
-lint: easyjson
+update-linter:
 	brew upgrade golangci-lint
+
+lint: easyjson
 	golangci-lint run -v
 
 mockery: easyjson
-	rm -rf mocks
+	find . -type f -name 'mock_*' -exec rm {} +
+	find . -type f -name "mockWrappers.go" -execdir mv -n -- {} mockWrappers.txt \; # Костылина, чтобы не падала генерация моков
 	mockery
+	find . -type f -name "mockWrappers.txt" -execdir mv -n -- {} mockWrappers.go \;
 
 test-coverage-number: mockery
 	go test -v -coverprofile=profile.cov ./app...

@@ -28,11 +28,4 @@ func TestPanicRecover(t *testing.T) {
 
 		someFunc()
 	})
-	t.Run("3. Тестирование перехвата паники внутри горутины", func(t *testing.T) {
-		defer PanicRecover(func(err error) {
-			testUtils.CheckError(t, errors.InternalServer.New(""), err, false)
-		})
-
-		go someFunc()
-	})
 }

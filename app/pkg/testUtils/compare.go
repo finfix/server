@@ -15,7 +15,7 @@ import (
 func CheckError(t *testing.T, wantErr error, gotErr error, compareErrors bool) bool {
 	err, wasPassedError := checkError(wantErr, gotErr, compareErrors)
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err)
 	}
 	return wasPassedError
 }

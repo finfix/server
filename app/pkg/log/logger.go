@@ -21,7 +21,7 @@ type loggerSettings struct {
 // logger - синглтон переменная логгера
 var logger = &loggerSettings{
 	handlers: []Handler{
-		NewJSONHandler(os.Stdout, LevelDebug),
+		NewConsoleHandler(os.Stdout, LevelDebug),
 	},
 	systemInfo: model.SystemInfo{
 		Hostname: "",

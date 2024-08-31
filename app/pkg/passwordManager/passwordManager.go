@@ -11,10 +11,11 @@ import (
 )
 
 const saltSize = 16
+const maxPasswordLength = 72
 
 func CreateNewPassword(password, generalSalt []byte) ([]byte, []byte, error) {
 
-	if len(password) > 72 {
+	if len(password) > maxPasswordLength {
 		availableLength := len(password) - len(generalSalt) - saltSize
 		return nil, nil, errors.BadRequest.New(fmt.Sprintf("Длина пароля не должна превышать %v символа", availableLength))
 	}
