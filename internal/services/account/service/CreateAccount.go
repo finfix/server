@@ -10,7 +10,7 @@ import (
 )
 
 // CreateAccount создает новый счет
-func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.CreateAccountReq) (res model.CreateAccountRes, err error) {
+func (s *AccountService) CreateAccount(ctx context.Context, accountToCreate model.CreateAccountReq) (res model.CreateAccountRes, err error) {
 
 	// Проверяем доступ пользователя к группе счетов
 	if err = s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {

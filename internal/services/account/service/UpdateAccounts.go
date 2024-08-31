@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 
-	"server/pkg/pointer"
-	"server/pkg/slices"
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
 	"server/internal/services/generalRepository/checker"
+	"server/pkg/pointer"
+	"server/pkg/slices"
 )
 
 // UpdateAccount обновляет счет по конкретным полям
-func (s *Service) UpdateAccount(ctx context.Context, updateReq model.UpdateAccountReq) (res model.UpdateAccountRes, err error) {
+func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.UpdateAccountReq) (res model.UpdateAccountRes, err error) {
 
 	repoUpdateReqs := make(map[uint32]accountRepoModel.UpdateAccountReq)
 	repoUpdateReqs[updateReq.ID] = updateReq.ConvertToRepoReq()
@@ -97,11 +97,11 @@ func (s *Service) UpdateAccount(ctx context.Context, updateReq model.UpdateAccou
 	})
 }
 
-func (s *Service) updateAccounts(ctx context.Context, account model.Account, updateReqs map[uint32]accountRepoModel.UpdateAccountReq, userID uint32) (res model.UpdateAccountRes, err error) {
+func (s *AccountService) updateAccounts(ctx context.Context, account model.Account, updateReqs map[uint32]accountRepoModel.UpdateAccountReq, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Если передан остаток, редактируем его
 	if updateReqs[account.ID].Remainder != nil {
-		if res, err = s.accountService.ChangeAccountRemainder(
+		if res, err = s.ChangeAccountRemainder(
 			ctx,
 			account,
 			*updateReqs[account.ID].Remainder,
@@ -127,7 +127,7 @@ func (s *Service) updateAccounts(ctx context.Context, account model.Account, upd
 	return res, s.accountRepository.UpdateAccount(ctx, updateReqs)
 }
 
-func (s *Service) HandleAccountingInHeaderLogic(
+func (s *AccountService) HandleAccountingInHeaderLogic(
 	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,
@@ -160,7 +160,7 @@ func (s *Service) HandleAccountingInHeaderLogic(
 	return repoUpdateReqs
 }
 
-func (s *Service) HandleVisibleLogic(
+func (s *AccountService) HandleVisibleLogic(
 	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
 	mainAccount model.Account,
 	childrenAccounts []model.Account,

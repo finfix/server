@@ -7,7 +7,7 @@ import (
 	authModel "server/internal/services/auth/model"
 )
 
-func (s *Service) createPairTokens(_ context.Context, userID uint32, deviceID string) (tokens authModel.Tokens, err error) {
+func (s *AuthService) createPairTokens(_ context.Context, userID uint32, deviceID string) (tokens authModel.Tokens, err error) {
 
 	// Создаем Access token
 	tokens.AccessToken, err = jwtManager.NewJWT(jwtManager.AccessToken, userID, deviceID)

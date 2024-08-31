@@ -8,7 +8,7 @@ import (
 )
 
 // DeleteAccountGroup удаляет группу счетов
-func (s *Service) DeleteAccountGroup(ctx context.Context, id model.DeleteAccountGroupReq) error {
+func (s *AccountGroupService) DeleteAccountGroup(ctx context.Context, id model.DeleteAccountGroupReq) error {
 
 	// Проверяем доступ пользователя к счету
 	if err := s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, id.Necessary.UserID, []uint32{id.ID}); err != nil {

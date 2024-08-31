@@ -8,7 +8,7 @@ import (
 	"server/pkg/errors"
 )
 
-func (s *Service) GetVersion(ctx context.Context, appType applicationType.Type) (version settingsModel.Version, err error) {
+func (s *SettingsService) GetVersion(ctx context.Context, appType applicationType.Type) (version settingsModel.Version, err error) {
 	switch appType {
 	case applicationType.Server:
 		return settingsModel.Version{

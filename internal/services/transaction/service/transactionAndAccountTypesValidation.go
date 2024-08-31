@@ -8,7 +8,7 @@ import (
 	"server/pkg/slices"
 )
 
-func (s *Service) transactionAndAccountTypesValidation(accountFrom, accountTo model.Account, tranType transactionType.Type) error {
+func (s *TransactionService) transactionAndAccountTypesValidation(accountFrom, accountTo model.Account, tranType transactionType.Type) error {
 
 	var accesses string
 	var isAccess bool

@@ -7,7 +7,7 @@ import (
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
-func (s *Service) upsertDevice(ctx context.Context, device userModel.Device) error {
+func (s *AuthService) upsertDevice(ctx context.Context, device userModel.Device) error {
 
 	// Получаем девайс пользователя
 	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{ //nolint:exhaustruct

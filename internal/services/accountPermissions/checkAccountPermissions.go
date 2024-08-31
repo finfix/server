@@ -1,8 +1,11 @@
 package accountPermissions
 
-import "server/pkg/errors"
+import (
+	accountModel "server/internal/services/account/model"
+	"server/pkg/errors"
+)
 
-func (s *Service) CheckAccountPermissions(req model.UpdateAccountReq, permissions AccountPermissions) error {
+func (s *AccountPermissionsService) CheckAccountPermissions(req accountModel.UpdateAccountReq, permissions AccountPermissions) error {
 
 	if (req.Budget.DaysOffset != nil || req.Budget.Amount != nil || req.Budget.FixedSum != nil || req.Budget.GradualFilling != nil) && !permissions.UpdateBudget {
 		return errors.BadRequest.New("Нельзя менять бюджет")

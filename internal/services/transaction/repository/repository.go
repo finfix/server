@@ -8,7 +8,7 @@ type TransactionRepository struct {
 	db sql.SQL
 }
 
-func New(db sql.SQL, ) *TransactionRepository {
+func NewTransactionRepository(db sql.SQL, ) *TransactionRepository {
 	return &TransactionRepository{
 		db: db,
 	}

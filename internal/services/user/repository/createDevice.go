@@ -7,7 +7,7 @@ import (
 )
 
 // CreateDevice Создает новый девайс для пользователя
-func (repo *Repository) CreateDevice(ctx context.Context, req userModel.Device) (id uint32, err error) {
+func (repo *UserRepository) CreateDevice(ctx context.Context, req userModel.Device) (id uint32, err error) {
 	return repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.devices (
 			  refresh_token, 

@@ -11,7 +11,7 @@ import (
 )
 
 // GetAccounts возвращает все счета, удовлетворяющие фильтрам
-func (repo *Repository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
+func (repo *AccountRepository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
 
 	// Создаем конструктор запроса
 	var (

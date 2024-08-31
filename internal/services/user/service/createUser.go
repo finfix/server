@@ -7,6 +7,6 @@ import (
 )
 
 // CreateUser создает нового пользователя
-func (s *Service) CreateUser(ctx context.Context, user model.CreateReq) (id uint32, err error) {
+func (s *UserService) CreateUser(ctx context.Context, user model.CreateReq) (id uint32, err error) {
 	return s.userRepository.CreateUser(ctx, user)
 }

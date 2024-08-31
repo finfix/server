@@ -7,7 +7,7 @@ import (
 )
 
 // CreateUser Создает нового пользователя
-func (repo *Repository) CreateUser(ctx context.Context, user userModel.CreateReq) (uint32, error) {
+func (repo *UserRepository) CreateUser(ctx context.Context, user userModel.CreateReq) (uint32, error) {
 
 	return repo.db.ExecWithLastInsertID(ctx, `
 			INSERT INTO coin.users (

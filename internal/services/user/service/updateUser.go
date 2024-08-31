@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateUser обновляет настройки пользователя
-func (s *Service) UpdateUser(ctx context.Context, req model.UpdateUserReq) error {
+func (s *UserService) UpdateUser(ctx context.Context, req model.UpdateUserReq) error {
 
 	return s.generalRepository.WithinTransaction(ctx, func(ctx context.Context) error {
 

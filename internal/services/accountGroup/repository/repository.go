@@ -4,12 +4,12 @@ import (
 	"server/pkg/sql"
 )
 
-type Repository struct {
+type AccountGroupRepository struct {
 	db sql.SQL
 }
 
-func New(db sql.SQL, ) *Repository {
-	return &Repository{
+func NewAccountGroupRepository(db sql.SQL, ) *AccountGroupRepository {
+	return &AccountGroupRepository{
 		db: db,
 	}
 }

@@ -16,7 +16,7 @@ import (
 	transactionRepoModel "server/internal/services/transaction/repository/model"
 )
 
-type Service struct {
+type TransactionService struct {
 	transactionRepository TransactionRepository
 	accountRepository     AccountRepository
 	generalRepository     GeneralRepository
@@ -25,9 +25,9 @@ type Service struct {
 }
 
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
-var _ AccountRepository = &accountRepository.Repository{}
-var _ GeneralRepository = &generalRepository.Repository{}
-var _ AccountPermissionsService = &accountPermissions.Service{}
+var _ AccountRepository = &accountRepository.AccountRepository{}
+var _ GeneralRepository = &generalRepository.GeneralRepository{}
+var _ AccountPermissionsService = &accountPermissions.AccountPermissionsService{}
 var _ TagRepository = &tagRepository.TagRepository{}
 
 type GeneralRepository interface {
@@ -57,15 +57,14 @@ type TagRepository interface {
 	UnlinkTagsFromTransaction(context.Context, []uint32, uint32) error
 }
 
-func New(
+func NewTransactionService(
 	transactionRepository TransactionRepository,
 	accountRepository AccountRepository,
 	generalRepository GeneralRepository,
 	accountPermissions AccountPermissionsService,
 	tagRepository TagRepository,
-
-) *Service {
-	return &Service{
+) *TransactionService {
+	return &TransactionService{
 		transactionRepository: transactionRepository,
 		accountRepository:     accountRepository,
 		generalRepository:     generalRepository,

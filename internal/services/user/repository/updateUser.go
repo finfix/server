@@ -9,7 +9,7 @@ import (
 )
 
 // UpdateUser редактирует пользователя
-func (repo *Repository) UpdateUser(ctx context.Context, fields userRepoModel.UpdateUserReq) error {
+func (repo *UserRepository) UpdateUser(ctx context.Context, fields userRepoModel.UpdateUserReq) error {
 
 	// Изменяем поля пользователя
 	var (

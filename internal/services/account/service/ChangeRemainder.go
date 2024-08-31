@@ -16,7 +16,7 @@ import (
 	"server/pkg/pointer"
 )
 
-func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate decimal.Decimal, userID uint32) (res model.UpdateAccountRes, err error) {
+func (s *AccountService) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate decimal.Decimal, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Получаем остаток счета
 	remainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
@@ -70,7 +70,7 @@ func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Acco
 }
 
 // GetBalancingAccountID получает ID балансировочного счета, подходящего для конкретного счета
-func (s *Service) GetBalancingAccountID(ctx context.Context, account model.Account) (balancingAccountID uint32, serialNumber uint32, wasCreate bool, err error) {
+func (s *AccountService) GetBalancingAccountID(ctx context.Context, account model.Account) (balancingAccountID uint32, serialNumber uint32, wasCreate bool, err error) {
 
 	// Получаем балансировочный счет группы в нужной валюте, чтобы создать для нее транзакцию
 	balancingAccounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{ //nolint:exhaustruct

@@ -8,7 +8,7 @@ import (
 )
 
 // UpdateTag редактирует подкатегорию
-func (s *Service) UpdateTag(ctx context.Context, fields model.UpdateTagReq) error {
+func (s *TagService) UpdateTag(ctx context.Context, fields model.UpdateTagReq) error {
 
 	// Проверяем доступ пользователя к подкатегории
 	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Tags, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {

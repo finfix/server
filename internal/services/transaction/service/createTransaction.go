@@ -12,7 +12,7 @@ import (
 )
 
 // CreateTransaction создает новую транзакцию
-func (s *Service) CreateTransaction(ctx context.Context, transaction transactionModel.CreateTransactionReq) (id uint32, err error) {
+func (s *TransactionService) CreateTransaction(ctx context.Context, transaction transactionModel.CreateTransactionReq) (id uint32, err error) {
 
 	// Проверяем доступ пользователя к счетам
 	if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, transaction.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {

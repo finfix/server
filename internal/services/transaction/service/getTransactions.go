@@ -7,7 +7,7 @@ import (
 	"server/internal/services/transaction/model"
 )
 
-func (s *Service) GetTransactions(ctx context.Context, filters model.GetTransactionsReq) (transactions []model.Transaction, err error) {
+func (s *TransactionService) GetTransactions(ctx context.Context, filters model.GetTransactionsReq) (transactions []model.Transaction, err error) {
 
 	// Проверяем доступ пользователя к группам счетов
 	filters.AccountGroupIDs = s.generalRepository.GetAvailableAccountGroups(filters.Necessary.UserID)

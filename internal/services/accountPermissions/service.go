@@ -7,7 +7,7 @@ import (
 	"server/pkg/sql"
 )
 
-type Service struct {
+type AccountPermissionsService struct {
 	db          sql.SQL
 	permissions permissions
 }
@@ -21,9 +21,9 @@ var generalPermissions = AccountPermissions{
 	CreateTransaction: true,
 }
 
-func New(db sql.SQL) (*Service, error) {
+func NewAccountPermissionsService(db sql.SQL) (*AccountPermissionsService, error) {
 
-	service := &Service{
+	service := &AccountPermissionsService{
 		db: db,
 		permissions: permissions{
 			typeToPermissions:     nil,

@@ -10,7 +10,7 @@ import (
 )
 
 // GetDevices Возвращает девайсы пользователя
-func (repo *Repository) GetDevices(ctx context.Context, filters userRepoModel.GetDevicesReq) (devices []userModel.Device, err error) {
+func (repo *UserRepository) GetDevices(ctx context.Context, filters userRepoModel.GetDevicesReq) (devices []userModel.Device, err error) {
 
 	query := `
 			SELECT *

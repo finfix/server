@@ -9,7 +9,7 @@ import (
 	"server/internal/services/generalRepository/checker"
 )
 
-func (s *Service) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {
+func (s *AccountService) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {
 
 	if account.IsParent {
 		return errors.BadRequest.New("Счет уже является родительским",

@@ -7,7 +7,7 @@ import (
 	"server/internal/services/tag/model"
 )
 
-func (s *Service) GetTags(ctx context.Context, filters model.GetTagsReq) (tags []model.Tag, err error) {
+func (s *TagService) GetTags(ctx context.Context, filters model.GetTagsReq) (tags []model.Tag, err error) {
 
 	// Проверяем доступ пользователя к группам счетов
 	if filters.AccountGroupIDs != nil {

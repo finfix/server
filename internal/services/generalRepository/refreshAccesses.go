@@ -7,7 +7,7 @@ import (
 	"server/pkg/log"
 )
 
-func (repo *Repository) refreshAccesses(doOnce bool) error {
+func (repo *GeneralRepository) refreshAccesses(doOnce bool) error {
 	for {
 		log.Info(context.Background(), "Получаем доступы пользователей к объектам")
 		_accesses, err := repo.getAccesses(context.Background())

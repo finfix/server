@@ -11,7 +11,7 @@ import (
 )
 
 // CalculateRemainderAccounts возвращает остатки счетов
-func (repo *Repository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+func (repo *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	var queryFields []string
 	var args []any

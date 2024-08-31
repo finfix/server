@@ -13,7 +13,7 @@ import (
 )
 
 // GetAccounts возвращает все счета, удовлетворяющие фильтрам
-func (s *Service) GetAccounts(ctx context.Context, filters model.GetAccountsReq) (accounts []model.Account, err error) {
+func (s *AccountService) GetAccounts(ctx context.Context, filters model.GetAccountsReq) (accounts []model.Account, err error) {
 
 	// Проверяем доступ пользователя к группам счетов
 	if len(filters.AccountGroupIDs) != 0 {
@@ -50,7 +50,7 @@ func (s *Service) GetAccounts(ctx context.Context, filters model.GetAccountsReq)
 	return accounts, nil
 }
 
-func (s *Service) calculateRemainders(ctx context.Context, filters model.GetAccountsReq) (map[uint32]decimal.Decimal, error) {
+func (s *AccountService) calculateRemainders(ctx context.Context, filters model.GetAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	// Считаем балансы обычных и долговых счетов
 	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct

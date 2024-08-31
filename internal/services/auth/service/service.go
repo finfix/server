@@ -9,8 +9,8 @@ import (
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
-var _ UserRepository = &userRepository.Repository{}
-var _ GeneralRepository = &generalRepository.Repository{}
+var _ UserRepository = &userRepository.UserRepository{}
+var _ GeneralRepository = &generalRepository.GeneralRepository{}
 
 type UserRepository interface {
 	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)
@@ -26,19 +26,19 @@ type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error
 }
 
-type Service struct {
+type AuthService struct {
 	userRepository    UserRepository
 	generalRepository GeneralRepository
 	generalSalt       []byte
 }
 
-func New(
+func NewAuthService(
 	userRepository UserRepository,
 	generalRepository GeneralRepository,
 	generalSalt []byte,
 
-) *Service {
-	return &Service{
+) *AuthService {
+	return &AuthService{
 		userRepository:    userRepository,
 		generalRepository: generalRepository,
 		generalSalt:       generalSalt,

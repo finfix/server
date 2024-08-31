@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateAccountGroup обновляет группу счетов
-func (repo *Repository) UpdateAccountGroup(ctx context.Context, fields model.UpdateAccountGroupReq) error {
+func (repo *AccountGroupRepository) UpdateAccountGroup(ctx context.Context, fields model.UpdateAccountGroupReq) error {
 
 	var (
 		queryFields []string

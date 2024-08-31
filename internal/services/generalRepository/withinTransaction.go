@@ -8,7 +8,7 @@ import (
 )
 
 // WithinTransaction принимает коллбэк, который будет выполнен в рамках транзакции
-func (repo *Repository) WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
+func (repo *GeneralRepository) WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
 	// begin transaction
 	tx, err := repo.db.Begin(ctx)
 	if err != nil {

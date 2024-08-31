@@ -13,8 +13,8 @@ import (
 	"server/pkg/tgBot"
 )
 
-var _ SettingsRepository = &settingsRepository.Repository{}
-var _ UserService = &userService.Service{}
+var _ SettingsRepository = &settingsRepository.SettingsRepository{}
+var _ UserService = &userService.UserService{}
 
 type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
@@ -37,7 +37,7 @@ type Version struct {
 	Build   string
 }
 
-type Service struct {
+type SettingsService struct {
 	settingsRepository SettingsRepository
 	userService        UserService
 	tgBot              *tgBot.TgBot
@@ -45,14 +45,14 @@ type Service struct {
 	version            Version
 }
 
-func New(
+func NewSettingsService(
 	settingsRepository SettingsRepository,
 	userService UserService,
 	tgBot *tgBot.TgBot,
 	version Version,
 	credentials Credentials,
-) *Service {
-	return &Service{
+) *SettingsService {
+	return &SettingsService{
 		settingsRepository: settingsRepository,
 		userService:        userService,
 		tgBot:              tgBot,

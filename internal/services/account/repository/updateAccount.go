@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateAccount обновляет счет
-func (repo *Repository) UpdateAccount(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateAccountReq) error {
+func (repo *AccountRepository) UpdateAccount(ctx context.Context, updateReqs map[uint32]accountRepoModel.UpdateAccountReq) error {
 
 	for id, fields := range updateReqs {
 

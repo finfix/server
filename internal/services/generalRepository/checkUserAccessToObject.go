@@ -9,7 +9,7 @@ import (
 )
 
 // CheckUserAccessToObjects проверяет, имеет ли пользователь доступ к указанным идентификаторам объектов
-func (repo *Repository) CheckUserAccessToObjects(ctx context.Context, checkType checker.CheckType, userID uint32, ids []uint32) error {
+func (repo *GeneralRepository) CheckUserAccessToObjects(ctx context.Context, checkType checker.CheckType, userID uint32, ids []uint32) error {
 
 	accessedAccountGroupIDs := repo.GetAvailableAccountGroups(userID)
 

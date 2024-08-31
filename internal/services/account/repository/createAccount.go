@@ -7,7 +7,7 @@ import (
 )
 
 // CreateAccount создает новый счет
-func (repo *Repository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
+func (repo *AccountRepository) CreateAccount(ctx context.Context, account accountRepoModel.CreateAccountReq) (id uint32, serialNumber uint32, err error) {
 
 	// Получаем текущий максимальный серийный номер
 	row, err := repo.db.QueryRow(ctx, `

@@ -11,7 +11,7 @@ import (
 )
 
 // SendNotification отправляет пуш на все устройства пользователя
-func (s *Service) SendNotification(ctx context.Context, userID uint32, push model.Notification) (count uint8, err error) {
+func (s *UserService) SendNotification(ctx context.Context, userID uint32, push model.Notification) (count uint8, err error) {
 
 	// Получаем все девайсы пользователя
 	devices, err := s.userRepository.GetDevices(ctx, userRepoModel.GetDevicesReq{ //nolint:exhaustruct

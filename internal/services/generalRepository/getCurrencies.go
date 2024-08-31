@@ -7,7 +7,7 @@ import (
 )
 
 // GetCurrencies возвращает список валют и их курсов
-func (repo *Repository) GetCurrencies(ctx context.Context) (map[string]decimal.Decimal, error) {
+func (repo *GeneralRepository) GetCurrencies(ctx context.Context) (map[string]decimal.Decimal, error) {
 	var currencies []struct {
 		Name string          `db:"signatura"`
 		Rate decimal.Decimal `db:"rate"`

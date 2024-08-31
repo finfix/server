@@ -12,7 +12,7 @@ import (
 )
 
 // UpdateTransaction редактирует транзакцию
-func (s *Service) UpdateTransaction(ctx context.Context, fields transactionModel.UpdateTransactionReq) error {
+func (s *TransactionService) UpdateTransaction(ctx context.Context, fields transactionModel.UpdateTransactionReq) error {
 
 	// Проверяем доступ пользователя к транзакции
 	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Transactions, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {

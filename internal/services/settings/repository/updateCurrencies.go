@@ -9,7 +9,7 @@ import (
 )
 
 // UpdateCurrencies обновляет курсы валют в базе данных
-func (repo *Repository) UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error {
+func (repo *SettingsRepository) UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error {
 	var (
 		pattern  = "(?, ?, ?, ?)"
 		tmpQuery = make([]string, 0, len(rates))

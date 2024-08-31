@@ -1,22 +1,20 @@
 package generalRepository
 
 import (
-	"context"
 	"sync"
 	"time"
 
-	"server/pkg/log"
 	"server/pkg/sql"
 )
 
-type Repository struct {
+type GeneralRepository struct {
 	db       sql.SQL
 	accesses accessesMap
 }
 
-func New(db sql.SQL) (_ *Repository, err error) {
+func NewGeneralRepository(db sql.SQL) (_ *GeneralRepository, err error) {
 
-	repository := &Repository{
+	repository := &GeneralRepository{
 		db: db,
 		accesses: accessesMap{
 			accesses: nil,

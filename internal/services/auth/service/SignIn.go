@@ -10,7 +10,7 @@ import (
 )
 
 // SignIn авторизует пользователя и возвращает токены доступа
-func (s *Service) SignIn(ctx context.Context, loginData model.SignInReq) (accessData model.AuthRes, err error) {
+func (s *AuthService) SignIn(ctx context.Context, loginData model.SignInReq) (accessData model.AuthRes, err error) {
 
 	// Получаем пользователя по email
 	users, err := s.userRepository.GetUsers(ctx, userModel.GetUsersReq{Emails: []string{loginData.Email}}) //nolint:exhaustruct

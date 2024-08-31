@@ -9,7 +9,7 @@ import (
 	"server/internal/services/accountGroup/model"
 )
 
-func (repo *Repository) GetAccountGroups(ctx context.Context, filters model.GetAccountGroupsReq) (accountGroups []model.AccountGroup, err error) {
+func (repo *AccountGroupRepository) GetAccountGroups(ctx context.Context, filters model.GetAccountGroupsReq) (accountGroups []model.AccountGroup, err error) {
 
 	var (
 		queryArgs = []string{"ag.id != ?"}

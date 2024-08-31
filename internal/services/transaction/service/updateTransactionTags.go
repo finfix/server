@@ -8,7 +8,7 @@ import (
 	"server/pkg/slices"
 )
 
-func (s *Service) updateTransactionTags(ctx context.Context, userID, transactionID uint32, tagIDs []uint32) error {
+func (s *TransactionService) updateTransactionTags(ctx context.Context, userID, transactionID uint32, tagIDs []uint32) error {
 
 	// Проверяем доступ пользователя к тегам
 	if len(tagIDs) > 0 {

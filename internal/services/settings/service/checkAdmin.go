@@ -7,7 +7,7 @@ import (
 	"server/pkg/errors"
 )
 
-func (s *Service) checkAdmin(ctx context.Context, userID uint32) error {
+func (s *SettingsService) checkAdmin(ctx context.Context, userID uint32) error {
 	users, err := s.userService.GetUsers(ctx, userModel.GetUsersReq{ //nolint:exhaustruct
 		IDs: []uint32{userID},
 	})

@@ -10,11 +10,11 @@ const adminUser = 15
 
 type Scheduler struct {
 	cron            *cron.Cron
-	settingsService *settingsService.Service
+	settingsService *settingsService.SettingsService
 }
 
 func NewScheduler(
-	settingsService *settingsService.Service,
+	settingsService *settingsService.SettingsService,
 
 ) *Scheduler {
 	return &Scheduler{

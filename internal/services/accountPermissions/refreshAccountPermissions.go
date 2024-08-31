@@ -7,7 +7,7 @@ import (
 	"server/pkg/log"
 )
 
-func (s *Service) refreshAccountPermissions(doOnce bool) error {
+func (s *AccountPermissionsService) refreshAccountPermissions(doOnce bool) error {
 	for {
 		log.Info(context.Background(), "Получаем пермишены на действия со счетами")
 		var err error

@@ -7,7 +7,7 @@ import (
 )
 
 // CreateAccountGroup создает новую группу счетов
-func (repo *Repository) CreateAccountGroup(ctx context.Context, accountGroup accountGroupRepoModel.CreateAccountGroupReq) (id uint32, serialNumber uint32, err error) {
+func (repo *AccountGroupRepository) CreateAccountGroup(ctx context.Context, accountGroup accountGroupRepoModel.CreateAccountGroupReq) (id uint32, serialNumber uint32, err error) {
 
 	// Получаем текущий максимальный серийный номер группы счетов
 	row, err := repo.db.QueryRow(ctx, `

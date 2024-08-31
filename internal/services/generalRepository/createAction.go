@@ -8,7 +8,7 @@ import (
 )
 
 // CreateAction создает новый лог действия пользователя
-func (repo *Repository) CreateAction(ctx context.Context, actionType enum.ActionType, deviceID string, userID, objectID uint32) error {
+func (repo *GeneralRepository) CreateAction(ctx context.Context, actionType enum.ActionType, deviceID string, userID, objectID uint32) error {
 
 	// Добавляем лог
 	if err := repo.db.Exec(ctx, `

@@ -8,7 +8,7 @@ import (
 )
 
 // UpdateAccountGroup обновляет группу счетов по конкретным полям
-func (s *Service) UpdateAccountGroup(ctx context.Context, updateReq model.UpdateAccountGroupReq) error {
+func (s *AccountGroupService) UpdateAccountGroup(ctx context.Context, updateReq model.UpdateAccountGroupReq) error {
 
 	// Проверяем доступ пользователя к группе счетов
 	if err := s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {

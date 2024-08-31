@@ -10,7 +10,7 @@ import (
 )
 
 // UpdateDevice редактирует девайс
-func (repo *Repository) UpdateDevice(ctx context.Context, fields userRepoModel.UpdateDeviceReq) error {
+func (repo *UserRepository) UpdateDevice(ctx context.Context, fields userRepoModel.UpdateDeviceReq) error {
 
 	// Изменяем поля девайса
 	var (

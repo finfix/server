@@ -4,12 +4,12 @@ import (
 	"server/pkg/sql"
 )
 
-type Repository struct {
+type UserRepository struct {
 	db sql.SQL
 }
 
-func New(db sql.SQL) *Repository {
-	return &Repository{
+func NewUserRepository(db sql.SQL) *UserRepository {
+	return &UserRepository{
 		db: db,
 	}
 }

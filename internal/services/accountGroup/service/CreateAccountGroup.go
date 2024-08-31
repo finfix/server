@@ -7,7 +7,7 @@ import (
 )
 
 // CreateAccountGroup создает новую группу счетов
-func (s *Service) CreateAccountGroup(ctx context.Context, accountGroup model.CreateAccountGroupReq) (res model.CreateAccountGroupRes, err error) {
+func (s *AccountGroupService) CreateAccountGroup(ctx context.Context, accountGroup model.CreateAccountGroupReq) (res model.CreateAccountGroupRes, err error) {
 
 	// Создаем SQL-транзакцию
 	return res, s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {

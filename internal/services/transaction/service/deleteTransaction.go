@@ -8,7 +8,7 @@ import (
 )
 
 // DeleteTransaction удаляет транзакцию
-func (s *Service) DeleteTransaction(ctx context.Context, id model.DeleteTransactionReq) error {
+func (s *TransactionService) DeleteTransaction(ctx context.Context, id model.DeleteTransactionReq) error {
 
 	// Проверяем доступ пользователя к транзакции
 	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Transactions, id.Necessary.UserID, []uint32{id.ID}); err != nil {

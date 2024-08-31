@@ -6,7 +6,7 @@ import (
 	settingsModel "server/internal/services/settings/model"
 )
 
-func (s *Service) SendNotification(ctx context.Context, req settingsModel.SendNotificationReq) (res settingsModel.SendNotificationRes, err error) {
+func (s *SettingsService) SendNotification(ctx context.Context, req settingsModel.SendNotificationReq) (res settingsModel.SendNotificationRes, err error) {
 
 	err = s.checkAdmin(ctx, req.Necessary.UserID)
 	if err != nil {

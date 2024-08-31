@@ -7,7 +7,7 @@ import (
 	"server/internal/services/account/model/accountType"
 )
 
-func (s *Service) GetAccountPermissions(account model.Account) AccountPermissions {
+func (s *AccountPermissionsService) GetAccountPermissions(account model.Account) AccountPermissions {
 	typeToPermissions, isParentToPermissions := s.permissions.get()
 	return joinAccountPermissions(
 		generalPermissions,
@@ -16,7 +16,7 @@ func (s *Service) GetAccountPermissions(account model.Account) AccountPermission
 	)
 }
 
-func (s *Service) getAccountPermissions(ctx context.Context) (
+func (s *AccountPermissionsService) getAccountPermissions(ctx context.Context) (
 	_ map[accountType.Type]AccountPermissions,
 	_ map[bool]AccountPermissions,
 	err error,

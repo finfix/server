@@ -2,7 +2,7 @@ package generalRepository
 
 import "context"
 
-func (repo *Repository) getAccesses(ctx context.Context) (_ map[uint32]map[uint32]struct{}, err error) {
+func (repo *GeneralRepository) getAccesses(ctx context.Context) (_ map[uint32]map[uint32]struct{}, err error) {
 
 	usersToAccountsGroups := make(map[uint32]map[uint32]struct{})
 

@@ -10,13 +10,13 @@ import (
 	tagRepoModel "server/internal/services/tag/repository/model"
 )
 
-type Service struct {
+type TagService struct {
 	tagRepository     TagRepository
 	generalRepository GeneralRepository
 }
 
 var _ TagRepository = &tagRepository.TagRepository{}
-var _ GeneralRepository = &generalRepository.Repository{}
+var _ GeneralRepository = &generalRepository.GeneralRepository{}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -33,12 +33,11 @@ type TagRepository interface {
 	GetTagsToTransactions(ctx context.Context, req tagModel.GetTagsToTransactionsReq) ([]tagModel.TagToTransaction, error)
 }
 
-func New(
+func NewTagService(
 	tagRepository TagRepository,
 	generalRepository GeneralRepository,
-
-) *Service {
-	return &Service{
+) *TagService {
+	return &TagService{
 		tagRepository:     tagRepository,
 		generalRepository: generalRepository,
 	}

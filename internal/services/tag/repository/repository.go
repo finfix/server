@@ -8,7 +8,7 @@ type TagRepository struct {
 	db sql.SQL
 }
 
-func New(db sql.SQL, ) *TagRepository {
+func NewTagRepository(db sql.SQL, ) *TagRepository {
 	return &TagRepository{
 		db: db,
 	}

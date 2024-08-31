@@ -2,7 +2,7 @@ package repository
 
 import "context"
 
-func (repo *Repository) ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error {
+func (repo *AccountRepository) ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error {
 
 	var req string
 	args := []any{

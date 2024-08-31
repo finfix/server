@@ -3,7 +3,7 @@ package repository
 import "context"
 
 // ChangeSerialNumbers вставляет группу счетов на новое место
-func (repo *Repository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
+func (repo *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
 
 	var req string
 	var args []any

@@ -17,11 +17,10 @@ import (
 	userRepository "server/internal/services/user/repository"
 )
 
-var _ GeneralRepository = &generalRepository.Repository{}
-var _ AccountRepository = &accountRepository.Repository{}
-var _ AccountService = &Service{} //nolint:exhaustruct
-var _ AccountPermissionsService = &accountPermissions.Service{}
-var _ UserRepository = &userRepository.Repository{}
+var _ GeneralRepository = &generalRepository.GeneralRepository{}
+var _ AccountRepository = &accountRepository.AccountRepository{}
+var _ AccountPermissionsService = &accountPermissions.AccountPermissionsService{}
+var _ UserRepository = &userRepository.UserRepository{}
 var _ TransactionRepository = &transactionRepository.TransactionRepository{}
 
 type GeneralRepository interface {
@@ -54,12 +53,7 @@ type AccountPermissionsService interface {
 	CheckAccountPermissions(req accountModel.UpdateAccountReq, permissions accountPermissions.AccountPermissions) error
 }
 
-type AccountService interface {
-	ChangeAccountRemainder(ctx context.Context, account accountModel.Account, remainderToUpdate decimal.Decimal, userID uint32) (accountModel.UpdateAccountRes, error)
-}
-
-type Service struct {
-	accountService            AccountService
+type AccountService struct {
 	accountRepository         AccountRepository
 	general                   GeneralRepository
 	transaction               TransactionRepository
@@ -67,22 +61,18 @@ type Service struct {
 	accountPermissionsService AccountPermissionsService
 }
 
-func New(
+func NewAccountService(
 	account AccountRepository,
 	general GeneralRepository,
 	transaction TransactionRepository,
 	user UserRepository,
 	permissionsService AccountPermissionsService,
-
-) *Service {
-	s := &Service{
+) *AccountService {
+	return &AccountService{
 		accountRepository:         account,
 		general:                   general,
 		transaction:               transaction,
 		user:                      user,
 		accountPermissionsService: permissionsService,
-		accountService:            nil,
 	}
-	s.accountService = s
-	return s
 }

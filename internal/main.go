@@ -175,29 +175,29 @@ func run() error {
 	}
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.New(postrgreSQL)
+	generalRepository, err := generalRepository.NewGeneralRepository(postrgreSQL)
 	if err != nil {
 		return err
 	}
-	accountGroupRepository := accountGroupRepository.New(postrgreSQL)
-	accountRepository := accountRepository.New(postrgreSQL)
-	tagRepository := tagRepository.New(postrgreSQL)
-	transactionRepository := transactionRepository.New(postrgreSQL)
-	settingsRepository := settingsRepository.New(postrgreSQL)
-	userRepository := userRepository.New(postrgreSQL)
+	accountGroupRepository := accountGroupRepository.NewAccountGroupRepository(postrgreSQL)
+	accountRepository := accountRepository.NewAccountRepository(postrgreSQL)
+	tagRepository := tagRepository.NewTagRepository(postrgreSQL)
+	transactionRepository := transactionRepository.NewTransactionRepository(postrgreSQL)
+	settingsRepository := settingsRepository.NewSettingsRepository(postrgreSQL)
+	userRepository := userRepository.NewUserRepository(postrgreSQL)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.New(postrgreSQL)
+	accountPermisssionsService, err := accountPermisssionsService.NewAccountPermissionsService(postrgreSQL)
 	if err != nil {
 		return err
 	}
 
-	accountGroupService := accountGroupService.New(
+	accountGroupService := accountGroupService.NewAccountGroupService(
 		accountGroupRepository,
 		generalRepository,
 	)
 
-	accountService := accountService.New(
+	accountService := accountService.NewAccountService(
 		accountRepository,
 		generalRepository,
 		transactionRepository,
@@ -205,12 +205,12 @@ func run() error {
 		accountPermisssionsService,
 	)
 
-	tagService := tagService.New(
+	tagService := tagService.NewTagService(
 		tagRepository,
 		generalRepository,
 	)
 
-	transactionService := transactionService.New(
+	transactionService := transactionService.NewTransactionService(
 		transactionRepository,
 		accountRepository,
 		generalRepository,
@@ -218,14 +218,14 @@ func run() error {
 		tagRepository,
 	)
 
-	userService := userService.New(
+	userService := userService.NewUserService(
 		userRepository,
 		generalRepository,
 		pushNotificator,
 		[]byte(cfg.GeneralSalt),
 	)
 
-	settingsService := settingsService.New(
+	settingsService := settingsService.NewSettingsService(
 		settingsRepository,
 		userService,
 		tgBot,
@@ -238,7 +238,7 @@ func run() error {
 		},
 	)
 
-	authService := authService.New(
+	authService := authService.NewAuthService(
 		userRepository,
 		generalRepository,
 		[]byte(cfg.GeneralSalt),

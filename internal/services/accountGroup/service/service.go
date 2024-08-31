@@ -12,8 +12,8 @@ import (
 	"server/internal/services/generalRepository/checker"
 )
 
-var _ GeneralRepository = &generalRepository.Repository{}
-var _ AccountGroupRepository = &accountGroupRepository.Repository{}
+var _ GeneralRepository = &generalRepository.GeneralRepository{}
+var _ AccountGroupRepository = &accountGroupRepository.AccountGroupRepository{}
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -31,17 +31,17 @@ type AccountGroupRepository interface {
 	UnlinkUserFromAccountGroup(ctx context.Context, userID, accountGroupID uint32) error
 }
 
-type Service struct {
+type AccountGroupService struct {
 	accountGroupRepository AccountGroupRepository
 	general                GeneralRepository
 }
 
-func New(
+func NewAccountGroupService(
 	accountGroup AccountGroupRepository,
 	general GeneralRepository,
 
-) *Service {
-	return &Service{
+) *AccountGroupService {
+	return &AccountGroupService{
 		accountGroupRepository: accountGroup,
 		general:                general,
 	}
