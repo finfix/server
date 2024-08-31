@@ -6,14 +6,14 @@ import (
 
 	"github.com/shopspring/decimal"
 
-	"server/pkg/datetime"
-	"server/pkg/errors"
-	"server/pkg/pointer"
 	"server/internal/services/account/model"
 	"server/internal/services/account/model/accountType"
 	accountRepoModel "server/internal/services/account/repository/model"
 	"server/internal/services/transaction/model/transactionType"
 	transactionRepoModel "server/internal/services/transaction/repository/model"
+	"server/pkg/datetime"
+	"server/pkg/errors"
+	"server/pkg/pointer"
 )
 
 func (s *Service) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate decimal.Decimal, userID uint32) (res model.UpdateAccountRes, err error) {
