@@ -5,8 +5,8 @@ import (
 
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
+	"server/internal/services/account/service/utils"
 	"server/internal/services/generalRepository/checker"
-	"server/pkg/pointer"
 	"server/pkg/slices"
 )
 
@@ -71,7 +71,7 @@ func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.Upda
 	if updateReq.AccountingInHeader != nil {
 		account.AccountingInHeader = *updateReq.AccountingInHeader
 	}
-	s.HandleAccountingInHeaderLogic(
+	utils.HandleAccountingInHeader(
 		repoUpdateReqs,
 		account,
 		childrenAccounts,
@@ -81,7 +81,7 @@ func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.Upda
 	if updateReq.Visible != nil {
 		account.Visible = *updateReq.Visible
 	}
-	s.HandleVisibleLogic(
+	utils.HandleVisible(
 		repoUpdateReqs,
 		account,
 		childrenAccounts,
@@ -125,81 +125,4 @@ func (s *AccountService) updateAccounts(ctx context.Context, account model.Accou
 
 	// Редактируем счет
 	return res, s.accountRepository.UpdateAccount(ctx, updateReqs)
-}
-
-func (s *AccountService) HandleAccountingInHeaderLogic(
-	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
-	mainAccount model.Account,
-	childrenAccounts []model.Account,
-	parentAccount *model.Account,
-) map[uint32]accountRepoModel.UpdateAccountReq {
-
-	// Если значение родительского счета отрицательное, а у дочернего счета положительное
-	if parentAccount != nil && !parentAccount.AccountingInHeader && mainAccount.AccountingInHeader {
-		// То возникает логическая ошибка, поэтому родительский счет становится подсчитываемым
-		requestParentAccount := repoUpdateReqs[parentAccount.ID]
-
-		requestParentAccount.AccountingInHeader = pointer.Pointer(true)
-
-		repoUpdateReqs[parentAccount.ID] = requestParentAccount
-	}
-
-	for _, childAccount := range childrenAccounts {
-
-		if childAccount.AccountingInHeader && !mainAccount.AccountingInHeader {
-			// То возникает логическая ошибка, поэтому значение дочернего счета становится отрицательным
-			requestChildAccount := repoUpdateReqs[childAccount.ID]
-
-			requestChildAccount.AccountingInHeader = pointer.Pointer(false)
-
-			repoUpdateReqs[childAccount.ID] = requestChildAccount
-		}
-
-	}
-
-	return repoUpdateReqs
-}
-
-func (s *AccountService) HandleVisibleLogic(
-	repoUpdateReqs map[uint32]accountRepoModel.UpdateAccountReq,
-	mainAccount model.Account,
-	childrenAccounts []model.Account,
-	parentAccount *model.Account,
-) map[uint32]accountRepoModel.UpdateAccountReq {
-
-	// Если значение родительского счета отрицательное, а у дочернего счета положительное
-	if parentAccount != nil && !parentAccount.Visible && mainAccount.Visible {
-		// То возникает логическая ошибка, поэтому родительский счет становится подсчитываемым
-		requestParentAccount := repoUpdateReqs[parentAccount.ID]
-
-		requestParentAccount.Visible = pointer.Pointer(true)
-
-		repoUpdateReqs[parentAccount.ID] = requestParentAccount
-	}
-
-	// Если видимость счета отрицательная, а подсчитываемость положительного
-	if !mainAccount.Visible && mainAccount.AccountingInHeader {
-		// То возникает логическая ошибка, поэтому подсчитываемость деактивируется
-		requestMainAccount := repoUpdateReqs[mainAccount.ID]
-
-		requestMainAccount.AccountingInHeader = pointer.Pointer(false)
-
-		repoUpdateReqs[mainAccount.ID] = requestMainAccount
-
-	}
-
-	// Если значения родительского счета меняется, то значения дочерних счетов меняются на такое же
-	for _, childAccount := range childrenAccounts {
-		requestChildAccount := repoUpdateReqs[childAccount.ID]
-
-		requestChildAccount.Visible = pointer.Pointer(mainAccount.Visible)
-
-		if !childAccount.Visible && childAccount.AccountingInHeader {
-			requestChildAccount.AccountingInHeader = pointer.Pointer(false)
-		}
-
-		repoUpdateReqs[childAccount.ID] = requestChildAccount
-	}
-
-	return repoUpdateReqs
 }

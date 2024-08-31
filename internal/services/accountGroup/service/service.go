@@ -12,8 +12,8 @@ import (
 	"server/internal/services/generalRepository/checker"
 )
 
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
-var _ AccountGroupRepository = &accountGroupRepository.AccountGroupRepository{}
+var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ AccountGroupRepository = new(accountGroupRepository.AccountGroupRepository)
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error

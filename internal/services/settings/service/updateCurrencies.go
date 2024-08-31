@@ -6,6 +6,7 @@ import (
 
 	settingsModel "server/internal/services/settings/model"
 	"server/internal/services/settings/network"
+	"server/internal/services/settings/service/utils"
 	"server/pkg/log"
 	"server/pkg/tgBot"
 )
@@ -45,8 +46,8 @@ func (s *SettingsService) UpdateCurrencies(ctx context.Context, req settingsMode
 
 	tgMessage.Message = fmt.Sprintf(
 		updateCurrenciesTemplate,
-		getRate(rates, "USD", "RUB").Round(2), //nolint:gomnd
-		getRate(rates, "BTC", "USD").Round(0),
+		utils.GetRate(rates, "USD", "RUB").Round(2), //nolint:gomnd
+		utils.GetRate(rates, "BTC", "USD").Round(0),
 	)
 
 	return nil

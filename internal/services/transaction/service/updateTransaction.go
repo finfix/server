@@ -7,6 +7,7 @@ import (
 	accountRepoModel "server/internal/services/account/repository/model"
 	"server/internal/services/generalRepository/checker"
 	transactionModel "server/internal/services/transaction/model"
+	"server/internal/services/transaction/service/utils"
 	"server/pkg/errors"
 	"server/pkg/slices"
 )
@@ -57,7 +58,7 @@ func (s *TransactionService) UpdateTransaction(ctx context.Context, fields trans
 		accountsMap := slices.ToMap(_accounts, func(account accountModel.Account) uint32 { return account.ID })
 
 		// Проверяем соответствие типов счета и типа транзакции
-		if err = s.transactionAndAccountTypesValidation(
+		if err = utils.TransactionAndAccountTypesValidation(
 			accountsMap[transaction.AccountFromID],
 			accountsMap[transaction.AccountToID],
 			transaction.Type,

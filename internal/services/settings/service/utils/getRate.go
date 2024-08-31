@@ -1,8 +1,8 @@
-package service
+package utils
 
 import "github.com/shopspring/decimal"
 
-func getRate(rates map[string]decimal.Decimal, currency, currencyRelate string) decimal.Decimal {
+func GetRate(rates map[string]decimal.Decimal, currency, currencyRelate string) decimal.Decimal {
 	currencyRate := rates[currency]
 	currencyRelateRate := rates[currencyRelate]
 	if currencyRate.GreaterThan(currencyRelateRate) {

@@ -9,8 +9,8 @@ import (
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
-var _ UserRepository = &userRepository.UserRepository{}
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
+var _ UserRepository = new(userRepository.UserRepository)
+var _ GeneralRepository = new(generalRepository.GeneralRepository)
 
 type UserRepository interface {
 	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)

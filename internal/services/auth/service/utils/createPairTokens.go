@@ -1,13 +1,13 @@
-package service
+package utils
 
 import (
 	"context"
 
-	"server/pkg/jwtManager"
 	authModel "server/internal/services/auth/model"
+	"server/pkg/jwtManager"
 )
 
-func (s *AuthService) createPairTokens(_ context.Context, userID uint32, deviceID string) (tokens authModel.Tokens, err error) {
+func CreatePairTokens(_ context.Context, userID uint32, deviceID string) (tokens authModel.Tokens, err error) {
 
 	// Создаем Access token
 	tokens.AccessToken, err = jwtManager.NewJWT(jwtManager.AccessToken, userID, deviceID)

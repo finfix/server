@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
+	"server/internal/services/auth/model"
+	"server/internal/services/auth/service/utils"
+	userModel "server/internal/services/user/model"
 	"server/pkg/errors"
 	"server/pkg/passwordManager"
-	"server/internal/services/auth/model"
-	userModel "server/internal/services/user/model"
 )
 
 // SignIn авторизует пользователя и возвращает токены доступа
@@ -32,7 +33,7 @@ func (s *AuthService) SignIn(ctx context.Context, loginData model.SignInReq) (ac
 	}
 
 	// Создаем пару токенов
-	accessData.Tokens, err = s.createPairTokens(ctx, user.ID, loginData.DeviceID)
+	accessData.Tokens, err = utils.CreatePairTokens(ctx, user.ID, loginData.DeviceID)
 	if err != nil {
 		return accessData, err
 	}

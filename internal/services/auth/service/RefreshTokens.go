@@ -3,10 +3,11 @@ package service
 import (
 	"context"
 
+	"server/internal/services/auth/model"
+	"server/internal/services/auth/service/utils"
+	userRepoModel "server/internal/services/user/repository/model"
 	"server/pkg/errors"
 	"server/pkg/jwtManager"
-	"server/internal/services/auth/model"
-	userRepoModel "server/internal/services/user/repository/model"
 )
 
 // RefreshTokens обновляет токены доступа в базе данных
@@ -47,7 +48,7 @@ func (s *AuthService) RefreshTokens(ctx context.Context, req model.RefreshTokens
 	}
 
 	// Создаем новую пару токенов
-	newTokens.Tokens, err = s.createPairTokens(ctx, req.Necessary.UserID, req.Necessary.DeviceID)
+	newTokens.Tokens, err = utils.CreatePairTokens(ctx, req.Necessary.UserID, req.Necessary.DeviceID)
 	if err != nil {
 		return newTokens, err
 	}

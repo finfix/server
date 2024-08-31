@@ -17,11 +17,11 @@ import (
 	userRepository "server/internal/services/user/repository"
 )
 
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
-var _ AccountRepository = &accountRepository.AccountRepository{}
-var _ AccountPermissionsService = &accountPermissions.AccountPermissionsService{}
-var _ UserRepository = &userRepository.UserRepository{}
-var _ TransactionRepository = &transactionRepository.TransactionRepository{}
+var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ AccountRepository = new(accountRepository.AccountRepository)
+var _ AccountPermissionsService = new(accountPermissions.AccountPermissionsService)
+var _ UserRepository = new(userRepository.UserRepository)
+var _ TransactionRepository = new(transactionRepository.TransactionRepository)
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error

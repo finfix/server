@@ -1,4 +1,4 @@
-package service
+package utils
 
 import (
 	"server/internal/services/account/model"
@@ -8,7 +8,7 @@ import (
 	"server/pkg/slices"
 )
 
-func (s *TransactionService) transactionAndAccountTypesValidation(accountFrom, accountTo model.Account, tranType transactionType.Type) error {
+func TransactionAndAccountTypesValidation(accountFrom, accountTo model.Account, tranType transactionType.Type) error {
 
 	var accesses string
 	var isAccess bool
