@@ -20,7 +20,8 @@ import (
 	accountGroupEndpoint "server/internal/services/accountGroup/endpoint"
 	accountGroupRepository "server/internal/services/accountGroup/repository"
 	accountGroupService "server/internal/services/accountGroup/service"
-	accountPermisssionsService "server/internal/services/accountPermissions"
+	accountPermisssionsRepository "server/internal/services/accountPermissions/repository"
+	accountPermisssionsService "server/internal/services/accountPermissions/service"
 	authEndpoint "server/internal/services/auth/endpoint"
 	authService "server/internal/services/auth/service"
 	"server/internal/services/generalRepository"
@@ -185,12 +186,10 @@ func run() error {
 	transactionRepository := transactionRepository.NewTransactionRepository(postrgreSQL)
 	settingsRepository := settingsRepository.NewSettingsRepository(postrgreSQL)
 	userRepository := userRepository.NewUserRepository(postrgreSQL)
+	accountPermissionsRepository := accountPermisssionsRepository.NewAccountPermissionsRepository(postrgreSQL)
 
 	// Регистрируем сервисы
-	accountPermisssionsService, err := accountPermisssionsService.NewAccountPermissionsService(postrgreSQL)
-	if err != nil {
-		return err
-	}
+	accountPermissionsService := accountPermisssionsService.NewAccountPermissionsService(accountPermissionsRepository)
 
 	accountGroupService := accountGroupService.NewAccountGroupService(
 		accountGroupRepository,
@@ -202,7 +201,7 @@ func run() error {
 		generalRepository,
 		transactionRepository,
 		userRepository,
-		accountPermisssionsService,
+		accountPermissionsService,
 	)
 
 	tagService := tagService.NewTagService(
@@ -214,7 +213,7 @@ func run() error {
 		transactionRepository,
 		accountRepository,
 		generalRepository,
-		accountPermisssionsService,
+		accountPermissionsService,
 		tagRepository,
 	)
 

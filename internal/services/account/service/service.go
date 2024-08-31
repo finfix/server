@@ -8,7 +8,8 @@ import (
 	accountModel "server/internal/services/account/model"
 	accountRepository "server/internal/services/account/repository"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/accountPermissions"
+	"server/internal/services/accountPermissions/model"
+	"server/internal/services/accountPermissions/service"
 	"server/internal/services/generalRepository"
 	"server/internal/services/generalRepository/checker"
 	transactionRepository "server/internal/services/transaction/repository"
@@ -19,7 +20,7 @@ import (
 
 var _ GeneralRepository = new(generalRepository.GeneralRepository)
 var _ AccountRepository = new(accountRepository.AccountRepository)
-var _ AccountPermissionsService = new(accountPermissions.AccountPermissionsService)
+var _ AccountPermissionsService = new(service.AccountPermissionsService)
 var _ UserRepository = new(userRepository.UserRepository)
 var _ TransactionRepository = new(transactionRepository.TransactionRepository)
 
@@ -49,8 +50,7 @@ type UserRepository interface {
 }
 
 type AccountPermissionsService interface {
-	GetAccountPermissions(account accountModel.Account) accountPermissions.AccountPermissions
-	CheckAccountPermissions(req accountModel.UpdateAccountReq, permissions accountPermissions.AccountPermissions) error
+	GetAccountsPermissions(context.Context, ...accountModel.Account) ([]model.AccountPermissions, error)
 }
 
 type AccountService struct {

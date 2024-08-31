@@ -39,11 +39,13 @@ func (s *TransactionService) CreateTransaction(ctx context.Context, transaction 
 	}
 
 	// Получаем разрешения счетов
-	permissionsAccountFrom := s.permissionsService.GetAccountPermissions(accountsMap[transaction.AccountFromID])
-	permissionsAccountTo := s.permissionsService.GetAccountPermissions(accountsMap[transaction.AccountToID])
+	permissionsArr, err := s.permissionsService.GetAccountsPermissions(ctx, accountsMap[transaction.AccountFromID], accountsMap[transaction.AccountToID])
+	if err != nil {
+		return id, err
+	}
 
 	// Проверяем, что счета можно использовать для создания транзакции
-	if !permissionsAccountFrom.CreateTransaction || !permissionsAccountTo.CreateTransaction {
+	if !permissionsArr[0].CreateTransaction || !permissionsArr[1].CreateTransaction {
 		return id, errors.BadRequest.New("Нельзя создать транзакцию для этих счетов",
 			errors.ParamsOption(
 				"AccountFromID", transaction.AccountFromID,

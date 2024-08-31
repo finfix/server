@@ -1,7 +1,11 @@
-package accountPermissions
+package utils
 
-func joinAccountPermissions(permissions ...AccountPermissions) (joinedPermissions AccountPermissions) {
-	joinedPermissions = generalPermissions
+import (
+	"server/internal/services/accountPermissions/model"
+)
+
+func JoinAccountPermissions(permissions ...model.AccountPermissions) (joinedPermissions model.AccountPermissions) {
+	joinedPermissions = allTruePermissions
 	for _, permission := range permissions {
 		joinedPermissions.UpdateBudget = joinedPermissions.UpdateBudget && permission.UpdateBudget
 		joinedPermissions.UpdateRemainder = joinedPermissions.UpdateRemainder && permission.UpdateRemainder
@@ -11,4 +15,13 @@ func joinAccountPermissions(permissions ...AccountPermissions) (joinedPermission
 		joinedPermissions.CreateTransaction = joinedPermissions.CreateTransaction && permission.CreateTransaction
 	}
 	return joinedPermissions
+}
+
+var allTruePermissions = model.AccountPermissions{
+	UpdateBudget:          true,
+	UpdateRemainder:       true,
+	UpdateCurrency:        true,
+	UpdateParentAccountID: true,
+
+	CreateTransaction: true,
 }

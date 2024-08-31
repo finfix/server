@@ -28,7 +28,11 @@ func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.Upda
 	}
 
 	// Проверяем, что входные данные не противоречат разрешениям
-	if err = s.accountPermissionsService.CheckAccountPermissions(updateReq, s.accountPermissionsService.GetAccountPermissions(account)); err != nil {
+	permissions, err := slices.FirstWithError(s.accountPermissionsService.GetAccountsPermissions(ctx, account))
+	if err != nil {
+		return res, err
+	}
+	if err = utils.CheckAccountPermissionsForUpdate(updateReq, permissions); err != nil {
 		return res, err
 	}
 

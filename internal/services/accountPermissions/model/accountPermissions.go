@@ -1,4 +1,4 @@
-package accountPermissions
+package model
 
 type AccountPermissions struct {
 	UpdateBudget          bool

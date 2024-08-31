@@ -6,7 +6,8 @@ import (
 	accountModel "server/internal/services/account/model"
 	accountRepository "server/internal/services/account/repository"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/accountPermissions"
+	"server/internal/services/accountPermissions/model"
+	"server/internal/services/accountPermissions/service"
 	"server/internal/services/generalRepository"
 	"server/internal/services/generalRepository/checker"
 	tagModel "server/internal/services/tag/model"
@@ -24,11 +25,11 @@ type TransactionService struct {
 	tagRepository         TagRepository
 }
 
-var _ TransactionRepository = &transactionRepository.TransactionRepository{}
-var _ AccountRepository = &accountRepository.AccountRepository{}
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
-var _ AccountPermissionsService = &accountPermissions.AccountPermissionsService{}
-var _ TagRepository = &tagRepository.TagRepository{}
+var _ TransactionRepository = new(transactionRepository.TransactionRepository)
+var _ AccountRepository = new(accountRepository.AccountRepository)
+var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ AccountPermissionsService = new(service.AccountPermissionsService)
+var _ TagRepository = new(tagRepository.TagRepository)
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -44,7 +45,7 @@ type TransactionRepository interface {
 }
 
 type AccountPermissionsService interface {
-	GetAccountPermissions(account accountModel.Account) accountPermissions.AccountPermissions
+	GetAccountsPermissions(context.Context, ...accountModel.Account) ([]model.AccountPermissions, error)
 }
 
 type AccountRepository interface {
