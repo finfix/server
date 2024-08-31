@@ -25,6 +25,8 @@ import (
 	authEndpoint "server/internal/services/auth/endpoint"
 	authService "server/internal/services/auth/service"
 	"server/internal/services/generalRepository"
+	pushNotificatorModel "server/internal/services/pushNotificator/model"
+	pushNotificatorService "server/internal/services/pushNotificator/service"
 	"server/internal/services/scheduler"
 	settingsEndpoint "server/internal/services/settings/endpoint"
 	settingsRepository "server/internal/services/settings/repository"
@@ -50,7 +52,6 @@ import (
 	"server/pkg/log/model"
 	"server/pkg/migrator"
 	"server/pkg/panicRecover"
-	"server/pkg/pushNotificator"
 	"server/pkg/stackTrace"
 )
 
@@ -155,16 +156,6 @@ func run() error {
 		return err
 	}
 
-	log.Info(ctx, "Инициализируем пуши")
-	pushNotificator, err := pushNotificator.NewPushNotificator(cfg.Notifications.Enabled, pushNotificator.APNsCredentials{
-		TeamID:      cfg.Notifications.APNs.TeamID,
-		KeyID:       cfg.Notifications.APNs.KeyID,
-		KeyFilePath: cfg.Notifications.APNs.KeyFilePath,
-	})
-	if err != nil {
-		return err
-	}
-
 	// Регистрируем репозитории
 	generalRepository, err := generalRepository.NewGeneralRepository(postrgreSQL)
 	if err != nil {
@@ -180,12 +171,22 @@ func run() error {
 
 	// Регистрируем сервисы
 	log.Info(ctx, "Инициализируем Telegram-бота")
-	tgBot, err := service.NewTgBotService(cfg.Telegram.Token, cfg.Telegram.ChatID, cfg.Telegram.Enabled)
+	tgBotService, err := service.NewTgBotService(cfg.Telegram.Token, cfg.Telegram.ChatID, cfg.Telegram.Enabled)
 	if err != nil {
 		return err
 	}
 	if cfg.Telegram.Enabled {
-		defer tgBot.Bot.Close()
+		defer tgBotService.Bot.Close()
+	}
+
+	log.Info(ctx, "Инициализируем сервис пушей")
+	pushNotificatorService, err := pushNotificatorService.NewPushNotificatorService(cfg.Notifications.Enabled, pushNotificatorModel.APNsCredentials{
+		TeamID:      cfg.Notifications.APNs.TeamID,
+		KeyID:       cfg.Notifications.APNs.KeyID,
+		KeyFilePath: cfg.Notifications.APNs.KeyFilePath,
+	})
+	if err != nil {
+		return err
 	}
 
 	accountPermissionsService := accountPermisssionsService.NewAccountPermissionsService(accountPermissionsRepository)
@@ -219,14 +220,14 @@ func run() error {
 	userService := userService.NewUserService(
 		userRepository,
 		generalRepository,
-		pushNotificator,
+		pushNotificatorService,
 		[]byte(cfg.GeneralSalt),
 	)
 
 	settingsService := settingsService.NewSettingsService(
 		settingsRepository,
 		userService,
-		tgBot,
+		tgBotService,
 		settingsService.Version{
 			Version: version,
 			Build:   build,

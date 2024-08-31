@@ -4,14 +4,16 @@ import (
 	"context"
 
 	"server/internal/services/generalRepository"
+	pushNotificatorModel "server/internal/services/pushNotificator/model"
+	pushNotificatorService "server/internal/services/pushNotificator/service"
 	userModel "server/internal/services/user/model"
 	userRepository "server/internal/services/user/repository"
 	userRepoModel "server/internal/services/user/repository/model"
-	"server/pkg/pushNotificator"
 )
 
-var _ UserRepository = &userRepository.UserRepository{}
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
+var _ UserRepository = new(userRepository.UserRepository)
+var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ PushNotificatorService = new(pushNotificatorService.PushNotificatorService)
 
 type GeneralRepository interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
@@ -28,17 +30,21 @@ type UserRepository interface {
 	UpdateDevice(context.Context, userRepoModel.UpdateDeviceReq) error
 }
 
+type PushNotificatorService interface {
+	SendNotification(ctx context.Context, req pushNotificatorModel.SendNotificationReq) (string, error)
+}
+
 type UserService struct {
 	userRepository    UserRepository
 	generalRepository GeneralRepository
-	pushNotificator   *pushNotificator.PushNotificator
+	pushNotificator   PushNotificatorService
 	generalSalt       []byte
 }
 
 func NewUserService(
 	userRepository UserRepository,
 	generalRepository GeneralRepository,
-	pushNotificator *pushNotificator.PushNotificator,
+	pushNotificator PushNotificatorService,
 	generalSalt []byte,
 ) *UserService {
 	return &UserService{

@@ -1,4 +1,4 @@
-package pushNotificator
+package service
 
 import (
 	"context"
@@ -6,58 +6,19 @@ import (
 
 	"github.com/sideshow/apns2"
 	"github.com/sideshow/apns2/payload"
-	"github.com/sideshow/apns2/token"
 
+	"server/internal/services/pushNotificator/model"
 	"server/pkg/errors"
 	"server/pkg/log"
 )
 
-type PushNotificator struct {
-	apns *apns2.Client
-	isOn bool
-}
-
-type APNsCredentials struct {
-	TeamID      string
-	KeyID       string
-	KeyFilePath string
-}
-
-func NewPushNotificator(isOn bool, apnsCredentials APNsCredentials) (*PushNotificator, error) {
-
-	if !isOn {
-		log.Warning(context.Background(), "Push notificator is off")
-		return &PushNotificator{
-			isOn: isOn,
-			apns: nil,
-		}, nil
-	}
-
-	authKey, err := token.AuthKeyFromFile(apnsCredentials.KeyFilePath)
-	if err != nil {
-		return nil, errors.InternalServer.Wrap(err)
-	}
-
-	apnsClient := apns2.NewTokenClient(&token.Token{ // nolint:exhaustruct
-		AuthKey: authKey,
-		KeyID:   apnsCredentials.KeyID,
-		TeamID:  apnsCredentials.TeamID,
-	})
-	apnsClient.Host = apns2.HostProduction
-
-	return &PushNotificator{
-		isOn: isOn,
-		apns: apnsClient,
-	}, nil
-}
-
-// Push отправляет одно сообщение на все переданные устройства
-func (s *PushNotificator) Push(ctx context.Context, req PushReq) (id string, err error) {
+// SendNotification отправляет одно сообщение на все переданные устройства
+func (s *PushNotificatorService) SendNotification(ctx context.Context, req model.SendNotificationReq) (id string, err error) {
 
 	const defaultPriority = 5
 
 	if !s.isOn {
-		log.Warning(ctx, "Вызвана функция Push. Пуши выключены")
+		log.Warning(ctx, "Вызвана функция SendNotification. Пуши выключены")
 		return id, nil
 	}
 

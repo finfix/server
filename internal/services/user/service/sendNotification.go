@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
+	model2 "server/internal/services/pushNotificator/model"
 	"server/internal/services/user/model"
 	"server/internal/services/user/model/OS"
 	userRepoModel "server/internal/services/user/repository/model"
 	"server/pkg/log"
-	"server/pkg/pushNotificator"
 )
 
 // SendNotification отправляет пуш на все устройства пользователя
@@ -31,8 +31,8 @@ func (s *UserService) SendNotification(ctx context.Context, userID uint32, push 
 		// Смотрим на операционную систему и отправляем уведомление
 		switch device.DeviceInformation.NameOS {
 		case OS.IOS, OS.IPadOS, OS.OSX, OS.WatchOS:
-			_, err = s.pushNotificator.Push(ctx, pushNotificator.PushReq{
-				Notification: pushNotificator.NotificationSettings{
+			_, err = s.pushNotificator.SendNotification(ctx, model2.SendNotificationReq{
+				Notification: model2.NotificationSettings{
 					Title:    &push.Title,
 					Message:  &push.Message,
 					Subtitle: &push.Subtitle,
