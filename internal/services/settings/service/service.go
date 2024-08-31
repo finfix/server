@@ -8,9 +8,9 @@ import (
 	settingsModel "server/internal/services/settings/model"
 	"server/internal/services/settings/model/applicationType"
 	settingsRepository "server/internal/services/settings/repository"
+	tgBotModel "server/internal/services/tgBot/model"
 	userModel "server/internal/services/user/model"
 	userService "server/internal/services/user/service"
-	"server/pkg/tgBot"
 )
 
 var _ SettingsRepository = &settingsRepository.SettingsRepository{}
@@ -28,6 +28,10 @@ type UserService interface {
 	GetUsers(ctx context.Context, filters userModel.GetUsersReq) (users []userModel.User, err error)
 }
 
+type TgBotService interface {
+	SendMessage(context.Context, tgBotModel.SendMessageReq) error
+}
+
 type Credentials struct {
 	CurrencyProviderAPIKey string
 }
@@ -40,7 +44,7 @@ type Version struct {
 type SettingsService struct {
 	settingsRepository SettingsRepository
 	userService        UserService
-	tgBot              *tgBot.TgBot
+	tgBot              TgBotService
 	credentials        Credentials
 	version            Version
 }
@@ -48,7 +52,7 @@ type SettingsService struct {
 func NewSettingsService(
 	settingsRepository SettingsRepository,
 	userService UserService,
-	tgBot *tgBot.TgBot,
+	tgBot TgBotService,
 	version Version,
 	credentials Credentials,
 ) *SettingsService {

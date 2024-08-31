@@ -32,6 +32,7 @@ import (
 	tagEndpoint "server/internal/services/tag/endpoint"
 	tagRepository "server/internal/services/tag/repository"
 	tagService "server/internal/services/tag/service"
+	"server/internal/services/tgBot/service"
 	transactionEndpoint "server/internal/services/transaction/endpoint"
 	transactionRepository "server/internal/services/transaction/repository"
 	transactionService "server/internal/services/transaction/service"
@@ -51,7 +52,6 @@ import (
 	"server/pkg/panicRecover"
 	"server/pkg/pushNotificator"
 	"server/pkg/stackTrace"
-	"server/pkg/tgBot"
 )
 
 // @title COIN Server Documentation
@@ -155,16 +155,6 @@ func run() error {
 		return err
 	}
 
-	// Инициализируем клиента телеграм
-	log.Info(ctx, "Инициализируем телеграм клиента")
-	tgBot, err := tgBot.NewTgBot(cfg.Telegram.Token, cfg.Telegram.ChatID, cfg.Telegram.Enabled)
-	if err != nil {
-		return err
-	}
-	if cfg.Telegram.Enabled {
-		defer tgBot.Bot.Close()
-	}
-
 	log.Info(ctx, "Инициализируем пуши")
 	pushNotificator, err := pushNotificator.NewPushNotificator(cfg.Notifications.Enabled, pushNotificator.APNsCredentials{
 		TeamID:      cfg.Notifications.APNs.TeamID,
@@ -189,6 +179,15 @@ func run() error {
 	accountPermissionsRepository := accountPermisssionsRepository.NewAccountPermissionsRepository(postrgreSQL)
 
 	// Регистрируем сервисы
+	log.Info(ctx, "Инициализируем Telegram-бота")
+	tgBot, err := service.NewTgBotService(cfg.Telegram.Token, cfg.Telegram.ChatID, cfg.Telegram.Enabled)
+	if err != nil {
+		return err
+	}
+	if cfg.Telegram.Enabled {
+		defer tgBot.Bot.Close()
+	}
+
 	accountPermissionsService := accountPermisssionsService.NewAccountPermissionsService(accountPermissionsRepository)
 
 	accountGroupService := accountGroupService.NewAccountGroupService(

@@ -7,8 +7,8 @@ import (
 	settingsModel "server/internal/services/settings/model"
 	"server/internal/services/settings/network"
 	"server/internal/services/settings/service/utils"
+	"server/internal/services/tgBot/model"
 	"server/pkg/log"
-	"server/pkg/tgBot"
 )
 
 // UpdateCurrencies обновляет курсы валют
@@ -21,7 +21,7 @@ func (s *SettingsService) UpdateCurrencies(ctx context.Context, req settingsMode
 
 	const updateCurrenciesTemplate = "*📈 Курс валют успешно обновлен*\n\nUSD: %v₽\nBTC: %v$"
 
-	var tgMessage tgBot.SendMessageReq
+	var tgMessage model.SendMessageReq
 
 	defer func() {
 		err := s.tgBot.SendMessage(ctx, tgMessage)
