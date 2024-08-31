@@ -12,9 +12,8 @@ func TestNewJWTToken(t *testing.T) {
 
 	Init([]byte(""), time.Hour, time.Hour)
 
-	mapOfTokens := make(map[string]struct{})
-
 	count := 1000
+	mapOfTokens := make(map[string]struct{}, count)
 
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {

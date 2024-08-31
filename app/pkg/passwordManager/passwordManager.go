@@ -3,6 +3,7 @@ package passwordManager
 import (
 	"bytes"
 	"crypto/rand"
+	"fmt"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -12,6 +13,11 @@ import (
 const saltSize = 16
 
 func CreateNewPassword(password, generalSalt []byte) ([]byte, []byte, error) {
+
+	if len(password) > 72 {
+		availableLength := len(password) - len(generalSalt) - saltSize
+		return nil, nil, errors.BadRequest.New(fmt.Sprintf("Длина пароля не должна превышать %v символа", availableLength))
+	}
 
 	userSalt, err := GenerateRandomBytes(saltSize)
 	if err != nil {

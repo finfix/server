@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"reflect"
 
 	"github.com/gorilla/schema"
 
 	"server/app/pkg/errors"
+	"server/app/pkg/reflectUtils"
 	"server/app/pkg/validator"
 	"server/app/services"
 )
@@ -28,11 +28,8 @@ func Decoder(
 ) (err error) {
 
 	// Проверяем типы данных
-	reflectVar := reflect.ValueOf(dest)
-	if reflectVar.Kind() != reflect.Ptr || reflectVar.Elem().Kind() != reflect.Struct {
-		return errors.InternalServer.New("Пришедший интерфейс является указателем на структуру",
-			errors.ParamsOption("Тип интерфейса", reflectVar.Kind().String()),
-			errors.SkipThisCallOption())
+	if err = reflectUtils.CheckPointerToStruct(dest); err != nil {
+		return err
 	}
 
 	// Проходимся по каждому
@@ -63,7 +60,7 @@ func Decoder(
 	}
 
 	// Заполняем необходимую для каждого запроса информацию в структуру
-	if err = SetNecessary(necessaryInformation, dest); err != nil {
+	if err = services.SetNecessary(necessaryInformation, dest); err != nil {
 		return errors.InternalServer.Wrap(err,
 			errors.SkipThisCallOption(),
 		)
@@ -75,35 +72,6 @@ func Decoder(
 			errors.SkipThisCallOption(),
 		)
 	}
-
-	return nil
-}
-
-func SetNecessary(necessaryInformation services.NecessaryUserInformation, dest any) error {
-
-	// Получаем указатель на структуру
-	reflectVar := reflect.ValueOf(dest).Elem()
-
-	// Ищем поле с именем "Necessary"
-	necessaryField := reflectVar.FieldByName("Necessary")
-
-	// Если такого поля нет, тогда выходим из функции
-	if !necessaryField.IsValid() {
-		return nil
-	}
-
-	// Проверяем, является ли поле экспортированным и можно ли его устанавливать
-	if !necessaryField.CanSet() {
-		return errors.InternalServer.New(
-			"Поле Necessary является неэкспортируемым",
-		)
-	}
-
-	// Получаем значение структуры necessaryData с использованием отражения
-	necessaryValue := reflect.ValueOf(necessaryInformation)
-
-	// Устанавливаем значение поля
-	necessaryField.Set(necessaryValue)
 
 	return nil
 }

@@ -41,11 +41,9 @@ func (s *Service) CreateAccount(ctx context.Context, accountToCreate model.Creat
 		if !accountToCreate.Remainder.IsZero() {
 
 			// Получаем счет
-			accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}}) //nolint:exhaustruct
-			if err != nil {
-				return err
-			}
-			account, err := slices.FirstWithError(accounts)
+			account, err := slices.FirstWithError(s.accountRepository.GetAccounts(ctx,
+				accountRepoModel.GetAccountsReq{IDs: []uint32{res.ID}},
+			)) //nolint:exhaustruct
 			if err != nil {
 				return err
 			}

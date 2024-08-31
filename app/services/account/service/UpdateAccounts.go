@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"server/app/pkg/errors"
 	"server/app/pkg/pointer"
 	"server/app/pkg/slices"
 	"server/app/services/account/model"
@@ -23,15 +22,9 @@ func (s *Service) Update(ctx context.Context, updateReq model.UpdateAccountReq) 
 	}
 
 	// Получаем счет
-	accounts, err := s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{updateReq.ID}}) //nolint:exhaustruct
+	account, err := slices.FirstWithError(s.accountRepository.GetAccounts(ctx, accountRepoModel.GetAccountsReq{IDs: []uint32{updateReq.ID}})) //nolint:exhaustruct
 	if err != nil {
 		return res, err
-	}
-	account, err := slices.FirstWithError(accounts)
-	if err != nil {
-		return res, errors.NotFound.Wrap(err,
-			errors.ParamsOption("accountID", updateReq.ID),
-		)
 	}
 
 	// Проверяем, что входные данные не противоречат разрешениям
