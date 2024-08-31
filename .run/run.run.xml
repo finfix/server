@@ -15,7 +15,7 @@
       </ENTRIES>
     </EXTENSION>
     <kind value="PACKAGE" />
-    <package value="server/app" />
+    <package value="server/internal" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/app/main.go" />
     <method v="2" />
