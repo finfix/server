@@ -3,8 +3,8 @@ package reflectUtils
 import (
 	"testing"
 
-	"server/pkg/errors"
-	"server/pkg/testUtils"
+	"pkg/errors"
+	"pkg/testUtils"
 )
 
 func TestCheckPointerToStruct(t *testing.T) {

@@ -3,7 +3,7 @@ package slices
 import (
 	"fmt"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 // ToMap возращает map, где ключом является поле структуры, а значением сама структура

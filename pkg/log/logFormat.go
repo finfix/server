@@ -1,6 +1,6 @@
 package log
 
-import "server/pkg/errors"
+import "pkg/errors"
 
 type LogFormat string
 

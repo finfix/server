@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"server/pkg/log/model"
+	"pkg/log/model"
 )
 
 // loggerSettings - конфигурация логгера

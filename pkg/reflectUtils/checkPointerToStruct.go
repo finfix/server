@@ -3,7 +3,7 @@ package reflectUtils
 import (
 	"reflect"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 func CheckPointerToStruct(dest any) error {

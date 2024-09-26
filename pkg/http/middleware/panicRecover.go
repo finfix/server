@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	"server/pkg/http/chain"
-	"server/pkg/panicRecover"
+	"pkg/http/chain"
+	"pkg/panicRecover"
 )
 
 func PanicRecover(next http.Handler) http.Handler {

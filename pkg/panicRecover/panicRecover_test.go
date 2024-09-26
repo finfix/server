@@ -3,8 +3,8 @@ package panicRecover
 import (
 	"testing"
 
-	"server/pkg/errors"
-	"server/pkg/testUtils"
+	"pkg/errors"
+	"pkg/testUtils"
 )
 
 func TestPanicRecover(t *testing.T) {

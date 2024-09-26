@@ -8,11 +8,11 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/jwtManager"
-	"server/pkg/pointer"
-	"server/pkg/testUtils"
+	"pkg/contextKeys"
+	"pkg/errors"
+	"pkg/jwtManager"
+	"pkg/pointer"
+	"pkg/testUtils"
 )
 
 func TestAuthorization(t *testing.T) {
@@ -113,7 +113,7 @@ func TestAuthorization(t *testing.T) {
 			if tt.token == nil {
 
 				// Создаем токен
-				token, err := jwtManager.NewJWT(jwtManager.AccessToken, tt.params.userID, tt.params.deviceID)
+				token, err := jwtManager.GenerateToken(jwtManager.AccessToken, tt.params.userID, tt.params.deviceID)
 				if err != nil {
 					t.Fatalf("\nНе смогли создать JWV-токен: %v", err)
 				}

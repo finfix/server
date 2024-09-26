@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"server/pkg/contextKeys"
+	"pkg/contextKeys"
 )
 
 func RequestID(next http.Handler) http.Handler {

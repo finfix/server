@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"server/pkg/testUtils"
+	"pkg/testUtils"
 )
 
 func TestNewJWTToken(t *testing.T) {
@@ -17,7 +17,7 @@ func TestNewJWTToken(t *testing.T) {
 
 	for i := 1; i <= count; i++ {
 		t.Run(fmt.Sprintf("%v. Создание уникального токена", i), func(t *testing.T) {
-			token, err := NewJWT(RefreshToken, 1, "deviceID")
+			token, err := GenerateToken(RefreshToken, 1, "deviceID")
 			if testUtils.CheckError(t, nil, err, false) {
 				return
 			}

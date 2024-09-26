@@ -7,7 +7,7 @@ import (
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
-	model "server/pkg/log/model"
+	model "pkg/log/model"
 )
 
 // suppress unused package warning
@@ -18,7 +18,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson65a741d4DecodeServerAppPkgLog(in *jlexer.Lexer, out *jsonLog) {
+func easyjson65a741d4DecodePkgLog(in *jlexer.Lexer, out *jsonLog) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -85,7 +85,7 @@ func easyjson65a741d4DecodeServerAppPkgLog(in *jlexer.Lexer, out *jsonLog) {
 				in.Delim('}')
 			}
 		case "systemInfo":
-			easyjson65a741d4DecodeServerAppPkgLogModel(in, &out.SystemInfo)
+			easyjson65a741d4DecodePkgLogModel(in, &out.SystemInfo)
 		case "userInfo":
 			if in.IsNull() {
 				in.Skip()
@@ -94,7 +94,7 @@ func easyjson65a741d4DecodeServerAppPkgLog(in *jlexer.Lexer, out *jsonLog) {
 				if out.UserInfo == nil {
 					out.UserInfo = new(model.UserInfo)
 				}
-				easyjson65a741d4DecodeServerAppPkgLogModel1(in, out.UserInfo)
+				easyjson65a741d4DecodePkgLogModel1(in, out.UserInfo)
 			}
 		default:
 			in.SkipRecursive()
@@ -106,7 +106,7 @@ func easyjson65a741d4DecodeServerAppPkgLog(in *jlexer.Lexer, out *jsonLog) {
 		in.Consumed()
 	}
 }
-func easyjson65a741d4EncodeServerAppPkgLog(out *jwriter.Writer, in jsonLog) {
+func easyjson65a741d4EncodePkgLog(out *jwriter.Writer, in jsonLog) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -158,7 +158,7 @@ func easyjson65a741d4EncodeServerAppPkgLog(out *jwriter.Writer, in jsonLog) {
 	{
 		const prefix string = ",\"systemInfo\":"
 		out.RawString(prefix)
-		easyjson65a741d4EncodeServerAppPkgLogModel(out, in.SystemInfo)
+		easyjson65a741d4EncodePkgLogModel(out, in.SystemInfo)
 	}
 	{
 		const prefix string = ",\"userInfo\":"
@@ -166,7 +166,7 @@ func easyjson65a741d4EncodeServerAppPkgLog(out *jwriter.Writer, in jsonLog) {
 		if in.UserInfo == nil {
 			out.RawString("null")
 		} else {
-			easyjson65a741d4EncodeServerAppPkgLogModel1(out, *in.UserInfo)
+			easyjson65a741d4EncodePkgLogModel1(out, *in.UserInfo)
 		}
 	}
 	out.RawByte('}')
@@ -175,27 +175,27 @@ func easyjson65a741d4EncodeServerAppPkgLog(out *jwriter.Writer, in jsonLog) {
 // MarshalJSON supports json.Marshaler interface
 func (v jsonLog) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson65a741d4EncodeServerAppPkgLog(&w, v)
+	easyjson65a741d4EncodePkgLog(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v jsonLog) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson65a741d4EncodeServerAppPkgLog(w, v)
+	easyjson65a741d4EncodePkgLog(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *jsonLog) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson65a741d4DecodeServerAppPkgLog(&r, v)
+	easyjson65a741d4DecodePkgLog(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *jsonLog) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson65a741d4DecodeServerAppPkgLog(l, v)
+	easyjson65a741d4DecodePkgLog(l, v)
 }
-func easyjson65a741d4DecodeServerAppPkgLogModel1(in *jlexer.Lexer, out *model.UserInfo) {
+func easyjson65a741d4DecodePkgLogModel1(in *jlexer.Lexer, out *model.UserInfo) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -254,7 +254,7 @@ func easyjson65a741d4DecodeServerAppPkgLogModel1(in *jlexer.Lexer, out *model.Us
 		in.Consumed()
 	}
 }
-func easyjson65a741d4EncodeServerAppPkgLogModel1(out *jwriter.Writer, in model.UserInfo) {
+func easyjson65a741d4EncodePkgLogModel1(out *jwriter.Writer, in model.UserInfo) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -287,7 +287,7 @@ func easyjson65a741d4EncodeServerAppPkgLogModel1(out *jwriter.Writer, in model.U
 	}
 	out.RawByte('}')
 }
-func easyjson65a741d4DecodeServerAppPkgLogModel(in *jlexer.Lexer, out *model.SystemInfo) {
+func easyjson65a741d4DecodePkgLogModel(in *jlexer.Lexer, out *model.SystemInfo) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -324,7 +324,7 @@ func easyjson65a741d4DecodeServerAppPkgLogModel(in *jlexer.Lexer, out *model.Sys
 		in.Consumed()
 	}
 }
-func easyjson65a741d4EncodeServerAppPkgLogModel(out *jwriter.Writer, in model.SystemInfo) {
+func easyjson65a741d4EncodePkgLogModel(out *jwriter.Writer, in model.SystemInfo) {
 	out.RawByte('{')
 	first := true
 	_ = first

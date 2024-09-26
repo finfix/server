@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/log"
+	"pkg/contextKeys"
+	"pkg/errors"
+	"pkg/log"
 )
 
 func DefaultErrorEncoder(ctx context.Context, w http.ResponseWriter, er error) {

@@ -5,7 +5,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib" //nolint:golint
 
-	"server/pkg/sql"
+	"pkg/sql"
 )
 
 type PostgreSQLConfig struct {

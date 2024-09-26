@@ -6,7 +6,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 var _ SQL = &DB{DB: nil}

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"server/pkg/log"
+	"pkg/log"
 )
 
 type migratorLogger struct{}

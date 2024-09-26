@@ -4,8 +4,8 @@ import (
 	"context"
 	"embed"
 
-	"server/pkg/errors"
-	"server/pkg/sql"
+	"pkg/errors"
+	"pkg/sql"
 
 	"github.com/pressly/goose/v3"
 )

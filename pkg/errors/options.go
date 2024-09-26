@@ -3,8 +3,8 @@ package errors
 import (
 	"fmt"
 
-	"server/pkg/pointer"
-	"server/pkg/stackTrace"
+	"pkg/pointer"
+	"pkg/stackTrace"
 )
 
 type Option func(*options)

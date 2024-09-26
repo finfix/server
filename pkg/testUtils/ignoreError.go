@@ -3,7 +3,7 @@ package testUtils
 import (
 	"context"
 
-	"server/pkg/log"
+	"pkg/log"
 )
 
 func IgnoreError[T any](v T, err error) T {

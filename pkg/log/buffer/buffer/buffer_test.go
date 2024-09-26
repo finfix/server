@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"server/pkg/log/buffer/buffer"
+	"pkg/log/buffer/buffer"
 )
 
 func TestBuffer_new(t *testing.T) {

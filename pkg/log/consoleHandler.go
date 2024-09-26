@@ -7,10 +7,10 @@ import (
 	"os"
 	"slices"
 
-	"server/pkg/errors"
-	"server/pkg/log/buffer/buffer"
-	"server/pkg/maps"
-	"server/pkg/stackTrace"
+	"pkg/errors"
+	"pkg/log/buffer/buffer"
+	"pkg/maps"
+	"pkg/stackTrace"
 )
 
 type consoleLog struct {

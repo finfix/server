@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"server/pkg/contextKeys"
-	"server/pkg/log"
+	"pkg/contextKeys"
+	"pkg/log"
 )
 
 func Logger(next http.Handler) http.Handler {

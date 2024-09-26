@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/testUtils"
+	"pkg/contextKeys"
+	"pkg/errors"
+	"pkg/testUtils"
 )
 
 func TestGetDeviceID(t *testing.T) {

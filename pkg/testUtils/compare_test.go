@@ -3,7 +3,7 @@ package testUtils
 import (
 	"testing"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 func Test_checkError(t *testing.T) {

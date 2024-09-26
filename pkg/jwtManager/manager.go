@@ -6,7 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/google/uuid"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 var (
@@ -47,7 +47,7 @@ const (
 	AccessToken
 )
 
-func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error) {
+func GenerateToken(tokenType TokenType, userID uint32, deviceID string) (string, error) {
 
 	if jwtManager == nil {
 		return "", errors.InternalServer.New("JWTManager is not initialized")
@@ -77,7 +77,7 @@ func NewJWT(tokenType TokenType, userID uint32, deviceID string) (string, error)
 	return tokenStr, nil
 }
 
-func Parse(reqToken string) (uint32, string, error) {
+func ParseToken(reqToken string) (uint32, string, error) {
 
 	if jwtManager == nil {
 		return 0, "", errors.InternalServer.New("JWTManager is not initialized",

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"server/pkg/panicRecover"
+	"pkg/panicRecover"
 )
 
 type Chain struct {

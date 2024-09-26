@@ -31,7 +31,6 @@ linters:
     - gocritic # check for common mistakes in Go code
     - gocyclo # cyclomatic complexity
     - goheader # check for common mistakes in Go code
-    - gomoddirectives # check for common mistakes in Go code
     - gomodguard # check for missing build tags
     - goprintffuncname # check for printf with function name
     - gosimple # check for common mistakes in Go code
@@ -101,6 +100,7 @@ linters:
     - wrapcheck # check for common mistakes in Go code
     - whitespace # check for leading whitespace
     - varnamelen # check for long variable names
+    - gomoddirectives
 
     # Deprecated linters
     - exhaustivestruct # check for missing fields in struct literals

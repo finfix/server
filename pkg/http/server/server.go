@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"server/pkg/errors"
-	"server/pkg/log"
+	"pkg/errors"
+	"pkg/log"
 )
 
 const (

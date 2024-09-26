@@ -3,7 +3,7 @@ package testUtils
 import (
 	"context"
 
-	"server/pkg/contextKeys"
+	"pkg/contextKeys"
 )
 
 func NewCtxBuilder() CtxBuilder {

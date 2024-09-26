@@ -4,9 +4,9 @@ import (
 	"reflect"
 	"testing"
 
-	"server/pkg/errors"
-	"server/pkg/pointer"
-	"server/pkg/testUtils"
+	"pkg/errors"
+	"pkg/pointer"
+	"pkg/testUtils"
 )
 
 func TestJoinExclusive(t *testing.T) {

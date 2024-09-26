@@ -3,7 +3,7 @@ package panicRecover
 import (
 	"fmt"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 func PanicRecover(handling func(err error)) {

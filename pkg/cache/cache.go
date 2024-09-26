@@ -5,20 +5,21 @@ import (
 	"time"
 )
 
-type сacheItem[V any] struct {
+type cacheItem[V any] struct {
 	Value      V
 	Expiration int64
 }
 
 type Cache[K comparable, V any] struct {
 	mu         sync.RWMutex
-	items      map[K]сacheItem[V]
+	items      map[K]cacheItem[V]
 	defaultTTL time.Duration
 }
 
 func NewCache[K comparable, V any](defaultTTL time.Duration) *Cache[K, V] {
 	return &Cache[K, V]{
-		items:      make(map[K]сacheItem[V]),
+		mu:         sync.RWMutex{},
+		items:      make(map[K]cacheItem[V]),
 		defaultTTL: defaultTTL,
 	}
 }
@@ -34,7 +35,7 @@ func (c *Cache[K, V]) Set(key K, value V, ttl ...time.Duration) {
 		expiration = time.Now().Add(c.defaultTTL).UnixNano()
 	}
 
-	c.items[key] = сacheItem[V]{
+	c.items[key] = cacheItem[V]{
 		Value:      value,
 		Expiration: expiration,
 	}

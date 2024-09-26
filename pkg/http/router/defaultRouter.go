@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"server/pkg/http/middleware"
+	"pkg/http/middleware"
 )
 
 func NewRouter() *chi.Mux {

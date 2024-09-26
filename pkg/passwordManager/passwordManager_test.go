@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"server/pkg/errors"
-	"server/pkg/testUtils"
+	"pkg/errors"
+	"pkg/testUtils"
 )
 
 func TestCompareHashAndPassword(t *testing.T) {

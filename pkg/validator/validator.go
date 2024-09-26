@@ -3,8 +3,8 @@ package validator
 import (
 	"reflect"
 
-	"server/pkg/errors"
-	"server/pkg/stackTrace"
+	"pkg/errors"
+	"pkg/stackTrace"
 )
 
 type validatorProtocol interface {

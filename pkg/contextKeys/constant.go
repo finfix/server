@@ -3,7 +3,7 @@ package contextKeys
 import (
 	"context"
 
-	"server/pkg/log/model"
+	"pkg/log/model"
 )
 
 type ContextKey int

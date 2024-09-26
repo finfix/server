@@ -4,13 +4,13 @@ import (
 	"context"
 	"net/http"
 
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/jwtManager"
+	"pkg/contextKeys"
+	"pkg/errors"
+	"pkg/jwtManager"
 )
 
 func DefaultAuthorization(ctx context.Context, r *http.Request) (context.Context, error) {
-	userID, deviceID, err := jwtManager.Parse(r.Header.Get("Authorization"))
+	userID, deviceID, err := jwtManager.ParseToken(r.Header.Get("Authorization"))
 	if err != nil {
 		if deviceID != "" {
 			ctx = contextKeys.SetDeviceID(ctx, deviceID)

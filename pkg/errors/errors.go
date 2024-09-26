@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"maps"
 
-	"server/pkg/log/model"
-	"server/pkg/stackTrace"
+	"pkg/log/model"
+	"pkg/stackTrace"
 )
 
 // Error - Кастомная структура ошибки

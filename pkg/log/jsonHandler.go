@@ -8,12 +8,12 @@ import (
 
 	"github.com/mailru/easyjson"
 
-	"server/pkg/contextKeys"
-	"server/pkg/errors"
-	"server/pkg/log/buffer/buffer"
-	"server/pkg/log/model"
-	"server/pkg/maps"
-	"server/pkg/stackTrace"
+	"pkg/contextKeys"
+	"pkg/errors"
+	"pkg/log/buffer/buffer"
+	"pkg/log/model"
+	"pkg/maps"
+	"pkg/stackTrace"
 )
 
 // jsonLog - Структура лога

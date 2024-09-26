@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 func replacePlaceholders(sql string) (string, error) {

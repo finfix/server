@@ -8,10 +8,10 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"server/pkg/errors"
-	"server/pkg/http/chain"
-	"server/pkg/http/responseWriter"
-	"server/pkg/log"
+	"pkg/errors"
+	"pkg/http/chain"
+	"pkg/http/responseWriter"
+	"pkg/log"
 )
 
 var responseTimeMetric *prometheus.HistogramVec
@@ -19,12 +19,19 @@ var responseTimeMetric *prometheus.HistogramVec
 func Init(serviceName string) error {
 
 	responseTimeMetric = prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace:   serviceName,
-		Subsystem:   "",
-		Name:        "http_response_time_seconds",
-		Help:        "Histogram of response time in seconds.",
-		ConstLabels: nil,
-		Buckets:     nil,
+		Namespace:                       serviceName,
+		Subsystem:                       "",
+		Name:                            "http_response_time_seconds",
+		Help:                            "Histogram of response time in seconds.",
+		ConstLabels:                     nil,
+		Buckets:                         nil,
+		NativeHistogramBucketFactor:     0,
+		NativeHistogramZeroThreshold:    0,
+		NativeHistogramMaxBucketNumber:  0,
+		NativeHistogramMinResetDuration: 0,
+		NativeHistogramMaxZeroThreshold: 0,
+		NativeHistogramMaxExemplars:     0,
+		NativeHistogramExemplarTTL:      0,
 	}, []string{"path", "status_code"})
 
 	if err := prometheus.Register(responseTimeMetric); err != nil {

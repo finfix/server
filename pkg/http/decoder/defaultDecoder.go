@@ -7,10 +7,11 @@ import (
 
 	"github.com/gorilla/schema"
 
-	"server/pkg/errors"
-	"server/pkg/reflectUtils"
-	"server/pkg/validator"
-	"server/internal/services"
+	"pkg/necessary"
+
+	"pkg/errors"
+	"pkg/reflectUtils"
+	"pkg/validator"
 )
 
 type DecodeMethod int
@@ -51,7 +52,7 @@ func Decoder(
 	}
 
 	// Получаем необходимую для каждого запроса информацию из контекста
-	necessaryInformation, err := services.ExtractNecessaryFromCtx(ctx)
+	necessaryInformation, err := necessary.ExtractNecessaryFromCtx(ctx)
 	if err != nil {
 		return errors.BadRequest.Wrap(
 			err,
@@ -60,7 +61,7 @@ func Decoder(
 	}
 
 	// Заполняем необходимую для каждого запроса информацию в структуру
-	if err = services.SetNecessary(necessaryInformation, dest); err != nil {
+	if err = necessary.SetNecessary(necessaryInformation, dest); err != nil {
 		return errors.InternalServer.Wrap(err,
 			errors.SkipThisCallOption(),
 		)

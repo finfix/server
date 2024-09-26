@@ -8,7 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 // CheckError производит проверку ошибок на соответствие типов

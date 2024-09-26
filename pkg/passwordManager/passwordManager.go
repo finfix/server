@@ -7,7 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"server/pkg/errors"
+	"pkg/errors"
 )
 
 const saltSize = 16
