@@ -10,7 +10,7 @@ import (
 	"server/internal/services/accountGroup/model"
 )
 
-func (repo *AccountGroupRepository) GetAccountGroups(ctx context.Context, req model.GetAccountGroupsReq) (accountGroups []model.AccountGroup, err error) {
+func (r *AccountGroupRepository) GetAccountGroups(ctx context.Context, req model.GetAccountGroupsReq) (accountGroups []model.AccountGroup, err error) {
 
 	filtersEq := make(sq.Eq)
 
@@ -25,7 +25,7 @@ func (repo *AccountGroupRepository) GetAccountGroups(ctx context.Context, req mo
 	}
 
 	// Выполняем запрос
-	return accountGroups, repo.db.Select(ctx, &accountGroups, sq.
+	return accountGroups, r.db.Select(ctx, &accountGroups, sq.
 		Select("ag.*").
 		From("coin.account_groups ag").
 		Join("coin.users_to_account_groups utag ON utag.account_group_id = ag.id").

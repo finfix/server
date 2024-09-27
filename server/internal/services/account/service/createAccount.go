@@ -7,14 +7,13 @@ import (
 
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/generalRepository/checker"
 )
 
 // CreateAccount создает новый счет
 func (s *AccountService) CreateAccount(ctx context.Context, accountToCreate model.CreateAccountReq) (res model.CreateAccountRes, err error) {
 
 	// Проверяем доступ пользователя к группе счетов
-	if err = s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
+	if err = s.accountGroupService.CheckAccess(ctx, accountToCreate.Necessary.UserID, []uint32{accountToCreate.AccountGroupID}); err != nil {
 		return res, err
 	}
 
@@ -31,7 +30,7 @@ func (s *AccountService) CreateAccount(ctx context.Context, accountToCreate mode
 	}
 
 	// Создаем SQL-транзакцию
-	err = s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
+	err = s.transactor.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Создаем счет
 		if res.ID, res.SerialNumber, err = s.accountRepository.CreateAccount(ctx, accountToCreate.ConvertToRepoReq()); err != nil {

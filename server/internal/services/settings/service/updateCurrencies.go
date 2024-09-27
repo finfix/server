@@ -15,6 +15,7 @@ import (
 // UpdateCurrencies обновляет курсы валют
 func (s *SettingsService) UpdateCurrencies(ctx context.Context, req settingsModel.UpdateCurrenciesReq) error {
 
+	// Проверяем, что пользователь администратор
 	err := s.checkAdmin(ctx, req.Necessary.UserID)
 	if err != nil {
 		return err

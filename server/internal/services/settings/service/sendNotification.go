@@ -8,12 +8,14 @@ import (
 
 func (s *SettingsService) SendNotification(ctx context.Context, req settingsModel.SendNotificationReq) (res settingsModel.SendNotificationRes, err error) {
 
+	// Проверяем, что пользователь администратор
 	err = s.checkAdmin(ctx, req.Necessary.UserID)
 	if err != nil {
 		return res, err
 	}
 
-	count, err := s.userService.SendNotification(
+	// Отправляем уведомления
+	res.NotificationsSent, err = s.userService.SendNotification(
 		ctx,
 		req.UserID,
 		req.Notification,
@@ -21,6 +23,6 @@ func (s *SettingsService) SendNotification(ctx context.Context, req settingsMode
 	if err != nil {
 		return res, err
 	}
-	res.NotificationsSent = count
+
 	return res, err
 }

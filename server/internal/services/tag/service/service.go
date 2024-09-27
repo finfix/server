@@ -3,26 +3,48 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository"
-	"server/internal/services/generalRepository/checker"
+	accountGroupService "server/internal/services/accountGroup/service"
 	tagModel "server/internal/services/tag/model"
 	tagRepository "server/internal/services/tag/repository"
 	tagRepoModel "server/internal/services/tag/repository/model"
+	"server/internal/services/transactor"
+	userService "server/internal/services/user/service"
 )
 
 type TagService struct {
-	tagRepository     TagRepository
-	generalRepository GeneralRepository
+	tagRepository       TagRepository
+	generalRepository   Transactor
+	userService         UserService
+	accountGroupService AccountGroupService
+}
+
+func NewTagService(
+	tagRepository TagRepository,
+	generalRepository Transactor,
+	userService UserService,
+	accountGroupService AccountGroupService,
+) *TagService {
+	return &TagService{
+		tagRepository:       tagRepository,
+		generalRepository:   generalRepository,
+		userService:         userService,
+		accountGroupService: accountGroupService,
+	}
+}
+
+var _ UserService = &userService.UserService{}
+
+type UserService interface {
+	GetAccessedAccountGroups(ctx context.Context, userID uint32) (accesses []uint32, err error)
+}
+
+var _ Transactor = &transactor.Transactor{}
+
+type Transactor interface {
+	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
 }
 
 var _ TagRepository = &tagRepository.TagRepository{}
-var _ GeneralRepository = &generalRepository.GeneralRepository{}
-
-type GeneralRepository interface {
-	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
-	CheckUserAccessToObjects(context.Context, checker.CheckType, uint32, []uint32) error
-	GetAvailableAccountGroups(userID uint32) []uint32
-}
 
 type TagRepository interface {
 	CreateTag(context.Context, tagRepoModel.CreateTagReq) (uint32, error)
@@ -31,14 +53,12 @@ type TagRepository interface {
 	GetTags(context.Context, tagModel.GetTagsReq) (res []tagModel.Tag, err error)
 
 	GetTagsToTransactions(ctx context.Context, req tagModel.GetTagsToTransactionsReq) ([]tagModel.TagToTransaction, error)
+
+	CheckAccess(ctx context.Context, accountGroupIDs, tagIDs []uint32) error
 }
 
-func NewTagService(
-	tagRepository TagRepository,
-	generalRepository GeneralRepository,
-) *TagService {
-	return &TagService{
-		tagRepository:     tagRepository,
-		generalRepository: generalRepository,
-	}
+var _ AccountGroupService = &accountGroupService.AccountGroupService{}
+
+type AccountGroupService interface {
+	CheckAccess(ctx context.Context, userID uint32, accountGroupIDs []uint32) error
 }

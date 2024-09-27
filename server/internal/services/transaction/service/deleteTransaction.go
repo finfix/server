@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository/checker"
 	"server/internal/services/transaction/model"
 )
 
@@ -11,7 +10,7 @@ import (
 func (s *TransactionService) DeleteTransaction(ctx context.Context, id model.DeleteTransactionReq) error {
 
 	// Проверяем доступ пользователя к транзакции
-	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Transactions, id.Necessary.UserID, []uint32{id.ID}); err != nil {
+	if err := s.CheckAccess(ctx, id.Necessary.UserID, []uint32{id.ID}); err != nil {
 		return err
 	}
 

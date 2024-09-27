@@ -7,7 +7,7 @@ import (
 )
 
 // ChangeSerialNumbers вставляет группу счетов на новое место
-func (repo *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
+func (r *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
 
 	// Формируем первичный запрос
 	q := sq.Update("coin.account_groups")
@@ -30,5 +30,5 @@ func (repo *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, old
 	}
 
 	// Выполняем запрос
-	return repo.db.Exec(ctx, q)
+	return r.db.Exec(ctx, q)
 }

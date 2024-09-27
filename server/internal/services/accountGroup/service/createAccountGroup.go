@@ -10,7 +10,7 @@ import (
 func (s *AccountGroupService) CreateAccountGroup(ctx context.Context, accountGroup model.CreateAccountGroupReq) (res model.CreateAccountGroupRes, err error) {
 
 	// Создаем SQL-транзакцию
-	return res, s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
+	return res, s.transactor.WithinTransaction(ctx, func(ctxTx context.Context) error {
 
 		// Создаем счет
 		if res.ID, res.SerialNumber, err = s.accountGroupRepository.CreateAccountGroup(ctx, accountGroup.ConvertToRepoReq()); err != nil {

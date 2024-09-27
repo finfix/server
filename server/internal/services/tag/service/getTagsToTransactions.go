@@ -6,10 +6,13 @@ import (
 	"server/internal/services/tag/model"
 )
 
-func (s *TagService) GetTagsToTransactions(ctx context.Context, req model.GetTagsToTransactionsReq) ([]model.TagToTransaction, error) {
+func (s *TagService) GetTagsToTransactions(ctx context.Context, req model.GetTagsToTransactionsReq) (res []model.TagToTransaction, err error) {
 
 	// Получаем доступные группы счетов
-	req.AccountGroupIDs = s.generalRepository.GetAvailableAccountGroups(req.Necessary.UserID)
+	req.AccountGroupIDs, err = s.userService.GetAccessedAccountGroups(ctx, req.Necessary.UserID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Получаем все связи между подкатегориями и транзакциями
 	return s.tagRepository.GetTagsToTransactions(ctx, req)

@@ -3,16 +3,16 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository"
 	pushNotificatorModel "server/internal/services/pushNotificator/model"
 	pushNotificatorService "server/internal/services/pushNotificator/service"
+	"server/internal/services/transactor"
 	userModel "server/internal/services/user/model"
 	userRepository "server/internal/services/user/repository"
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
 var _ UserRepository = new(userRepository.UserRepository)
-var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ GeneralRepository = new(transactor.Transactor)
 var _ PushNotificatorService = new(pushNotificatorService.PushNotificatorService)
 
 type GeneralRepository interface {
@@ -28,6 +28,8 @@ type UserRepository interface {
 
 	GetDevices(context.Context, userRepoModel.GetDevicesReq) ([]userModel.Device, error)
 	UpdateDevice(context.Context, userRepoModel.UpdateDeviceReq) error
+
+	GetAccessedAccountGroups(ctx context.Context, userID uint32) ([]uint32, error)
 }
 
 type PushNotificatorService interface {

@@ -1,4 +1,4 @@
-package generalRepository
+package transactor
 
 import (
 	"context"
@@ -7,10 +7,21 @@ import (
 	"pkg/sql"
 )
 
+type Transactor struct {
+	db sql.SQL
+}
+
+func NewTransactor(db sql.SQL) *Transactor {
+	return &Transactor{
+		db: db,
+	}
+}
+
 // WithinTransaction принимает коллбэк, который будет выполнен в рамках транзакции
-func (repo *GeneralRepository) WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
-	// begin transaction
-	tx, err := repo.db.Begin(ctx)
+func (r *Transactor) WithinTransaction(ctx context.Context, callback func(ctx context.Context) error) error {
+
+	// Запускаем транзакцию
+	tx, err := r.db.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}

@@ -17,11 +17,11 @@ type permissionItem struct {
 	Access      bool   `db:"access"`
 }
 
-func (s *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context) (permissionSet model.PermissionSet, err error) {
+func (r *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context) (permissionSet model.PermissionSet, err error) {
 
 	// Проверяем наличие данных в кэше
 	var ok bool
-	if permissionSet, ok = s.cache.Get(struct{}{}); ok {
+	if permissionSet, ok = r.cache.Get(struct{}{}); ok {
 		return permissionSet, nil
 	}
 
@@ -30,7 +30,7 @@ func (s *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context
 	var permissions []permissionItem
 
 	// Делаем запрос в базу
-	if err = s.db.Select(ctx, &permissions, sq.
+	if err = r.db.Select(ctx, &permissions, sq.
 		Select("*").
 		From("permissions.account_permissions"),
 	); err != nil {
@@ -79,7 +79,7 @@ func (s *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context
 	}
 
 	// Сохраняем данные в кэш
-	s.cache.Set(struct{}{}, permissionSet)
+	r.cache.Set(struct{}{}, permissionSet)
 
 	// Возвращаем данные
 	return permissionSet, nil

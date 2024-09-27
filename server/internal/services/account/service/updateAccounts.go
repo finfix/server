@@ -8,7 +8,6 @@ import (
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
 	"server/internal/services/account/service/utils"
-	"server/internal/services/generalRepository/checker"
 )
 
 // UpdateAccount обновляет счет по конкретным полям
@@ -18,7 +17,7 @@ func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.Upda
 	repoUpdateReqs[updateReq.ID] = updateReq.ConvertToRepoReq()
 
 	// Проверяем доступ пользователя к счету
-	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {
+	if err = s.CheckAccess(ctx, updateReq.Necessary.UserID, []uint32{updateReq.ID}); err != nil {
 		return res, err
 	}
 
@@ -93,7 +92,7 @@ func (s *AccountService) UpdateAccount(ctx context.Context, updateReq model.Upda
 		parentAccount,
 	)
 
-	return res, s.general.WithinTransaction(ctx, func(ctxTx context.Context) error {
+	return res, s.transactor.WithinTransaction(ctx, func(ctxTx context.Context) error {
 		res, err = s.updateAccounts(ctxTx, account, repoUpdateReqs, updateReq.Necessary.UserID)
 		if err != nil {
 			return err

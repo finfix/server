@@ -3,14 +3,14 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository"
+	"server/internal/services/transactor"
 	userModel "server/internal/services/user/model"
 	userRepository "server/internal/services/user/repository"
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
 var _ UserRepository = new(userRepository.UserRepository)
-var _ GeneralRepository = new(generalRepository.GeneralRepository)
+var _ GeneralRepository = new(transactor.Transactor)
 
 type UserRepository interface {
 	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)

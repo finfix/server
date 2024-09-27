@@ -4,23 +4,27 @@ import (
 	"context"
 
 	"pkg/errors"
+	"pkg/slices"
 
 	userModel "server/internal/services/user/model"
 )
 
 func (s *SettingsService) checkAdmin(ctx context.Context, userID uint32) error {
-	users, err := s.userService.GetUsers(ctx, userModel.GetUsersReq{ //nolint:exhaustruct
-		IDs: []uint32{userID},
-	})
+
+	// Получаем пользователя по ID
+	user, err := slices.FirstWithError(
+		s.userService.GetUsers(ctx, userModel.GetUsersReq{ //nolint:exhaustruct
+			IDs: []uint32{userID},
+		}),
+	)
 	if err != nil {
 		return err
 	}
-	if len(users) == 0 {
-		return errors.NotFound.New("User not found")
-	}
-	user := users[0]
+
+	// Проверяем, является ли пользователь администратором
 	if !user.IsAdmin {
 		return errors.Forbidden.New("Access denied")
 	}
+
 	return nil
 }

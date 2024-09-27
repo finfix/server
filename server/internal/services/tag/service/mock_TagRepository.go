@@ -16,6 +16,24 @@ type MockTagRepository struct {
 	mock.Mock
 }
 
+// CheckAccess provides a mock function with given fields: ctx, accountGroupIDs, tagIDs
+func (_m *MockTagRepository) CheckAccess(ctx context.Context, accountGroupIDs []uint32, tagIDs []uint32) error {
+	ret := _m.Called(ctx, accountGroupIDs, tagIDs)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckAccess")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uint32, []uint32) error); ok {
+		r0 = rf(ctx, accountGroupIDs, tagIDs)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateTag provides a mock function with given fields: _a0, _a1
 func (_m *MockTagRepository) CreateTag(_a0 context.Context, _a1 model.CreateTagReq) (uint32, error) {
 	ret := _m.Called(_a0, _a1)

@@ -11,7 +11,7 @@ import (
 )
 
 // UpdateAccountGroup обновляет группу счетов
-func (repo *AccountGroupRepository) UpdateAccountGroup(ctx context.Context, fields model.UpdateAccountGroupReq) error {
+func (r *AccountGroupRepository) UpdateAccountGroup(ctx context.Context, fields model.UpdateAccountGroupReq) error {
 
 	updates := make(map[string]any)
 
@@ -35,7 +35,7 @@ func (repo *AccountGroupRepository) UpdateAccountGroup(ctx context.Context, fiel
 	}
 
 	// Обновляем группы счетов
-	return repo.db.Exec(ctx, sq.
+	return r.db.Exec(ctx, sq.
 		Update("coin.account_groups").
 		SetMap(updates).
 		Where(sq.Eq{"id": fields.ID}),

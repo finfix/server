@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository/checker"
+	"pkg/errors"
 	"server/internal/services/tag/model"
 )
 
@@ -11,11 +11,17 @@ func (s *TagService) GetTags(ctx context.Context, filters model.GetTagsReq) (tag
 
 	// Проверяем доступ пользователя к группам счетов
 	if filters.AccountGroupIDs != nil {
-		if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.AccountGroups, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
+		if err = s.accountGroupService.CheckAccess(ctx, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
 			return nil, err
 		}
 	} else {
-		filters.AccountGroupIDs = s.generalRepository.GetAvailableAccountGroups(filters.Necessary.UserID)
+		filters.AccountGroupIDs, err = s.userService.GetAccessedAccountGroups(ctx, filters.Necessary.UserID)
+		if err != nil {
+			return nil, err
+		}
+		if len(filters.AccountGroupIDs) == 0 {
+			return nil, errors.Forbidden.New("У пользователя нет доступа к группам счетов")
+		}
 	}
 
 	// Получаем все подкатегории

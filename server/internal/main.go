@@ -35,7 +35,6 @@ import (
 	accountPermisssionsService "server/internal/services/accountPermissions/service"
 	authEndpoint "server/internal/services/auth/endpoint"
 	authService "server/internal/services/auth/service"
-	"server/internal/services/generalRepository"
 	pushNotificatorModel "server/internal/services/pushNotificator/model"
 	pushNotificatorService "server/internal/services/pushNotificator/service"
 	"server/internal/services/scheduler"
@@ -49,6 +48,7 @@ import (
 	transactionEndpoint "server/internal/services/transaction/endpoint"
 	transactionRepository "server/internal/services/transaction/repository"
 	transactionService "server/internal/services/transaction/service"
+	"server/internal/services/transactor"
 	userEndpoint "server/internal/services/user/endpoint"
 	userRepository "server/internal/services/user/repository"
 	userService "server/internal/services/user/service"
@@ -157,10 +157,7 @@ func run() error {
 	}
 
 	// Регистрируем репозитории
-	generalRepository, err := generalRepository.NewGeneralRepository(postrgreSQL)
-	if err != nil {
-		return err
-	}
+	transactor := transactor.NewTransactor(postrgreSQL)
 	accountGroupRepository := accountGroupRepository.NewAccountGroupRepository(postrgreSQL)
 	accountRepository := accountRepository.NewAccountRepository(postrgreSQL)
 	tagRepository := tagRepository.NewTagRepository(postrgreSQL)
@@ -191,37 +188,45 @@ func run() error {
 
 	accountPermissionsService := accountPermisssionsService.NewAccountPermissionsService(accountPermissionsRepository)
 
+	userService := userService.NewUserService(
+		userRepository,
+		transactor,
+		pushNotificatorService,
+		[]byte(cfg.GeneralSalt),
+	)
+
 	accountGroupService := accountGroupService.NewAccountGroupService(
 		accountGroupRepository,
-		generalRepository,
+		transactor,
+		userService,
 	)
 
 	accountService := accountService.NewAccountService(
 		accountRepository,
-		generalRepository,
+		transactor,
 		transactionRepository,
 		userRepository,
 		accountPermissionsService,
+		accountGroupService,
+		userService,
 	)
 
 	tagService := tagService.NewTagService(
 		tagRepository,
-		generalRepository,
+		transactor,
+		userService,
+		accountGroupService,
 	)
 
 	transactionService := transactionService.NewTransactionService(
 		transactionRepository,
 		accountRepository,
-		generalRepository,
+		transactor,
 		accountPermissionsService,
 		tagRepository,
-	)
-
-	userService := userService.NewUserService(
-		userRepository,
-		generalRepository,
-		pushNotificatorService,
-		[]byte(cfg.GeneralSalt),
+		userService,
+		accountService,
+		tagService,
 	)
 
 	settingsService := settingsService.NewSettingsService(
@@ -239,7 +244,7 @@ func run() error {
 
 	authService := authService.NewAuthService(
 		userRepository,
-		generalRepository,
+		transactor,
 		[]byte(cfg.GeneralSalt),
 	)
 

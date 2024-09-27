@@ -3,18 +3,17 @@ package service
 import (
 	"context"
 
-	"server/internal/services/generalRepository/checker"
 	"server/internal/services/tag/model"
 )
 
 // DeleteTag удаляет подкатегорию
-func (s *TagService) DeleteTag(ctx context.Context, id model.DeleteTagReq) error {
+func (s *TagService) DeleteTag(ctx context.Context, req model.DeleteTagReq) error {
 
 	// Проверяем доступ пользователя к подкатегории
-	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Tags, id.Necessary.UserID, []uint32{id.ID}); err != nil {
+	if err := s.CheckAccess(ctx, req.Necessary.UserID, []uint32{req.ID}); err != nil {
 		return err
 	}
 
 	// Удаляем подкатегорию
-	return s.tagRepository.DeleteTag(ctx, id.ID, id.Necessary.UserID)
+	return s.tagRepository.DeleteTag(ctx, req.ID, req.Necessary.UserID)
 }

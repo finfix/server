@@ -3,23 +3,20 @@ package service
 import (
 	"context"
 
-	"github.com/shopspring/decimal"
-
 	accountGroupModel "server/internal/services/accountGroup/model"
 	accountGroupRepository "server/internal/services/accountGroup/repository"
 	accountGroupRepoModel "server/internal/services/accountGroup/repository/model"
-	"server/internal/services/generalRepository"
-	"server/internal/services/generalRepository/checker"
+	"server/internal/services/transactor"
+	userService "server/internal/services/user/service"
 )
 
-var _ GeneralRepository = new(generalRepository.GeneralRepository)
-var _ AccountGroupRepository = new(accountGroupRepository.AccountGroupRepository)
+var _ Transactor = new(transactor.Transactor)
 
-type GeneralRepository interface {
+type Transactor interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
-	GetCurrencies(context.Context) (map[string]decimal.Decimal, error)
-	CheckUserAccessToObjects(context.Context, checker.CheckType, uint32, []uint32) error
 }
+
+var _ AccountGroupRepository = new(accountGroupRepository.AccountGroupRepository)
 
 type AccountGroupRepository interface {
 	CreateAccountGroup(context.Context, accountGroupRepoModel.CreateAccountGroupReq) (uint32, uint32, error)
@@ -31,18 +28,26 @@ type AccountGroupRepository interface {
 	UnlinkUserFromAccountGroup(ctx context.Context, userID, accountGroupID uint32) error
 }
 
+var _ UserService = new(userService.UserService)
+
+type UserService interface {
+	GetAccessedAccountGroups(ctx context.Context, userID uint32) (accesses []uint32, err error)
+}
+
 type AccountGroupService struct {
+	userService            UserService
 	accountGroupRepository AccountGroupRepository
-	general                GeneralRepository
+	transactor             Transactor
 }
 
 func NewAccountGroupService(
 	accountGroup AccountGroupRepository,
-	general GeneralRepository,
-
+	transactor Transactor,
+	userService UserService,
 ) *AccountGroupService {
 	return &AccountGroupService{
 		accountGroupRepository: accountGroup,
-		general:                general,
+		transactor:             transactor,
+		userService:            userService,
 	}
 }

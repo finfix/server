@@ -8,7 +8,6 @@ import (
 
 	accountModel "server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/generalRepository/checker"
 	transactionModel "server/internal/services/transaction/model"
 	"server/internal/services/transaction/service/utils"
 )
@@ -17,7 +16,7 @@ import (
 func (s *TransactionService) CreateTransaction(ctx context.Context, transaction transactionModel.CreateTransactionReq) (id uint32, err error) {
 
 	// Проверяем доступ пользователя к счетам
-	if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, transaction.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
+	if err = s.accountService.CheckAccess(ctx, transaction.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
 		return id, err
 	}
 

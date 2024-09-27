@@ -5,7 +5,6 @@ import (
 
 	"pkg/slices"
 
-	"server/internal/services/generalRepository/checker"
 	"server/internal/services/tag/model"
 )
 
@@ -13,7 +12,7 @@ func (s *TransactionService) updateTransactionTags(ctx context.Context, userID, 
 
 	// Проверяем доступ пользователя к тегам
 	if len(tagIDs) > 0 {
-		if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Tags, userID, tagIDs); err != nil {
+		if err := s.tagService.CheckAccess(ctx, userID, tagIDs); err != nil {
 			return err
 		}
 	}

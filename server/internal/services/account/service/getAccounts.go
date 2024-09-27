@@ -7,19 +7,26 @@ import (
 
 	"server/internal/services/account/model"
 	"server/internal/services/account/model/accountType"
-	"server/internal/services/generalRepository/checker"
 )
 
 // GetAccounts возвращает все счета, удовлетворяющие фильтрам
 func (s *AccountService) GetAccounts(ctx context.Context, filters model.GetAccountsReq) (accounts []model.Account, err error) {
 
-	// Проверяем доступ пользователя к группам счетов
+	// Если в фильтрах переданы группы счетов
 	if len(filters.AccountGroupIDs) != 0 {
-		if err = s.general.CheckUserAccessToObjects(ctx, checker.AccountGroups, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
+
+		// Проверяем доступ пользователя к группам счетов
+		if err = s.accountGroupService.CheckAccess(ctx, filters.Necessary.UserID, filters.AccountGroupIDs); err != nil {
 			return nil, err
 		}
 	} else {
-		if filters.AccountGroupIDs = s.general.GetAvailableAccountGroups(filters.Necessary.UserID); len(filters.AccountGroupIDs) == 0 {
+
+		// Получаем доступные для пользователя группы счетов и добавляем их в фильтры
+		filters.AccountGroupIDs, err = s.userService.GetAccessedAccountGroups(ctx, filters.Necessary.UserID)
+		if err != nil {
+			return nil, err
+		}
+		if len(filters.AccountGroupIDs) == 0 {
 			return nil, errors.NotFound.New("У пользователя нет доступных групп счетов")
 		}
 	}

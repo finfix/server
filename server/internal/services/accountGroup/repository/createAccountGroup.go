@@ -9,10 +9,10 @@ import (
 )
 
 // CreateAccountGroup создает новую группу счетов
-func (repo *AccountGroupRepository) CreateAccountGroup(ctx context.Context, accountGroup accountGroupRepoModel.CreateAccountGroupReq) (id uint32, serialNumber uint32, err error) {
+func (r *AccountGroupRepository) CreateAccountGroup(ctx context.Context, accountGroup accountGroupRepoModel.CreateAccountGroupReq) (id uint32, serialNumber uint32, err error) {
 
 	// Получаем текущий максимальный серийный номер группы счетов
-	row, err := repo.db.QueryRow(ctx, sq.
+	row, err := r.db.QueryRow(ctx, sq.
 		Select("COALESCE(MAX(serial_number), 1) AS serial_number").
 		From("coin.account_groups"),
 	)
@@ -29,7 +29,7 @@ func (repo *AccountGroupRepository) CreateAccountGroup(ctx context.Context, acco
 	serialNumber++
 
 	// Создаем группу счетов
-	id, err = repo.db.ExecWithLastInsertID(ctx, sq.
+	id, err = r.db.ExecWithLastInsertID(ctx, sq.
 		Insert("coin.account_groups").
 		SetMap(map[string]any{
 			"name":            accountGroup.Name,

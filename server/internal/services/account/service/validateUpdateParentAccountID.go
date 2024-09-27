@@ -7,7 +7,6 @@ import (
 
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/generalRepository/checker"
 )
 
 func (s *AccountService) ValidateUpdateParentAccountID(ctx context.Context, account model.Account, parentAccountID, userID uint32) error {
@@ -18,7 +17,7 @@ func (s *AccountService) ValidateUpdateParentAccountID(ctx context.Context, acco
 		)
 	}
 
-	if err := s.general.CheckUserAccessToObjects(ctx, checker.Accounts, userID, []uint32{parentAccountID}); err != nil {
+	if err := s.CheckAccess(ctx, userID, []uint32{parentAccountID}); err != nil {
 		return err
 	}
 

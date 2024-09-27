@@ -47,7 +47,7 @@ func (s *AccountService) ChangeAccountRemainder(ctx context.Context, account mod
 	amount := remainderToUpdate.Sub(remainders[account.ID])
 
 	// Создаем транзакцию балансировки
-	balancingTransactionID, err := s.transaction.CreateTransaction(ctx, transactionRepoModel.CreateTransactionReq{
+	balancingTransactionID, err := s.transactionRepository.CreateTransaction(ctx, transactionRepoModel.CreateTransactionReq{
 		Type:               transactionType.Balancing,
 		AmountFrom:         amount,
 		AmountTo:           amount,

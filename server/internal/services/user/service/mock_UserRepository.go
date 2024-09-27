@@ -44,6 +44,36 @@ func (_m *MockUserRepository) CreateUser(_a0 context.Context, _a1 model.CreateRe
 	return r0, r1
 }
 
+// GetAccessedAccountGroups provides a mock function with given fields: ctx, userID
+func (_m *MockUserRepository) GetAccessedAccountGroups(ctx context.Context, userID uint32) ([]uint32, error) {
+	ret := _m.Called(ctx, userID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetAccessedAccountGroups")
+	}
+
+	var r0 []uint32
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uint32) ([]uint32, error)); ok {
+		return rf(ctx, userID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uint32) []uint32); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]uint32)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uint32) error); ok {
+		r1 = rf(ctx, userID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetDevices provides a mock function with given fields: _a0, _a1
 func (_m *MockUserRepository) GetDevices(_a0 context.Context, _a1 repositorymodel.GetDevicesReq) ([]model.Device, error) {
 	ret := _m.Called(_a0, _a1)

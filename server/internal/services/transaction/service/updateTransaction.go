@@ -8,7 +8,6 @@ import (
 
 	accountModel "server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/generalRepository/checker"
 	transactionModel "server/internal/services/transaction/model"
 	"server/internal/services/transaction/service/utils"
 )
@@ -17,7 +16,7 @@ import (
 func (s *TransactionService) UpdateTransaction(ctx context.Context, fields transactionModel.UpdateTransactionReq) error {
 
 	// Проверяем доступ пользователя к транзакции
-	if err := s.generalRepository.CheckUserAccessToObjects(ctx, checker.Transactions, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {
+	if err := s.CheckAccess(ctx, fields.Necessary.UserID, []uint32{fields.ID}); err != nil {
 		return err
 	}
 
@@ -45,7 +44,7 @@ func (s *TransactionService) UpdateTransaction(ctx context.Context, fields trans
 		}
 
 		// Проверяем доступ пользователя к счетам
-		if err = s.generalRepository.CheckUserAccessToObjects(ctx, checker.Accounts, fields.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
+		if err = s.accountService.CheckAccess(ctx, fields.Necessary.UserID, []uint32{transaction.AccountFromID, transaction.AccountToID}); err != nil {
 			return err
 		}
 

@@ -18,9 +18,9 @@ type MockAccountRepository struct {
 	mock.Mock
 }
 
-// CalculateRemainderAccounts provides a mock function with given fields: ctx, req
-func (_m *MockAccountRepository) CalculateRemainderAccounts(ctx context.Context, req model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
-	ret := _m.Called(ctx, req)
+// CalculateRemainderAccounts provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) CalculateRemainderAccounts(_a0 context.Context, _a1 model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CalculateRemainderAccounts")
@@ -29,10 +29,10 @@ func (_m *MockAccountRepository) CalculateRemainderAccounts(ctx context.Context,
 	var r0 map[uint32]decimal.Decimal
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)); ok {
-		return rf(ctx, req)
+		return rf(_a0, _a1)
 	}
 	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) map[uint32]decimal.Decimal); ok {
-		r0 = rf(ctx, req)
+		r0 = rf(_a0, _a1)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(map[uint32]decimal.Decimal)
@@ -40,7 +40,7 @@ func (_m *MockAccountRepository) CalculateRemainderAccounts(ctx context.Context,
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, model.CalculateRemaindersAccountsReq) error); ok {
-		r1 = rf(ctx, req)
+		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -59,6 +59,24 @@ func (_m *MockAccountRepository) ChangeSerialNumbers(ctx context.Context, accoun
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, uint32, uint32, uint32) error); ok {
 		r0 = rf(ctx, accountGroupID, oldValue, newValue)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CheckAccess provides a mock function with given fields: _a0, _a1, _a2
+func (_m *MockAccountRepository) CheckAccess(_a0 context.Context, _a1 []uint32, _a2 []uint32) error {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckAccess")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, []uint32, []uint32) error); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
 	}

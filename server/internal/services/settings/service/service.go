@@ -9,12 +9,12 @@ import (
 	"server/internal/services/settings/model/applicationType"
 	settingsRepository "server/internal/services/settings/repository"
 	tgBotModel "server/internal/services/tgBot/model"
+	tgBotService "server/internal/services/tgBot/service"
 	userModel "server/internal/services/user/model"
 	userService "server/internal/services/user/service"
 )
 
-var _ SettingsRepository = &settingsRepository.SettingsRepository{}
-var _ UserService = &userService.UserService{}
+var _ SettingsRepository = new(settingsRepository.SettingsRepository)
 
 type SettingsRepository interface {
 	UpdateCurrencies(ctx context.Context, rates map[string]decimal.Decimal) error
@@ -23,10 +23,14 @@ type SettingsRepository interface {
 	GetVersion(context.Context, applicationType.Type) (settingsModel.Version, error)
 }
 
+var _ UserService = new(userService.UserService)
+
 type UserService interface {
 	SendNotification(ctx context.Context, userID uint32, push userModel.Notification) (uint8, error)
 	GetUsers(ctx context.Context, filters userModel.GetUsersReq) (users []userModel.User, err error)
 }
+
+var _ TgBotService = new(tgBotService.TgBotService)
 
 type TgBotService interface {
 	SendMessage(context.Context, tgBotModel.SendMessageReq) error

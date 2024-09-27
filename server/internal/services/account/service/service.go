@@ -8,28 +8,23 @@ import (
 	accountModel "server/internal/services/account/model"
 	accountRepository "server/internal/services/account/repository"
 	accountRepoModel "server/internal/services/account/repository/model"
-	"server/internal/services/accountPermissions/model"
-	"server/internal/services/accountPermissions/service"
-	"server/internal/services/generalRepository"
-	"server/internal/services/generalRepository/checker"
+	accountGroupService "server/internal/services/accountGroup/service"
+	accountPermissionsModel "server/internal/services/accountPermissions/model"
+	accountPermisssionsService "server/internal/services/accountPermissions/service"
 	transactionRepository "server/internal/services/transaction/repository"
 	transactionRepoModel "server/internal/services/transaction/repository/model"
+	"server/internal/services/transactor"
 	userModel "server/internal/services/user/model"
 	userRepository "server/internal/services/user/repository"
 )
 
-var _ GeneralRepository = new(generalRepository.GeneralRepository)
-var _ AccountRepository = new(accountRepository.AccountRepository)
-var _ AccountPermissionsService = new(service.AccountPermissionsService)
-var _ UserRepository = new(userRepository.UserRepository)
-var _ TransactionRepository = new(transactionRepository.TransactionRepository)
+var _ Transactor = new(transactor.Transactor)
 
-type GeneralRepository interface {
+type Transactor interface {
 	WithinTransaction(ctx context.Context, callback func(context.Context) error) error
-	GetCurrencies(context.Context) (map[string]decimal.Decimal, error)
-	CheckUserAccessToObjects(context.Context, checker.CheckType, uint32, []uint32) error
-	GetAvailableAccountGroups(userID uint32) []uint32
 }
+
+var _ AccountRepository = new(accountRepository.AccountRepository)
 
 type AccountRepository interface {
 	CreateAccount(context.Context, accountRepoModel.CreateAccountReq) (uint32, uint32, error)
@@ -38,41 +33,67 @@ type AccountRepository interface {
 	DeleteAccount(ctx context.Context, id uint32) error
 
 	ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error
-	CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
+	CalculateRemainderAccounts(context.Context, accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
+
+	CheckAccess(context.Context, []uint32, []uint32) error
 }
+
+var _ TransactionRepository = new(transactionRepository.TransactionRepository)
 
 type TransactionRepository interface {
 	CreateTransaction(context.Context, transactionRepoModel.CreateTransactionReq) (uint32, error)
 }
 
+var _ UserRepository = new(userRepository.UserRepository)
+
 type UserRepository interface {
 	GetUsers(context.Context, userModel.GetUsersReq) ([]userModel.User, error)
 }
 
+var _ AccountPermissionsService = new(accountPermisssionsService.AccountPermissionsService)
+
 type AccountPermissionsService interface {
-	GetAccountsPermissions(context.Context, ...accountModel.Account) ([]model.AccountPermissions, error)
+	GetAccountsPermissions(context.Context, ...accountModel.Account) ([]accountPermissionsModel.AccountPermissions, error)
+}
+
+var _ AccountGroupService = new(accountGroupService.AccountGroupService)
+
+type AccountGroupService interface {
+	CheckAccess(context.Context, uint32, []uint32) error
+}
+
+var _ UserService = new(userRepository.UserRepository)
+
+type UserService interface {
+	GetAccessedAccountGroups(ctx context.Context, userID uint32) (accesses []uint32, err error)
 }
 
 type AccountService struct {
 	accountRepository         AccountRepository
-	general                   GeneralRepository
-	transaction               TransactionRepository
-	user                      UserRepository
+	transactor                Transactor
+	transactionRepository     TransactionRepository
+	userRepository            UserRepository
 	accountPermissionsService AccountPermissionsService
+	accountGroupService       AccountGroupService
+	userService               UserService
 }
 
 func NewAccountService(
-	account AccountRepository,
-	general GeneralRepository,
-	transaction TransactionRepository,
-	user UserRepository,
-	permissionsService AccountPermissionsService,
+	accountRepository AccountRepository,
+	transactor Transactor,
+	transactionRepository TransactionRepository,
+	userRepository UserRepository,
+	accountPermissionsService AccountPermissionsService,
+	accountGroupsService AccountGroupService,
+	userService UserService,
 ) *AccountService {
 	return &AccountService{
-		accountRepository:         account,
-		general:                   general,
-		transaction:               transaction,
-		user:                      user,
-		accountPermissionsService: permissionsService,
+		accountRepository:         accountRepository,
+		transactor:                transactor,
+		transactionRepository:     transactionRepository,
+		userRepository:            userRepository,
+		accountPermissionsService: accountPermissionsService,
+		accountGroupService:       accountGroupsService,
+		userService:               userService,
 	}
 }
