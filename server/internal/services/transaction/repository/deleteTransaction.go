@@ -3,17 +3,18 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"pkg/errors"
 )
 
 // DeleteTransaction удаляет транзакцию
-func (repo *TransactionRepository) DeleteTransaction(ctx context.Context, id, userID uint32) error {
+func (r *TransactionRepository) DeleteTransaction(ctx context.Context, id, userID uint32) error {
 
 	// Удаляем транзакцию
-	rows, err := repo.db.ExecWithRowsAffected(ctx, `
-			   DELETE FROM coin.transactions 
-			   WHERE id = ?`,
-		id,
+	rows, err := r.db.ExecWithRowsAffected(ctx, sq.
+		Delete("coin.transactions").
+		Where(sq.Eq{"id": id}),
 	)
 	if err != nil {
 		return err

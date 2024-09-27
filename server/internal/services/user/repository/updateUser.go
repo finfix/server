@@ -2,55 +2,42 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
+	sq "github.com/Masterminds/squirrel"
+
+	"pkg/errors"
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
 // UpdateUser редактирует пользователя
-func (repo *UserRepository) UpdateUser(ctx context.Context, fields userRepoModel.UpdateUserReq) error {
+func (r *UserRepository) UpdateUser(ctx context.Context, fields userRepoModel.UpdateUserReq) error {
 
 	// Изменяем поля пользователя
-	var (
-		args        []any
-		queryFields []string
-		query       string
-	)
+	updates := make(map[string]any)
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.Email != nil {
-		queryFields = append(queryFields, `email = ?`)
-		args = append(args, fields.Email)
+		updates["email"] = *fields.Email
 	}
 	if fields.Name != nil {
-		queryFields = append(queryFields, `name = ?`)
-		args = append(args, fields.Name)
+		updates["name"] = *fields.Name
 	}
 	if fields.DefaultCurrency != nil {
-		queryFields = append(queryFields, `default_currency_signatura = ?`)
-		args = append(args, fields.DefaultCurrency)
+		updates["default_currency_signatura"] = *fields.DefaultCurrency
 	}
 	if fields.PasswordHash != nil && fields.PasswordSalt != nil {
-		queryFields = append(queryFields, `password_hash = ?`)
-		args = append(args, fields.PasswordHash)
-		queryFields = append(queryFields, `password_salt = ?`)
-		args = append(args, fields.PasswordSalt)
+		updates["password_hash"] = *fields.PasswordHash
+		updates["password_salt"] = *fields.PasswordSalt
 	}
 
-	if len(queryFields) == 0 {
-		return nil
+	if len(updates) == 0 {
+		return errors.BadRequest.New("No fields to update")
 	}
-
-	// Конструируем запрос
-	query = fmt.Sprintf(`
- 			   UPDATE coin.users 
-               SET %v
-			   WHERE id = ?`,
-		strings.Join(queryFields, ", "),
-	)
-	args = append(args, fields.ID)
 
 	// Обновляем пользователя
-	return repo.db.Exec(ctx, query, args...)
+	return r.db.Exec(ctx, sq.
+		Update("coin.users").
+		SetMap(updates).
+		Where(sq.Eq{"id": fields.ID}),
+	)
 }

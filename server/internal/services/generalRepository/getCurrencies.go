@@ -3,6 +3,7 @@ package generalRepository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/shopspring/decimal"
 )
 
@@ -12,9 +13,9 @@ func (repo *GeneralRepository) GetCurrencies(ctx context.Context) (map[string]de
 		Name string          `db:"signatura"`
 		Rate decimal.Decimal `db:"rate"`
 	}
-	if err := repo.db.Select(ctx, &currencies, `
-			SELECT * 
-			FROM coin.currencies`,
+	if err := repo.db.Select(ctx, &currencies, sq.
+		Select("*").
+		From("coin.currencies"),
 	); err != nil {
 		return nil, err
 	}

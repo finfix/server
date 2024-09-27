@@ -1,8 +1,17 @@
 package repository
 
-import "context"
+import (
+	"context"
+
+	sq "github.com/Masterminds/squirrel"
+)
 
 // DeleteAccount удаляет счет
-func (repo *AccountRepository) DeleteAccount(ctx context.Context, id uint32) error {
-	return repo.db.Exec(ctx, `DELETE FROM coin.accounts WHERE id = ?`, id)
+func (r *AccountRepository) DeleteAccount(ctx context.Context, id uint32) error {
+
+	// Исполняем запрос на удаление счета
+	return r.db.Exec(ctx, sq.
+		Delete("coin.accounts").
+		Where(sq.Eq{"id": id}),
+	)
 }

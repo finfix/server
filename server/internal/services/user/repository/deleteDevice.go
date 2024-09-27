@@ -1,15 +1,19 @@
 package repository
 
-import "context"
+import (
+	"context"
+
+	sq "github.com/Masterminds/squirrel"
+)
 
 // DeleteDevice Удаляет девайс пользователя
-func (repo *UserRepository) DeleteDevice(ctx context.Context, userID uint32, deviceID string) error {
-	return repo.db.Exec(ctx, `
-			DELETE 
-			FROM coin.devices 
-			WHERE user_id = ? 
-			  AND device_ID = ?`,
-		userID,
-		deviceID,
+func (r *UserRepository) DeleteDevice(ctx context.Context, userID uint32, deviceID string) error {
+	return r.db.Exec(ctx, sq.
+		Delete(`coin.devices`).
+		From(`coin.devices`).
+		Where(sq.Eq{
+			"user_id":   userID,
+			"device_ID": deviceID,
+		}),
 	)
 }

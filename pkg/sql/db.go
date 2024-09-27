@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
 	"pkg/errors"
@@ -15,15 +16,14 @@ type SQL interface {
 	Unsafe() *DB
 	Begin(context.Context) (*Tx, error)
 	Ping() error
-	In(query string, args ...any) (string, []any, error)
-	Get(ctx context.Context, dest any, query string, args ...any) error
-	Select(ctx context.Context, dest any, query string, args ...any) error
-	Query(ctx context.Context, query string, args ...any) (*Rows, error)
-	QueryRow(ctx context.Context, query string, args ...any) (*Row, error)
-	Exec(ctx context.Context, query string, args ...any) error
-	ExecWithLastInsertID(ctx context.Context, query string, args ...any) (uint32, error)
-	ExecWithRowsAffected(ctx context.Context, query string, args ...any) (uint32, error)
-	Prepare(ctx context.Context, query string) (*Stmt, error)
+	Get(ctx context.Context, dest any, q sq.Sqlizer) error
+	Select(ctx context.Context, dest any, q sq.Sqlizer) error
+	Query(ctx context.Context, q sq.Sqlizer) (*Rows, error)
+	QueryRow(ctx context.Context, q sq.Sqlizer) (*Row, error)
+	Exec(ctx context.Context, q sq.Sqlizer) error
+	ExecWithLastInsertID(ctx context.Context, q sq.Sqlizer) (uint32, error)
+	ExecWithRowsAffected(ctx context.Context, q sq.Sqlizer) (uint32, error)
+	Prepare(ctx context.Context, q sq.Sqlizer) (*Stmt, error)
 	closer
 }
 
@@ -61,30 +61,37 @@ func (s *DB) Ping() error {
 	return nil
 }
 
-func (s *DB) In(query string, args ...any) (_ string, _ []any, err error) {
-	query, args, err = sqlx.In(query, args...)
-	if err != nil {
-		return "", nil, wrapSQLError(err)
-	}
-	return query, args, nil
-}
-
 func (s *DB) Unsafe() *DB {
 	return &DB{s.DB.Unsafe()}
 }
 
-func (s *DB) Select(ctx context.Context, dest any, query string, args ...any) (err error) {
+func (s *DB) Select(ctx context.Context, dest any, q sq.Sqlizer) (err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return err
+		return errors.InternalServer.Wrap(err)
 	}
 
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Выполняем запрос в рамках транзакции
 		err = tx.Tx.SelectContext(ctx, dest, query, args...)
 	} else {
+
+		// Выполняем запрос
 		err = s.DB.SelectContext(ctx, dest, query, args...)
 	}
+
+	// Обрабатываем ошибки
 	if err != nil {
 		return wrapSQLError(err)
 	}
@@ -92,19 +99,33 @@ func (s *DB) Select(ctx context.Context, dest any, query string, args ...any) (e
 	return nil
 }
 
-func (s *DB) Get(ctx context.Context, dest any, query string, args ...any) (err error) {
+func (s *DB) Get(ctx context.Context, dest any, q sq.Sqlizer) (err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return err
+		return errors.InternalServer.Wrap(err)
 	}
 
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Выполняем запрос в рамках транзакции
 		err = tx.Tx.GetContext(ctx, dest, query, args...)
 	} else {
+
+		// Выполняем запрос
 		err = s.DB.GetContext(ctx, dest, query, args...)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return wrapSQLError(err)
 	}
@@ -112,20 +133,34 @@ func (s *DB) Get(ctx context.Context, dest any, query string, args ...any) (err 
 	return nil
 }
 
-func (s *DB) Query(ctx context.Context, query string, args ...any) (_ *Rows, err error) {
+func (s *DB) Query(ctx context.Context, q sq.Sqlizer) (_ *Rows, err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, errors.InternalServer.Wrap(err)
+	}
+
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+	if err != nil {
+		return nil, errors.InternalServer.Wrap(err)
 	}
 
 	rows := &Rows{Rows: nil}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Выполняем запрос в рамках транзакции
 		rows.Rows, err = tx.Tx.QueryxContext(ctx, query, args...)
 	} else {
+
+		// Выполняем запрос
 		rows.Rows, err = s.DB.QueryxContext(ctx, query, args...)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return nil, wrapSQLError(err)
 	}
@@ -133,37 +168,64 @@ func (s *DB) Query(ctx context.Context, query string, args ...any) (_ *Rows, err
 	return rows, nil
 }
 
-func (s *DB) QueryRow(ctx context.Context, query string, args ...any) (*Row, error) {
+func (s *DB) QueryRow(ctx context.Context, q sq.Sqlizer) (*Row, error) {
 
-	query, err := replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, errors.InternalServer.Wrap(err)
+	}
+
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+	if err != nil {
+		return nil, errors.InternalServer.Wrap(err)
 	}
 
 	row := &Row{Row: nil}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Выполняем запрос в рамках транзакции
 		row.Row = tx.Tx.QueryRowxContext(ctx, query, args...)
 	} else {
+
+		// Выполняем запрос
 		row.Row = s.DB.QueryRowxContext(ctx, query, args...)
 	}
 
 	return row, nil
 }
 
-func (s *DB) Prepare(ctx context.Context, query string) (_ *Stmt, err error) {
+func (s *DB) Prepare(ctx context.Context, q sq.Sqlizer) (_ *Stmt, err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, _, err := q.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, errors.InternalServer.Wrap(err)
+	}
+
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+	if err != nil {
+		return nil, errors.InternalServer.Wrap(err)
 	}
 
 	var stmt = &Stmt{Stmt: nil}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Подготавливаем запрос в рамках транзакции
 		stmt.Stmt, err = tx.Tx.PreparexContext(ctx, query)
 	} else {
+
+		// Подготавливаем запрос
 		stmt.Stmt, err = s.DB.PreparexContext(ctx, query)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return nil, wrapSQLError(err)
 	}
@@ -171,19 +233,33 @@ func (s *DB) Prepare(ctx context.Context, query string) (_ *Stmt, err error) {
 	return stmt, nil
 }
 
-func (s *DB) Exec(ctx context.Context, query string, args ...any) (err error) {
+func (s *DB) Exec(ctx context.Context, q sq.Sqlizer) (err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return err
+		return errors.InternalServer.Wrap(err)
 	}
 
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+
+	if err != nil {
+		return errors.InternalServer.Wrap(err)
+	}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Исполняем запрос в рамках транзакции
 		_, err = tx.Tx.ExecContext(ctx, query, args...)
 	} else {
+
+		// Исполняем запрос
 		_, err = s.DB.ExecContext(ctx, query, args...)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return wrapSQLError(err)
 	}
@@ -191,20 +267,35 @@ func (s *DB) Exec(ctx context.Context, query string, args ...any) (err error) {
 	return nil
 }
 
-func (s *DB) ExecWithLastInsertID(ctx context.Context, query string, args ...any) (id uint32, err error) {
+func (s *DB) ExecWithLastInsertID(ctx context.Context, q sq.Sqlizer) (id uint32, err error) {
 
-	query += " RETURNING id"
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return 0, err
+		return 0, errors.InternalServer.Wrap(err)
 	}
 
+	query += " RETURNING id"
+
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+
+	if err != nil {
+		return 0, errors.InternalServer.Wrap(err)
+	}
+
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Исполняем запрос в рамках транзакции
 		err = tx.Tx.GetContext(ctx, &id, query, args...)
 	} else {
+
+		// Исполняем запрос
 		err = s.DB.GetContext(ctx, &id, query, args...)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return 0, wrapSQLError(err)
 	}
@@ -212,25 +303,40 @@ func (s *DB) ExecWithLastInsertID(ctx context.Context, query string, args ...any
 	return id, nil
 }
 
-func (s *DB) ExecWithRowsAffected(ctx context.Context, query string, args ...any) (_ uint32, err error) {
+func (s *DB) ExecWithRowsAffected(ctx context.Context, q sq.Sqlizer) (_ uint32, err error) {
 
-	query, err = replacePlaceholders(query)
+	// Формируем запрос из билдера
+	query, args, err := q.ToSql()
 	if err != nil {
-		return 0, err
+		return 0, errors.InternalServer.Wrap(err)
+	}
+
+	// Заменяем все ? на $1, $2 и т.д.
+	query, err = sq.Dollar.ReplacePlaceholders(query)
+
+	if err != nil {
+		return 0, errors.InternalServer.Wrap(err)
 	}
 
 	var result sql.Result
 
+	// Извлекаем транзакцию из контекста
 	if tx := extractTx(ctx); tx != nil {
+
+		// Исполняем запрос в рамках транзакции
 		result, err = tx.Tx.ExecContext(ctx, query, args...)
 	} else {
+
+		// Исполняем запрос
 		result, err = s.DB.ExecContext(ctx, query, args...)
 	}
 
+	// Обрабатываем ошибки
 	if err != nil {
 		return 0, wrapSQLError(err)
 	}
 
+	// Получаем количество затронутых строк
 	affected, err := result.RowsAffected()
 	if err != nil {
 		return 0, wrapSQLError(err)

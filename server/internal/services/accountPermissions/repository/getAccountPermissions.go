@@ -3,6 +3,8 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"pkg/log"
 
 	"server/internal/services/account/model/accountType"
@@ -28,7 +30,10 @@ func (s *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context
 	var permissions []permissionItem
 
 	// Делаем запрос в базу
-	if err := s.db.Select(ctx, &permissions, `SELECT * FROM permissions.account_permissions`); err != nil {
+	if err = s.db.Select(ctx, &permissions, sq.
+		Select("*").
+		From("permissions.account_permissions"),
+	); err != nil {
 		return permissionSet, err
 	}
 

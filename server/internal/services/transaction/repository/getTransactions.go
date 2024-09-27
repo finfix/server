@@ -2,83 +2,58 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
-	"pkg/errors"
+	sq "github.com/Masterminds/squirrel"
 
 	"server/internal/services/transaction/model"
 )
 
 // GetTransactions возвращает все транзакции по фильтрам
-func (repo *TransactionRepository) GetTransactions(ctx context.Context, req model.GetTransactionsReq) (transactions []model.Transaction, err error) {
+func (r *TransactionRepository) GetTransactions(ctx context.Context, req model.GetTransactionsReq) (transactions []model.Transaction, err error) {
 
-	var (
-		args        []any
-		queryFields []string
-	)
+	q := sq.
+		Select("t.*").
+		From("coin.transactions t").
+		Join("coin.accounts a1 ON a1.id = t.account_from_id").
+		Join("coin.accounts a2 ON a2.id = t.account_to_id")
 
 	// Добавляем фильтры
 	if len(req.AccountGroupIDs) != 0 {
-		_query, _args, err := repo.db.In(`account_group_id IN (?)`, req.AccountGroupIDs)
-		if err != nil {
-			return nil, err
-		}
-		queryFields = append(queryFields, fmt.Sprintf(`(a1.%v OR a2.%v)`, _query, _query))
-		args = append(args, _args...)
-		args = append(args, _args...)
+		q = q.Where(sq.Eq{
+			"a1.account_group_id": req.AccountGroupIDs,
+			"a2.account_group_id": req.AccountGroupIDs,
+		})
 	}
 	if len(req.IDs) != 0 {
-		_query, _args, err := repo.db.In(`t.id IN (?)`, req.IDs)
-		if err != nil {
-			return nil, err
-		}
-		queryFields = append(queryFields, _query)
-		args = append(args, _args...)
+		q = q.Where(sq.Eq{"t.id": req.IDs})
 	}
 	if req.AccountID != nil {
-		queryFields = append(queryFields, `(a1.id = ? OR a2.id = ?)`)
-		args = append(args, *req.AccountID, *req.AccountID)
+		q = q.Where(sq.Or{
+			sq.Eq{"t.account_from_id": *req.AccountID},
+			sq.Eq{"t.account_to_id": *req.AccountID},
+		})
 	}
 	if req.Type != nil {
-		queryFields = append(queryFields, `t.type_signatura = ?`)
-		args = append(args, *req.Type)
+		q = q.Where(sq.Eq{"t.type_signatura": *req.Type})
 	}
 	if req.DateFrom != nil {
-		queryFields = append(queryFields, `t.date_transaction >= ?`)
-		args = append(args, req.DateFrom)
+		q = q.Where(sq.GtOrEq{"t.date_transaction": req.DateFrom})
 	}
 	if req.DateTo != nil {
-		queryFields = append(queryFields, `t.date_transaction < ?`)
-		args = append(args, req.DateTo)
+		q = q.Where(sq.LtOrEq{"t.date_transaction": req.DateTo})
 	}
 
-	// Конструируем запрос
-	query := fmt.Sprintf(`SELECT t.*
-		   FROM coin.transactions t
-			 JOIN coin.accounts a1 ON a1.id = t.account_from_id
-			 JOIN coin.accounts a2 ON a2.id = t.account_to_id
-		   WHERE %v
-           ORDER BY 
-             t.date_transaction DESC,
-             t.datetime_create DESC`,
-		strings.Join(queryFields, " AND "),
-	)
+	q = q.OrderBy("t.date_transaction DESC, t.datetime_create DESC")
 
 	if req.Limit != nil {
-		query += ` LIMIT ?`
-		args = append(args, *req.Limit)
+		q = q.Limit(uint64(*req.Limit))
 	}
 	if req.Offset != nil {
-		query += ` OFFSET ?`
-		args = append(args, *req.Offset)
+		q = q.Offset(uint64(*req.Offset))
 	}
 
 	// Получаем транзакции
-	if err = repo.db.Select(ctx, &transactions, query, args...); err != nil {
-		if errors.Is(err, context.Canceled) {
-			return nil, errors.ClientReject.New("HTTP connection terminated")
-		}
+	if err = r.db.Select(ctx, &transactions, q); err != nil {
 		return nil, err
 	}
 

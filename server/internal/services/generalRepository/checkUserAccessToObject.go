@@ -2,7 +2,8 @@ package generalRepository
 
 import (
 	"context"
-	"fmt"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
 
@@ -27,42 +28,17 @@ func (repo *GeneralRepository) CheckUserAccessToObjects(ctx context.Context, che
 		checker.Tags:          "подкатегориям",
 	}
 
-	var (
-		countAccess              uint32
-		questionsAccountGroupIDs string
-		argsAGs                  []any
-		questionsIDs             string
-		argsIDs                  []any
-		args                     []any
-		query                    string
-	)
-
-	// Добавляем в запрос условие на проверяемые идентификаторы групп счетов
-	questionsAccountGroupIDs, argsAGs, err := repo.db.In("?", accessedAccountGroupIDs)
-	if err != nil {
-		return err
-	}
-
-	// Добавляем в запрос условие на проверяемые идентификаторы
-	questionsIDs, argsIDs, err = repo.db.In("?", ids)
-	if err != nil {
-		return err
-	}
+	var q sq.SelectBuilder
 
 	// В зависимости от проверяемого типа, выбираем таблицу
 	switch checkType {
 
 	case checker.Accounts:
-		query = fmt.Sprintf(`
-				SELECT COUNT(*)
-				FROM coin.accounts a
-				WHERE a.account_group_id IN (%v)
-				AND a.id IN (%v)`,
-			questionsAccountGroupIDs,
-			questionsIDs,
-		)
-		args = append(args, argsAGs...)
-		args = append(args, argsIDs...)
+		q = sq.
+			Select("COUNT(*)").
+			From("coin.accounts a").
+			Where(sq.Eq{"a.account_group_id": accessedAccountGroupIDs}).
+			Where(sq.Eq{"a.id": ids})
 
 	case checker.AccountGroups:
 		for _, accountGroupID := range ids {
@@ -80,40 +56,36 @@ func (repo *GeneralRepository) CheckUserAccessToObjects(ctx context.Context, che
 		if len(ids) != 1 {
 			return errors.InternalServer.New("Невозможно проверить доступ к нескольким транзакциям")
 		}
-		query = fmt.Sprintf(`
-				SELECT COUNT(*)
-				FROM coin.transactions t 
-				JOIN coin.accounts a1 ON a1.id = t.account_from_id 
-				JOIN coin.accounts a2 ON a2.id = t.account_to_id
-				WHERE a1.account_group_id IN (%v)
-				AND a2.account_group_id IN (%v)
-				AND t.id IN (%v)`,
-			questionsAccountGroupIDs,
-			questionsAccountGroupIDs,
-			questionsIDs,
-		)
-		args = append(args, argsAGs...)
-		args = append(args, argsAGs...)
-		args = append(args, argsIDs...)
+
+		q = sq.
+			Select("COUNT(*)").
+			From("coin.transactions t").
+			Join("coin.accounts a1 ON a1.id = t.account_from_id").
+			Join("coin.accounts a2 ON a2.id = t.account_to_id").
+			Where(sq.Eq{
+				"a1.account_group_id": accessedAccountGroupIDs,
+				"a2.account_group_id": accessedAccountGroupIDs,
+				"t.id":                ids,
+			})
 
 	case checker.Tags:
-		query = fmt.Sprintf(`
-				SELECT COUNT(*)
-				FROM coin.tags t
-				WHERE t.account_group_id IN (%v)
-				AND t.id IN (%v)`,
-			questionsAccountGroupIDs,
-			questionsIDs,
-		)
-		args = append(args, argsAGs...)
-		args = append(args, argsIDs...)
+		q = sq.
+			Select("COUNT(*)").
+			From("coin.tags t").
+			Where(sq.Eq{
+				"t.account_group_id": accessedAccountGroupIDs,
+				"t.id":               ids,
+			})
 	}
 
 	// Смотрим количество записей, которые удовлетворяют условию
-	row, err := repo.db.QueryRow(ctx, query, args...)
+	row, err := repo.db.QueryRow(ctx, q)
 	if err != nil {
 		return err
 	}
+
+	// Сканируем результат
+	var countAccess uint32
 	if err = row.Scan(&countAccess); err != nil {
 		return err
 	}

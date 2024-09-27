@@ -1,6 +1,10 @@
 package generalRepository
 
-import "context"
+import (
+	"context"
+
+	sq "github.com/Masterminds/squirrel"
+)
 
 func (repo *GeneralRepository) getAccesses(ctx context.Context) (_ map[uint32]map[uint32]struct{}, err error) {
 
@@ -11,11 +15,12 @@ func (repo *GeneralRepository) getAccesses(ctx context.Context) (_ map[uint32]ma
 		AccountGroupID uint32 `db:"account_group_id"`
 	}
 
-	if err = repo.db.Select(ctx, &result, `
-			SELECT u.id AS user_id, ag.id AS account_group_id
-			FROM coin.account_groups ag
-			JOIN coin.users_to_account_groups utag ON utag.account_group_id = ag.id 
-			JOIN coin.users u ON utag.user_id = u.id`); err != nil {
+	if err = repo.db.Select(ctx, &result, sq.
+		Select("u.id AS user_id", "ag.id AS account_group_id").
+		From("coin.account_groups ag").
+		Join("coin.users_to_account_groups utag ON utag.account_group_id = ag.id").
+		Join("coin.users u ON utag.user_id = u.id"),
+	); err != nil {
 		return nil, err
 	}
 

@@ -2,28 +2,21 @@ package repository
 
 import (
 	"context"
-	"fmt"
+
+	sq "github.com/Masterminds/squirrel"
 )
 
 // UnlinkTagsFromTransaction отвязывает подкатегории от транзакции
-func (repo *TagRepository) UnlinkTagsFromTransaction(ctx context.Context, tagIDs []uint32, transactionID uint32) error {
+func (r *TagRepository) UnlinkTagsFromTransaction(ctx context.Context, tagIDs []uint32, transactionID uint32) error {
 
-	args := make([]any, 0, len(tagIDs)+1)
+	filtersEq := make(sq.Eq)
 
-	args = append(args, transactionID)
+	filtersEq["tag_id"] = tagIDs
+	filtersEq["transaction_id"] = transactionID
 
-	queryIn, _args, err := repo.db.In(`tag_id IN (?)`, tagIDs)
-	if err != nil {
-		return err
-	}
-	args = append(args, _args...)
-
-	// Удаляем связи между подкатегориями и транзакцией
-	query := fmt.Sprintf(`
-		DELETE FROM coin.tags_to_transaction
-		WHERE transaction_id = ? AND %v`,
-		queryIn,
+	// Удаляем связь между подкатегориями и транзакцией
+	return r.db.Exec(ctx, sq.
+		Delete("coin.tags_to_transaction").
+		Where(filtersEq),
 	)
-
-	return repo.db.Exec(ctx, query, args...)
 }

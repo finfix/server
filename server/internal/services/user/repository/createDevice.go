@@ -3,37 +3,28 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	userModel "server/internal/services/user/model"
 )
 
 // CreateDevice Создает новый девайс для пользователя
-func (repo *UserRepository) CreateDevice(ctx context.Context, req userModel.Device) (id uint32, err error) {
-	return repo.db.ExecWithLastInsertID(ctx, `
-			INSERT INTO coin.devices (
-			  refresh_token, 
-			  device_id, 
-			  user_id,
-			  device_os_name,
-			  device_os_version,
-			  device_name,
-			  device_model_name,
-			  device_ip_address,
-			  device_user_agent,
-			  application_bundle_id,
-			  application_version,
-			  application_build
-        	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		req.RefreshToken,
-		req.DeviceID,
-		req.UserID,
-		req.DeviceInformation.NameOS,
-		req.DeviceInformation.VersionOS,
-		req.DeviceInformation.DeviceName,
-		req.DeviceInformation.ModelName,
-		req.DeviceInformation.IPAddress,
-		req.DeviceInformation.UserAgent,
-		req.ApplicationInformation.BundleID,
-		req.ApplicationInformation.Version,
-		req.ApplicationInformation.Build,
+func (r *UserRepository) CreateDevice(ctx context.Context, req userModel.Device) (id uint32, err error) {
+	return r.db.ExecWithLastInsertID(ctx, sq.
+		Insert(`coin.devices`).
+		SetMap(map[string]any{
+			"refresh_token":         req.RefreshToken,
+			"device_id":             req.DeviceID,
+			"user_id":               req.UserID,
+			"device_os_name":        req.DeviceInformation.NameOS,
+			"device_os_version":     req.DeviceInformation.VersionOS,
+			"device_name":           req.DeviceInformation.DeviceName,
+			"device_model_name":     req.DeviceInformation.ModelName,
+			"device_ip_address":     req.DeviceInformation.IPAddress,
+			"device_user_agent":     req.DeviceInformation.UserAgent,
+			"application_bundle_id": req.ApplicationInformation.BundleID,
+			"application_version":   req.ApplicationInformation.Version,
+			"application_build":     req.ApplicationInformation.Build,
+		}),
 	)
 }

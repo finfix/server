@@ -1,26 +1,34 @@
 package repository
 
-import "context"
+import (
+	"context"
+
+	sq "github.com/Masterminds/squirrel"
+)
 
 // ChangeSerialNumbers вставляет группу счетов на новое место
 func (repo *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
 
-	var req string
-	var args []any
+	// Формируем первичный запрос
+	q := sq.Update("coin.account_groups")
 
+	// Дополняем запрос в зависимости от того, в какую сторону двигаем элемент
 	if newValue < oldValue {
-		req = `UPDATE coin.account_groups
-			SET serial_number = serial_number + 1
-			WHERE serial_number >= ?
-			  AND serial_number < ?`
-		args = append(args, newValue, oldValue)
+		q = q.
+			Set("serial_number", sq.Expr("serial_number + 1")).
+			Where(sq.And{
+				sq.GtOrEq{"serial_number": newValue},
+				sq.Lt{"serial_number": oldValue},
+			})
 	} else {
-		req = `UPDATE coin.account_groups
-			SET serial_number = serial_number - 1
-			WHERE serial_number > ?
-			  AND serial_number <= ?`
-		args = append(args, oldValue, newValue)
+		q = q.
+			Set("serial_number", sq.Expr("serial_number - 1")).
+			Where(sq.And{
+				sq.Gt{"serial_number": oldValue},
+				sq.LtOrEq{"serial_number": newValue},
+			})
 	}
 
-	return repo.db.Exec(ctx, req, args...)
+	// Выполняем запрос
+	return repo.db.Exec(ctx, q)
 }

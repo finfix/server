@@ -2,82 +2,51 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/shopspring/decimal"
 
 	accountRepoModel "server/internal/services/account/repository/model"
 )
 
-// CalculateRemainderAccounts возвращает остатки счетов
-func (repo *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
-
-	var queryFields []string
-	var args []any
-
-	// Добавляем в запрос счета
+func applyFilters(q sq.SelectBuilder, req accountRepoModel.CalculateRemaindersAccountsReq) sq.SelectBuilder {
 	if len(req.IDs) != 0 {
-		_query, _args, err := repo.db.In(
-			`a.id IN (?)`, req.IDs,
-		)
-		if err != nil {
-			return nil, err
-		}
-		queryFields = append(queryFields, _query)
-		args = append(args, _args...)
+		q = q.Where(sq.Eq{"a.id": req.IDs})
 	}
-
-	// Добавляем в запрос типы счетов
 	if len(req.Types) != 0 {
-		_query, _args, err := repo.db.In(
-			`a.type_signatura IN (?)`, req.Types,
-		)
-		if err != nil {
-			return nil, err
-		}
-		queryFields = append(queryFields, _query)
-		args = append(args, _args...)
+		q = q.Where(sq.Eq{"a.type_signatura": req.Types})
 	}
-
-	// Добавляем в запрос группы счетов
 	if len(req.AccountGroupIDs) != 0 {
-		_query, _args, err := repo.db.In(
-			`a.account_group_id IN (?)`, req.AccountGroupIDs,
-		)
-		if err != nil {
-			return nil, err
-		}
-		queryFields = append(queryFields, _query)
-		args = append(args, _args...)
+		q = q.Where(sq.Eq{"a.account_group_id": req.AccountGroupIDs})
 	}
-
-	// Добавляем в запрос даты
 	if req.DateFrom != nil {
-		queryFields = append(queryFields, `t.date_transaction >= ?`)
-		args = append(args, req.DateFrom)
+		q = q.Where(sq.GtOrEq{"t.date_transaction": req.DateFrom})
 	}
 	if req.DateTo != nil {
-		queryFields = append(queryFields, `t.date_transaction < ?`)
-		args = append(args, req.DateTo)
+		q = q.Where(sq.LtOrEq{"t.date_transaction": req.DateTo})
 	}
+	return q
+}
 
-	// Получаем сумму всех транзакций из счетов
-	query := fmt.Sprintf(`
-			SELECT t.account_to_id AS id, COALESCE(SUM(t.amount_to), 0) AS remainder
-			FROM coin.transactions t
-			JOIN coin.accounts a ON t.account_to_id = a.id
-			WHERE %v
-			GROUP BY t.account_to_id`,
-		strings.Join(queryFields, " AND "))
+var amountsArray []struct {
+	ID        uint32          `db:"id"`
+	Remainder decimal.Decimal `db:"remainder"`
+}
 
-	var amountsArray []struct {
-		ID        uint32          `db:"id"`
-		Remainder decimal.Decimal `db:"remainder"`
-	}
+// CalculateRemainderAccounts возвращает остатки счетов
+func (r *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	// Вычисляем сумму всех транзакций из счетов, id - сумма из
-	if err := repo.db.Select(ctx, &amountsArray, query, args...); err != nil {
+	if err := r.db.Select(ctx, &amountsArray,
+		applyFilters(
+			sq.
+				Select("t.account_to_id AS id", "COALESCE(SUM(t.amount_from), 0) AS remainder").
+				From("coin.transactions t").
+				Join("coin.accounts a ON t.account_to_id = a.id").
+				GroupBy("t.account_to_id"),
+			req,
+		),
+	); err != nil {
 		return nil, err
 	}
 
@@ -87,17 +56,17 @@ func (repo *AccountRepository) CalculateRemainderAccounts(ctx context.Context, r
 		amountFromAccount[remainder.ID] = remainder.Remainder
 	}
 
-	// Получаем сумму всех транзакций в счета
-	query = fmt.Sprintf(`
-			SELECT t.account_from_id AS id, COALESCE(SUM(t.amount_from), 0) AS remainder
-			FROM coin.transactions t
-			JOIN coin.accounts a ON t.account_from_id = a.id
-			WHERE %v
-			GROUP BY t.account_from_id`,
-		strings.Join(queryFields, " AND "))
-
 	// Вычисляем сумму всех транзакций в счета, id - сумма в
-	if err := repo.db.Select(ctx, &amountsArray, query, args...); err != nil {
+	if err := r.db.Select(ctx, &amountsArray,
+		applyFilters(
+			sq.
+				Select("t.account_from_id AS id", "COALESCE(SUM(t.amount_from), 0) AS remainder").
+				From("coin.transactions t").
+				Join("coin.accounts a ON t.account_from_id = a.id").
+				GroupBy("t.account_from_id"),
+			req,
+		),
+	); err != nil {
 		return nil, err
 	}
 

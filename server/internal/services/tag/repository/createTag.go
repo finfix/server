@@ -3,26 +3,21 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	tagRepoModel "server/internal/services/tag/repository/model"
 )
 
 // CreateTag создает новую подкатегорию
-func (repo *TagRepository) CreateTag(ctx context.Context, req tagRepoModel.CreateTagReq) (id uint32, err error) {
+func (r *TagRepository) CreateTag(ctx context.Context, req tagRepoModel.CreateTagReq) (id uint32, err error) {
 
 	// Создаем подкатегорию
-	if id, err = repo.db.ExecWithLastInsertID(ctx, `
-			INSERT INTO coin.tags (
-    		  name,
-			  account_group_id,
-			  created_by_user_id,
-			  datetime_create
-            ) VALUES (?, ?, ?, ?)`,
-		req.Name,
-		req.AccountGroupID,
-		req.CreatedByUserID,
-		req.DatetimeCreate,
-	); err != nil {
-		return id, err
-	}
-	return id, nil
+	return r.db.ExecWithLastInsertID(ctx, sq.Insert(`coin.tags`).
+		SetMap(map[string]any{
+			"name":               req.Name,
+			"account_group_id":   req.AccountGroupID,
+			"created_by_user_id": req.CreatedByUserID,
+			"datetime_create":    req.DatetimeCreate,
+		}),
+	)
 }

@@ -2,45 +2,27 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 
 	userModel "server/internal/services/user/model"
 )
 
 // GetUsers Возвращает пользователей по фильтрам
-func (repo *UserRepository) GetUsers(ctx context.Context, filters userModel.GetUsersReq) (user []userModel.User, err error) {
+func (r *UserRepository) GetUsers(ctx context.Context, filters userModel.GetUsersReq) (user []userModel.User, err error) {
 
-	query := `
-			SELECT *
-			FROM coin.users `
-
-	var (
-		queryArgs []string
-		args      []any
-	)
+	filtersEq := make(sq.Eq)
 
 	if len(filters.IDs) > 0 {
-		_query, _args, err := repo.db.In("id IN (?)", filters.IDs)
-		if err != nil {
-			return user, err
-		}
-		queryArgs = append(queryArgs, _query)
-		args = append(args, _args...)
+		filtersEq["id"] = filters.IDs
 	}
-
 	if len(filters.Emails) > 0 {
-		_query, _args, err := repo.db.In("email IN (?)", filters.Emails)
-		if err != nil {
-			return user, err
-		}
-		queryArgs = append(queryArgs, _query)
-		args = append(args, _args...)
+		filtersEq["email"] = filters.Emails
 	}
 
-	if len(queryArgs) > 0 {
-		query = fmt.Sprintf("%s WHERE %s", query, strings.Join(queryArgs, " AND "))
-	}
-
-	return user, repo.db.Select(ctx, &user, query, args...)
+	return user, r.db.Select(ctx, &user, sq.
+		Select("*").
+		From("coin.users").
+		Where(filtersEq),
+	)
 }

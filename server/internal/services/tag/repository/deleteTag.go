@@ -3,14 +3,18 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"pkg/errors"
 )
 
 // DeleteTag удаляет подкатегорию
-func (repo *TagRepository) DeleteTag(ctx context.Context, id, userID uint32) error {
+func (r *TagRepository) DeleteTag(ctx context.Context, id, userID uint32) error {
 
 	// Удаляем подкатегорию
-	rows, err := repo.db.ExecWithRowsAffected(ctx, ` DELETE FROM coin.tags WHERE id = ?`, id)
+	rows, err := r.db.ExecWithRowsAffected(ctx, sq.Delete("coin.tags").
+		Where(sq.Eq{"id": id}),
+	)
 	if err != nil {
 		return err
 	}

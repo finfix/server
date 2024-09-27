@@ -5,6 +5,7 @@ package sql
 import (
 	context "context"
 
+	squirrel "github.com/Masterminds/squirrel"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -61,20 +62,17 @@ func (_m *MockSQL) Close() error {
 	return r0
 }
 
-// Exec provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) Exec(ctx context.Context, query string, args ...interface{}) error {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// Exec provides a mock function with given fields: ctx, q
+func (_m *MockSQL) Exec(ctx context.Context, q squirrel.Sqlizer) error {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Exec")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) error); ok {
-		r0 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r0 = rf(ctx, q)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -82,12 +80,9 @@ func (_m *MockSQL) Exec(ctx context.Context, query string, args ...interface{}) 
 	return r0
 }
 
-// ExecWithLastInsertID provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) ExecWithLastInsertID(ctx context.Context, query string, args ...interface{}) (uint32, error) {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// ExecWithLastInsertID provides a mock function with given fields: ctx, q
+func (_m *MockSQL) ExecWithLastInsertID(ctx context.Context, q squirrel.Sqlizer) (uint32, error) {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExecWithLastInsertID")
@@ -95,17 +90,17 @@ func (_m *MockSQL) ExecWithLastInsertID(ctx context.Context, query string, args 
 
 	var r0 uint32
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (uint32, error)); ok {
-		return rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) (uint32, error)); ok {
+		return rf(ctx, q)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) uint32); ok {
-		r0 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) uint32); ok {
+		r0 = rf(ctx, q)
 	} else {
 		r0 = ret.Get(0).(uint32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
-		r1 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(1).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r1 = rf(ctx, q)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -113,12 +108,9 @@ func (_m *MockSQL) ExecWithLastInsertID(ctx context.Context, query string, args 
 	return r0, r1
 }
 
-// ExecWithRowsAffected provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) ExecWithRowsAffected(ctx context.Context, query string, args ...interface{}) (uint32, error) {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// ExecWithRowsAffected provides a mock function with given fields: ctx, q
+func (_m *MockSQL) ExecWithRowsAffected(ctx context.Context, q squirrel.Sqlizer) (uint32, error) {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ExecWithRowsAffected")
@@ -126,17 +118,17 @@ func (_m *MockSQL) ExecWithRowsAffected(ctx context.Context, query string, args 
 
 	var r0 uint32
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (uint32, error)); ok {
-		return rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) (uint32, error)); ok {
+		return rf(ctx, q)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) uint32); ok {
-		r0 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) uint32); ok {
+		r0 = rf(ctx, q)
 	} else {
 		r0 = ret.Get(0).(uint32)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
-		r1 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(1).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r1 = rf(ctx, q)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -144,65 +136,22 @@ func (_m *MockSQL) ExecWithRowsAffected(ctx context.Context, query string, args 
 	return r0, r1
 }
 
-// Get provides a mock function with given fields: ctx, dest, query, args
-func (_m *MockSQL) Get(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, dest, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// Get provides a mock function with given fields: ctx, dest, q
+func (_m *MockSQL) Get(ctx context.Context, dest interface{}, q squirrel.Sqlizer) error {
+	ret := _m.Called(ctx, dest, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, string, ...interface{}) error); ok {
-		r0 = rf(ctx, dest, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, squirrel.Sqlizer) error); ok {
+		r0 = rf(ctx, dest, q)
 	} else {
 		r0 = ret.Error(0)
 	}
 
 	return r0
-}
-
-// In provides a mock function with given fields: query, args
-func (_m *MockSQL) In(query string, args ...interface{}) (string, []interface{}, error) {
-	var _ca []interface{}
-	_ca = append(_ca, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
-
-	if len(ret) == 0 {
-		panic("no return value specified for In")
-	}
-
-	var r0 string
-	var r1 []interface{}
-	var r2 error
-	if rf, ok := ret.Get(0).(func(string, ...interface{}) (string, []interface{}, error)); ok {
-		return rf(query, args...)
-	}
-	if rf, ok := ret.Get(0).(func(string, ...interface{}) string); ok {
-		r0 = rf(query, args...)
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	if rf, ok := ret.Get(1).(func(string, ...interface{}) []interface{}); ok {
-		r1 = rf(query, args...)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).([]interface{})
-		}
-	}
-
-	if rf, ok := ret.Get(2).(func(string, ...interface{}) error); ok {
-		r2 = rf(query, args...)
-	} else {
-		r2 = ret.Error(2)
-	}
-
-	return r0, r1, r2
 }
 
 // Ping provides a mock function with given fields:
@@ -223,9 +172,9 @@ func (_m *MockSQL) Ping() error {
 	return r0
 }
 
-// Prepare provides a mock function with given fields: ctx, query
-func (_m *MockSQL) Prepare(ctx context.Context, query string) (*Stmt, error) {
-	ret := _m.Called(ctx, query)
+// Prepare provides a mock function with given fields: ctx, q
+func (_m *MockSQL) Prepare(ctx context.Context, q squirrel.Sqlizer) (*Stmt, error) {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Prepare")
@@ -233,19 +182,19 @@ func (_m *MockSQL) Prepare(ctx context.Context, query string) (*Stmt, error) {
 
 	var r0 *Stmt
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (*Stmt, error)); ok {
-		return rf(ctx, query)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) (*Stmt, error)); ok {
+		return rf(ctx, q)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) *Stmt); ok {
-		r0 = rf(ctx, query)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) *Stmt); ok {
+		r0 = rf(ctx, q)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Stmt)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, query)
+	if rf, ok := ret.Get(1).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r1 = rf(ctx, q)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -253,12 +202,9 @@ func (_m *MockSQL) Prepare(ctx context.Context, query string) (*Stmt, error) {
 	return r0, r1
 }
 
-// Query provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) Query(ctx context.Context, query string, args ...interface{}) (*Rows, error) {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// Query provides a mock function with given fields: ctx, q
+func (_m *MockSQL) Query(ctx context.Context, q squirrel.Sqlizer) (*Rows, error) {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Query")
@@ -266,19 +212,19 @@ func (_m *MockSQL) Query(ctx context.Context, query string, args ...interface{})
 
 	var r0 *Rows
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (*Rows, error)); ok {
-		return rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) (*Rows, error)); ok {
+		return rf(ctx, q)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) *Rows); ok {
-		r0 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) *Rows); ok {
+		r0 = rf(ctx, q)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Rows)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
-		r1 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(1).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r1 = rf(ctx, q)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -286,12 +232,9 @@ func (_m *MockSQL) Query(ctx context.Context, query string, args ...interface{})
 	return r0, r1
 }
 
-// QueryRow provides a mock function with given fields: ctx, query, args
-func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface{}) (*Row, error) {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// QueryRow provides a mock function with given fields: ctx, q
+func (_m *MockSQL) QueryRow(ctx context.Context, q squirrel.Sqlizer) (*Row, error) {
+	ret := _m.Called(ctx, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for QueryRow")
@@ -299,19 +242,19 @@ func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface
 
 	var r0 *Row
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) (*Row, error)); ok {
-		return rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) (*Row, error)); ok {
+		return rf(ctx, q)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, ...interface{}) *Row); ok {
-		r0 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, squirrel.Sqlizer) *Row); ok {
+		r0 = rf(ctx, q)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*Row)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, ...interface{}) error); ok {
-		r1 = rf(ctx, query, args...)
+	if rf, ok := ret.Get(1).(func(context.Context, squirrel.Sqlizer) error); ok {
+		r1 = rf(ctx, q)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -319,20 +262,17 @@ func (_m *MockSQL) QueryRow(ctx context.Context, query string, args ...interface
 	return r0, r1
 }
 
-// Select provides a mock function with given fields: ctx, dest, query, args
-func (_m *MockSQL) Select(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
-	var _ca []interface{}
-	_ca = append(_ca, ctx, dest, query)
-	_ca = append(_ca, args...)
-	ret := _m.Called(_ca...)
+// Select provides a mock function with given fields: ctx, dest, q
+func (_m *MockSQL) Select(ctx context.Context, dest interface{}, q squirrel.Sqlizer) error {
+	ret := _m.Called(ctx, dest, q)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Select")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, interface{}, string, ...interface{}) error); ok {
-		r0 = rf(ctx, dest, query, args...)
+	if rf, ok := ret.Get(0).(func(context.Context, interface{}, squirrel.Sqlizer) error); ok {
+		r0 = rf(ctx, dest, q)
 	} else {
 		r0 = ret.Error(0)
 	}

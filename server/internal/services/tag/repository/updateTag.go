@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
 
@@ -11,33 +11,24 @@ import (
 )
 
 // UpdateTag редактирует подкатегорию
-func (repo *TagRepository) UpdateTag(ctx context.Context, fields model.UpdateTagReq) error {
+func (r *TagRepository) UpdateTag(ctx context.Context, fields model.UpdateTagReq) error {
 
-	// Изменяем показатели подкатегории
-	var (
-		args        []any
-		queryFields []string
-		query       string
-	)
+	updates := make(map[string]any)
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.Name != nil {
-		queryFields = append(queryFields, `name = ?`)
-		args = append(args, fields.Name)
+		updates["name"] = *fields.Name
 	}
-	if len(queryFields) == 0 {
+
+	// Проверяем, что есть поля для обновления
+	if len(updates) == 0 {
 		return errors.BadRequest.New("No fields to update")
 	}
 
-	// Конструируем запрос
-	query = fmt.Sprintf(`
- 			   UPDATE coin.tags 
-               SET %v
-			   WHERE id = ?`,
-		strings.Join(queryFields, ", "),
-	)
-	args = append(args, fields.ID)
-
 	// Редактируем подкатегорию
-	return repo.db.Exec(ctx, query, args...)
+	return r.db.Exec(ctx, sq.
+		Update("coin.tags").
+		SetMap(updates).
+		Where(sq.Eq{"id": fields.ID}),
+	)
 }

@@ -2,9 +2,8 @@ package repository
 
 import (
 	"context"
-	defErr "errors"
-	"fmt"
-	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
 
@@ -12,34 +11,23 @@ import (
 )
 
 // GetTags возвращает все подкатегории по фильтрам
-func (repo *TagRepository) GetTags(ctx context.Context, req model.GetTagsReq) (tags []model.Tag, err error) {
+func (r *TagRepository) GetTags(ctx context.Context, req model.GetTagsReq) (tags []model.Tag, err error) {
 
-	var (
-		args        []any
-		queryFields []string
-	)
+	filtersEq := make(sq.Eq)
 
-	_query, _args, err := repo.db.In(`account_group_id IN (?)`, req.AccountGroupIDs)
-	if err != nil {
-		return nil, err
+	if len(req.AccountGroupIDs) > 0 {
+		filtersEq["account_group_id"] = req.AccountGroupIDs
 	}
-	queryFields = append(queryFields, _query)
-	args = append(args, _args...)
 
-	// Конструируем запрос
-	query := fmt.Sprintf(`SELECT *
-		   FROM coin.tags 
-		   WHERE %v`,
-		strings.Join(queryFields, " AND "),
-	)
+	// Проверяем, что есть фильтры
+	if len(filtersEq) == 0 {
+		return nil, errors.BadRequest.New("No filters specified")
+	}
 
 	// Получаем подкатегории
-	if err = repo.db.Select(ctx, &tags, query, args...); err != nil {
-		if defErr.Is(err, context.Canceled) {
-			return nil, errors.ClientReject.New("HTTP connection terminated")
-		}
-		return nil, err
-	}
-
-	return tags, nil
+	return tags, r.db.Select(ctx, &tags, sq.
+		Select("*").
+		From("coin.tags").
+		Where(filtersEq),
+	)
 }

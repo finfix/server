@@ -3,40 +3,28 @@ package repository
 import (
 	"context"
 
+	sq "github.com/Masterminds/squirrel"
+
 	"server/internal/services/transaction/repository/model"
 )
 
 // CreateTransaction создает новую транзакцию
-func (repo *TransactionRepository) CreateTransaction(ctx context.Context, req model.CreateTransactionReq) (id uint32, err error) {
+func (r *TransactionRepository) CreateTransaction(ctx context.Context, req model.CreateTransactionReq) (id uint32, err error) {
 
 	// Создаем транзакцию
-	if id, err = repo.db.ExecWithLastInsertID(ctx, `
-			INSERT INTO coin.transactions (
-    		  type_signatura, 
-              date_transaction, 
-              account_from_id, 
-              account_to_id, 
-              amount_from, 
-              amount_to,  
-              note,  
-              is_executed,  
-              datetime_create,
-			  created_by_user_id,
-			  accounting_in_charts
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		req.Type,
-		req.DateTransaction,
-		req.AccountFromID,
-		req.AccountToID,
-		req.AmountFrom,
-		req.AmountTo,
-		req.Note,
-		req.IsExecuted,
-		req.DatetimeCreate,
-		req.CreatedByUserID,
-		req.AccountingInCharts,
-	); err != nil {
-		return id, err
-	}
-	return id, nil
+	return r.db.ExecWithLastInsertID(ctx, sq.Insert(`coin.transactions`).
+		SetMap(map[string]any{
+			"type_signatura":       req.Type,
+			"date_transaction":     req.DateTransaction,
+			"account_from_id":      req.AccountFromID,
+			"account_to_id":        req.AccountToID,
+			"amount_from":          req.AmountFrom,
+			"amount_to":            req.AmountTo,
+			"note":                 req.Note,
+			"is_executed":          req.IsExecuted,
+			"datetime_create":      req.DatetimeCreate,
+			"created_by_user_id":   req.CreatedByUserID,
+			"accounting_in_charts": req.AccountingInCharts,
+		}),
+	)
 }

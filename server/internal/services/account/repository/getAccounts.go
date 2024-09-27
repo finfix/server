@@ -2,91 +2,58 @@ package repository
 
 import (
 	"context"
-	"fmt"
-	"strings"
+
+	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
-
 	"server/internal/services/account/model"
 	accountRepoModel "server/internal/services/account/repository/model"
 )
 
 // GetAccounts возвращает все счета, удовлетворяющие фильтрам
-func (repo *AccountRepository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
+func (r *AccountRepository) GetAccounts(ctx context.Context, req accountRepoModel.GetAccountsReq) (accounts []model.Account, err error) {
 
-	// Создаем конструктор запроса
-	var (
-		variables []any
-		reqFields []string
-	)
+	filters := make(sq.Eq)
 
 	if len(req.AccountGroupIDs) != 0 {
-		_query, _args, err := repo.db.In(`a.account_group_id IN (?)`, req.AccountGroupIDs)
-		if err != nil {
-			return accounts, err
-		}
-		reqFields = append(reqFields, _query)
-		variables = append(variables, _args...)
+		filters["a.account_group_id"] = req.AccountGroupIDs
 	}
 	if len(req.IDs) != 0 {
-		_query, _args, err := repo.db.In(`a.id IN (?)`, req.IDs)
-		if err != nil {
-			return accounts, err
-		}
-		reqFields = append(reqFields, _query)
-		variables = append(variables, _args...)
+		filters["a.id"] = req.IDs
 	}
 	if len(req.Types) != 0 {
-		_query, _args, err := repo.db.In(`a.type_signatura IN (?)`, req.Types)
-		if err != nil {
-			return accounts, err
-		}
-		reqFields = append(reqFields, _query)
-		variables = append(variables, _args...)
+		filters["a.type_signatura"] = req.Types
 	}
 	if len(req.Currencies) != 0 {
-		_query, _args, err := repo.db.In(`a.currency_signatura IN (?)`, req.Currencies)
-		if err != nil {
-			return accounts, err
-		}
-		reqFields = append(reqFields, _query)
-		variables = append(variables, _args...)
+		filters["a.currency_signatura"] = req.Currencies
 	}
 	if len(req.ParentAccountIDs) != 0 {
-		_query, _args, err := repo.db.In(`a.parent_account_id IN (?)`, req.ParentAccountIDs)
-		if err != nil {
-			return accounts, err
-		}
-		reqFields = append(reqFields, _query)
-		variables = append(variables, _args...)
+		filters["a.parent_account_id"] = req.ParentAccountIDs
 	}
 	if req.IsParent != nil {
-		reqFields = append(reqFields, `a.is_parent = ?`)
-		variables = append(variables, req.IsParent)
+		filters["a.is_parent"] = req.IsParent
 	}
 	if req.AccountingInHeader != nil {
-		reqFields = append(reqFields, `a.accounting_in_header = ?`)
-		variables = append(variables, req.AccountingInHeader)
+		filters["a.accounting_in_header"] = req.AccountingInHeader
 	}
 	if req.AccountingInCharts != nil {
-		reqFields = append(reqFields, `a.accounting_in_charts = ?`)
-		variables = append(variables, req.AccountingInCharts)
+		filters["a.accounting_in_charts"] = req.AccountingInCharts
 	}
 	if req.Visible != nil {
-		reqFields = append(reqFields, `a.visible = ?`)
-		variables = append(variables, req.Visible)
+		filters["a.visible"] = req.Visible
 	}
 
-	if len(reqFields) == 0 {
+	// Проверяем, что хоть один фильтр был передан
+	if len(filters) == 0 {
 		return accounts, errors.BadRequest.New("No filters")
 	}
 
 	// Выполняем запрос
-	query := fmt.Sprintf(`
-			SELECT a.*
-			FROM coin.accounts a
-			WHERE %v`, strings.Join(reqFields, " AND "))
-	if err = repo.db.Select(ctx, &accounts, query, variables...); err != nil {
+	if err = r.db.Select(ctx, &accounts, sq.
+		Select("a.*").
+		From("coin.accounts a").
+		Where(filters),
+	); err != nil {
 		return accounts, err
 	}
 
