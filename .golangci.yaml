@@ -31,7 +31,6 @@ linters:
     - gocritic # check for common mistakes in Go code
     - gocyclo # cyclomatic complexity
     - goheader # check for common mistakes in Go code
-    - gomoddirectives # check for common mistakes in Go code
     - gomodguard # check for missing build tags
     - goprintffuncname # check for printf with function name
     - gosimple # check for common mistakes in Go code
@@ -101,6 +100,7 @@ linters:
     - wrapcheck # check for common mistakes in Go code
     - whitespace # check for leading whitespace
     - varnamelen # check for long variable names
+    - gomoddirectives
 
     # Deprecated linters
     - exhaustivestruct # check for missing fields in struct literals
@@ -110,9 +110,19 @@ linters:
     - varcheck # check for unused variables
 issues:
   exclude-rules:
-  - path: buffer # Часть библиотеки, которая перекочевала из SSP, я в ней не разбирался
-    linters:
-      - gomnd
-  - text: "G115"
-    linters:
-      - gosec
+
+    # TODO: Разобраться и перевести все на константы
+    - path: buffer # Часть библиотеки, которая перекочевала из SSP, я в ней не разбирался
+      linters:
+        - gomnd # Ругается на магические числа, но для меня они рил магические, поэтому по делу
+
+    # Этот линтер отвечает за проверку конвертации одного типа int в другой и соблюдения буфера, но как-то странно оно работает, мне не нравится
+    - text: "G115"
+      linters:
+        - gosec
+
+    # Отключение линтеров на тестовые файлы
+    - path: _test.go
+      linters:
+        - maintidx # Слишком высокая цикломатическая сложность - ругается, когда слишком много тесткейсов в тесте
+        - exhaustruct # Незаполнение полей в тестах, но зачастую в тестах стоит обозначать только проверяемые поля

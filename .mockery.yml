@@ -1,6 +1,3 @@
-packages:
-  server/app:
-    config:
-      recursive: true
-      exclude-regex: ".*[Oo]ption"
-      include-regex: ".*"
+recursive: true
+all: true
+inpackage: true
