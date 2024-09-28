@@ -2,6 +2,10 @@ name: go-test
 
 on:
   workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
   pull_request:
 
 jobs:
@@ -9,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: cd to service directory
+        run: cd ${{ inputs.service_name }}
 
         # Настраиваем Go
       - name: Set up Go

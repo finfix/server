@@ -6,6 +6,9 @@ on:
       service_name:
         required: true
         type: string
+      folder_name:
+        required: true
+        type: string
       service_port:
         required: true
         type: number
@@ -24,10 +27,14 @@ jobs:
   # Проверяем код линтером
   go-lint:
     uses: ./.github/workflows/lint.yml
+    with:
+      service_name: ${{ inputs.service_name }}
 
   # Тестируем код
   go-test:
     uses: ./.github/workflows/go-test.yml
+    with:
+      service_name: ${{ inputs.service_name }}
 
   # Генерируем Dockerfile
   build-dockerfile:
@@ -118,7 +125,7 @@ jobs:
 
         # Копируем docker-compose.yml на сервер
       - name: Copy docker-compose.yml to server
-        run: scp -P ${{ secrets.PORT }} -p docker-compose.yml  ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/coin/${{ inputs.service_name }}/docker-compose.yml
+        run: scp -P ${{ secrets.PORT }} -p docker-compose.yml  ${{ secrets.USER }}@${{ secrets.HOST }}:/opt/coin/${{ inputs.folder_name }}/docker-compose.yml
 
         # Логинимся в Container registry на сервере
       - name: Login to the Container registry on server
@@ -126,8 +133,8 @@ jobs:
 
         # Подтягиваем образ из Container registry
       - name: Pull docker image
-        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && docker compose pull coin-${{ inputs.service_name }}"
+        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && docker compose pull coin-${{ inputs.folder_name }}"
 
         # Перезапускаем сервис
       - name: Restart service
-        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && if docker inspect coin-${{ inputs.service_name }} >/dev/null 2>&1; then docker compose stop coin-${{ inputs.service_name }} && docker rm coin-${{ inputs.service_name }}; fi && docker compose up coin-${{ inputs.service_name }} -d"
+        run: ssh ${{ secrets.USER }}@${{ secrets.HOST }} -p ${{ secrets.PORT }} "cd /opt/coin && if docker inspect coin-${{ inputs.folder_name }} >/dev/null 2>&1; then docker compose stop coin-${{ inputs.folder_name }} && docker rm coin-${{ inputs.folder_name }}; fi && docker compose up coin-${{ inputs.folder_name }} -d"

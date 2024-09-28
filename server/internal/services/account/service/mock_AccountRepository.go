@@ -18,36 +18,6 @@ type MockAccountRepository struct {
 	mock.Mock
 }
 
-// CalculateRemainderAccounts provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) GetSumAllTransactionsToAccount(_a0 context.Context, _a1 model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
-	ret := _m.Called(_a0, _a1)
-
-	if len(ret) == 0 {
-		panic("no return value specified for GetSumAllTransactionsToAccount")
-	}
-
-	var r0 map[uint32]decimal.Decimal
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)); ok {
-		return rf(_a0, _a1)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) map[uint32]decimal.Decimal); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(map[uint32]decimal.Decimal)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context, model.CalculateRemaindersAccountsReq) error); ok {
-		r1 = rf(_a0, _a1)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // ChangeSerialNumbers provides a mock function with given fields: ctx, accountGroupID, oldValue, newValue
 func (_m *MockAccountRepository) ChangeSerialNumbers(ctx context.Context, accountGroupID uint32, oldValue uint32, newValue uint32) error {
 	ret := _m.Called(ctx, accountGroupID, oldValue, newValue)
@@ -159,6 +129,36 @@ func (_m *MockAccountRepository) GetAccounts(_a0 context.Context, _a1 model.GetA
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, model.GetAccountsReq) error); ok {
+		r1 = rf(_a0, _a1)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetSumAllTransactionsToAccount provides a mock function with given fields: _a0, _a1
+func (_m *MockAccountRepository) GetSumAllTransactionsToAccount(_a0 context.Context, _a1 model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+	ret := _m.Called(_a0, _a1)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSumAllTransactionsToAccount")
+	}
+
+	var r0 map[uint32]decimal.Decimal
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)); ok {
+		return rf(_a0, _a1)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, model.CalculateRemaindersAccountsReq) map[uint32]decimal.Decimal); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[uint32]decimal.Decimal)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, model.CalculateRemaindersAccountsReq) error); ok {
 		r1 = rf(_a0, _a1)
 	} else {
 		r1 = ret.Error(1)

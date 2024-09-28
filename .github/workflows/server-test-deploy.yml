@@ -5,13 +5,16 @@ on:
     branches:
     - release/*
     - hotfix/*
+    paths:
+      - 'server/**'
 
 jobs:
   general-deploy-pipeline:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       service_port: 8081
-      service_name: server-test
+      service_name: server
+      folder_name: server-test
       test_suffix: -test
       command_args: -log-format=json -env-mode=test
     secrets: inherit

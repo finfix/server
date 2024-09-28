@@ -2,6 +2,10 @@ name: lint
 
 on:
   workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
   pull_request:
 
 permissions:
@@ -13,6 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: cd to service directory
+        run: cd ${{ inputs.service_name }}
 
         # Настраиваем Go
       - uses: actions/setup-go@v4
