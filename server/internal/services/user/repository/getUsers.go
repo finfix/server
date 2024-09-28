@@ -5,7 +5,9 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	userModel "server/internal/services/user/model"
+	"server/internal/services/user/repository/userDDL"
 )
 
 // GetUsers Возвращает пользователей по фильтрам
@@ -14,15 +16,15 @@ func (r *UserRepository) GetUsers(ctx context.Context, filters userModel.GetUser
 	filtersEq := make(sq.Eq)
 
 	if len(filters.IDs) > 0 {
-		filtersEq["id"] = filters.IDs
+		filtersEq[userDDL.ColumnID] = filters.IDs
 	}
 	if len(filters.Emails) > 0 {
-		filtersEq["email"] = filters.Emails
+		filtersEq[userDDL.ColumnEmail] = filters.Emails
 	}
 
 	return user, r.db.Select(ctx, &user, sq.
-		Select("*").
-		From("coin.users").
+		Select(ddlHelper.SelectAll).
+		From(userDDL.Table).
 		Where(filtersEq),
 	)
 }

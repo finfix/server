@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/transaction/repository/transactionDDL"
 )
 
 // DeleteTransaction удаляет транзакцию
@@ -13,8 +14,8 @@ func (r *TransactionRepository) DeleteTransaction(ctx context.Context, id, userI
 
 	// Удаляем транзакцию
 	rows, err := r.db.ExecWithRowsAffected(ctx, sq.
-		Delete("coin.transactions").
-		Where(sq.Eq{"id": id}),
+		Delete(transactionDDL.Table).
+		Where(sq.Eq{transactionDDL.ColumnID: id}),
 	)
 	if err != nil {
 		return err

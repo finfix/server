@@ -19,11 +19,11 @@ type MockAccountRepository struct {
 }
 
 // CalculateRemainderAccounts provides a mock function with given fields: _a0, _a1
-func (_m *MockAccountRepository) CalculateRemainderAccounts(_a0 context.Context, _a1 model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+func (_m *MockAccountRepository) GetSumAllTransactionsToAccount(_a0 context.Context, _a1 model.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
 	ret := _m.Called(_a0, _a1)
 
 	if len(ret) == 0 {
-		panic("no return value specified for CalculateRemainderAccounts")
+		panic("no return value specified for GetSumAllTransactionsToAccount")
 	}
 
 	var r0 map[uint32]decimal.Decimal

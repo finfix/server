@@ -5,30 +5,36 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
-	"pkg/errors"
+	"pkg/ddlHelper"
+	"server/internal/services/accountGroup/repository/accountGroupDDL"
+	"server/internal/services/user/repository/userToAccountGroupDDL"
 
 	"server/internal/services/accountGroup/model"
 )
 
 func (r *AccountGroupRepository) GetAccountGroups(ctx context.Context, req model.GetAccountGroupsReq) (accountGroups []model.AccountGroup, err error) {
 
-	filtersEq := make(sq.Eq)
+	// Формируем первичный запрос
+	q := sq.
+		Select(accountGroupDDL.WithPrefix(ddlHelper.SelectAll)).
+		From(accountGroupDDL.TableNameWithAlias)
 
+	// Фильтр по группам счетов
 	if len(req.AccountGroupIDs) != 0 {
-		filtersEq["ag.id"] = req.AccountGroupIDs
+		q = q.Where(sq.Eq{accountGroupDDL.WithPrefix(accountGroupDDL.ColumnID): req.AccountGroupIDs})
 	}
+
+	// Фильтр по пользователю
 	if req.Necessary.UserID != 0 {
-		filtersEq["utag.user_id"] = req.Necessary.UserID
-	}
-	if len(filtersEq) == 0 {
-		return accountGroups, errors.BadRequest.New("No req")
+		q = q.
+			Join(ddlHelper.BuildJoin(
+				userToAccountGroupDDL.TableWithAlias,
+				userToAccountGroupDDL.WithPrefix(userToAccountGroupDDL.ColumnAccountGroupID),
+				accountGroupDDL.WithPrefix(accountGroupDDL.ColumnID),
+			)).
+			Where(sq.Eq{userToAccountGroupDDL.WithPrefix(userToAccountGroupDDL.ColumnUserID): req.Necessary.UserID})
 	}
 
 	// Выполняем запрос
-	return accountGroups, r.db.Select(ctx, &accountGroups, sq.
-		Select("ag.*").
-		From("coin.account_groups ag").
-		Join("coin.users_to_account_groups utag ON utag.account_group_id = ag.id").
-		Where(filtersEq),
-	)
+	return accountGroups, r.db.Select(ctx, &accountGroups, q)
 }

@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/tag/repository/tagDDL"
 
 	"server/internal/services/tag/model"
 )
@@ -17,7 +18,7 @@ func (r *TagRepository) UpdateTag(ctx context.Context, fields model.UpdateTagReq
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.Name != nil {
-		updates["name"] = *fields.Name
+		updates[tagDDL.ColumnName] = *fields.Name
 	}
 
 	// Проверяем, что есть поля для обновления
@@ -27,7 +28,7 @@ func (r *TagRepository) UpdateTag(ctx context.Context, fields model.UpdateTagReq
 
 	// Редактируем подкатегорию
 	return r.db.Exec(ctx, sq.
-		Update("coin.tags").
+		Update(tagDDL.Table).
 		SetMap(updates).
 		Where(sq.Eq{"id": fields.ID}),
 	)

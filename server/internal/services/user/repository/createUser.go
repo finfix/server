@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	userModel "server/internal/services/user/model"
+	"server/internal/services/user/repository/userDDL"
 )
 
 // CreateUser Создает нового пользователя
@@ -14,13 +15,13 @@ func (r *UserRepository) CreateUser(ctx context.Context, user userModel.CreateRe
 	return r.db.ExecWithLastInsertID(ctx, sq.
 		Insert(`coin.users`).
 		SetMap(map[string]any{
-			"name":                       user.Name,
-			"email":                      user.Email,
-			"password_hash":              user.PasswordHash,
-			"time_create":                user.TimeCreate,
-			"default_currency_signatura": user.DefaultCurrency,
-			"password_salt":              user.PasswordSalt,
-			"is_admin":                   false,
+			userDDL.ColumnName:            user.Name,
+			userDDL.ColumnEmail:           user.Email,
+			userDDL.ColumnPasswordHash:    user.PasswordHash,
+			userDDL.ColumnTimeCreate:      user.TimeCreate,
+			userDDL.ColumnDefaultCurrency: user.DefaultCurrency,
+			userDDL.ColumnPasswordSalt:    user.PasswordSalt,
+			userDDL.ColumnIsAdmin:         false,
 		}),
 	)
 }

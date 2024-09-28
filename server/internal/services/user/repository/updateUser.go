@@ -7,6 +7,7 @@ import (
 
 	"pkg/errors"
 	userRepoModel "server/internal/services/user/repository/model"
+	"server/internal/services/user/repository/userDDL"
 )
 
 // UpdateUser редактирует пользователя
@@ -17,17 +18,17 @@ func (r *UserRepository) UpdateUser(ctx context.Context, fields userRepoModel.Up
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.Email != nil {
-		updates["email"] = *fields.Email
+		updates[userDDL.ColumnEmail] = *fields.Email
 	}
 	if fields.Name != nil {
-		updates["name"] = *fields.Name
+		updates[userDDL.ColumnName] = *fields.Name
 	}
 	if fields.DefaultCurrency != nil {
-		updates["default_currency_signatura"] = *fields.DefaultCurrency
+		updates[userDDL.ColumnDefaultCurrency] = *fields.DefaultCurrency
 	}
 	if fields.PasswordHash != nil && fields.PasswordSalt != nil {
-		updates["password_hash"] = *fields.PasswordHash
-		updates["password_salt"] = *fields.PasswordSalt
+		updates[userDDL.ColumnPasswordHash] = *fields.PasswordHash
+		updates[userDDL.ColumnPasswordSalt] = *fields.PasswordSalt
 	}
 
 	if len(updates) == 0 {
@@ -36,8 +37,8 @@ func (r *UserRepository) UpdateUser(ctx context.Context, fields userRepoModel.Up
 
 	// Обновляем пользователя
 	return r.db.Exec(ctx, sq.
-		Update("coin.users").
+		Update(userDDL.Table).
 		SetMap(updates).
-		Where(sq.Eq{"id": fields.ID}),
+		Where(sq.Eq{userDDL.ColumnID: fields.ID}),
 	)
 }

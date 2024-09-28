@@ -7,6 +7,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/tag/repository/tagDDL"
 )
 
 // CheckAccess проверяет, имеет ли набор групп подкатегорий пользователя доступ к указанным идентификаторам подкатегорий
@@ -14,11 +15,11 @@ func (r *TagRepository) CheckAccess(ctx context.Context, accountGroupIDs, tagIDs
 
 	// Получаем все доступные счета по группам подкатегорий и перечисленным подкатегориям
 	rows, err := r.db.Query(ctx, sq.
-		Select("t.id").
-		From("coin.tags t").
+		Select(tagDDL.ColumnID).
+		From(tagDDL.Table).
 		Where(sq.Eq{
-			"t.account_group_id": accountGroupIDs,
-			"t.id":               tagIDs,
+			tagDDL.ColumnAccountGroupID: accountGroupIDs,
+			tagDDL.ColumnID:             tagIDs,
 		}),
 	)
 	if err != nil {

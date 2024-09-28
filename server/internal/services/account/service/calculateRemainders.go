@@ -15,7 +15,7 @@ import (
 func (s *AccountService) calculateRemainders(ctx context.Context, filters model.GetAccountsReq) (map[uint32]decimal.Decimal, error) {
 
 	// Считаем балансы обычных и долговых счетов
-	calculatedRemainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
+	calculatedRemainders, err := s.accountRepository.GetSumAllTransactionsToAccount(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
 		AccountGroupIDs: filters.AccountGroupIDs,
 		Types: []accountType.Type{
 			accountType.Debt,
@@ -34,7 +34,7 @@ func (s *AccountService) calculateRemainders(ctx context.Context, filters model.
 		}
 
 		// Считаем расходы и доходы за указанный период или даты
-		earnAndExp, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
+		earnAndExp, err := s.accountRepository.GetSumAllTransactionsToAccount(ctx, accountRepoModel.CalculateRemaindersAccountsReq{ //nolint:exhaustruct
 			AccountGroupIDs: filters.AccountGroupIDs,
 			Types: []accountType.Type{
 				accountType.Earnings,

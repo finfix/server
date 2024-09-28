@@ -6,47 +6,88 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/shopspring/decimal"
 
+	"pkg/ddlHelper"
+	"server/internal/services/account/repository/accountDDL"
 	accountRepoModel "server/internal/services/account/repository/model"
+	"server/internal/services/transaction/repository/transactionDDL"
 )
 
-func applyFilters(q sq.SelectBuilder, req accountRepoModel.CalculateRemaindersAccountsReq) sq.SelectBuilder {
-	if len(req.IDs) != 0 {
-		q = q.Where(sq.Eq{"a.id": req.IDs})
-	}
-	if len(req.Types) != 0 {
-		q = q.Where(sq.Eq{"a.type_signatura": req.Types})
-	}
-	if len(req.AccountGroupIDs) != 0 {
-		q = q.Where(sq.Eq{"a.account_group_id": req.AccountGroupIDs})
-	}
-	if req.DateFrom != nil {
-		q = q.Where(sq.GtOrEq{"t.date_transaction": req.DateFrom})
-	}
-	if req.DateTo != nil {
-		q = q.Where(sq.LtOrEq{"t.date_transaction": req.DateTo})
-	}
-	return q
-}
-
-var amountsArray []struct {
+type amountsArray struct {
 	ID        uint32          `db:"id"`
 	Remainder decimal.Decimal `db:"remainder"`
 }
 
-// CalculateRemainderAccounts возвращает остатки счетов
-func (r *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+type SumTransactionsType int
+
+const (
+	SumTransactionsToAccount SumTransactionsType = iota + 1
+	SumTransactionsFromAccount
+)
+
+func buildRequestForGettingSumTransactions(req accountRepoModel.CalculateRemaindersAccountsReq, mode SumTransactionsType) sq.SelectBuilder {
+
+	var selectField, sumField string
+
+	// Выбираем поля в зависимости от типа транзакции
+	switch mode {
+	case SumTransactionsToAccount:
+		selectField = transactionDDL.ColumnAccountToID
+		sumField = transactionDDL.ColumnAmountTo
+	case SumTransactionsFromAccount:
+		selectField = transactionDDL.ColumnAccountFromID
+		sumField = transactionDDL.ColumnAmountFrom
+	}
+
+	// Формируем запрос
+	q := sq.
+		Select(
+			ddlHelper.As(
+				transactionDDL.WithPrefix(selectField),
+				"id",
+			),
+			ddlHelper.As(
+				ddlHelper.Coalesce(
+					ddlHelper.Sum(transactionDDL.WithPrefix(sumField)),
+					"0",
+				),
+				"remainder",
+			),
+		).
+		From(transactionDDL.TableWithAlias).
+		Join(ddlHelper.BuildJoin(
+			accountDDL.TableWithAlias,
+			accountDDL.WithPrefix(accountDDL.ColumnID),
+			transactionDDL.WithPrefix(selectField),
+		)).
+		GroupBy(transactionDDL.WithPrefix(selectField))
+
+	// Дополняем запрос фильтрами в зависимости от параметров
+	if len(req.IDs) != 0 {
+		q = q.Where(sq.Eq{accountDDL.WithPrefix(accountDDL.ColumnID): req.IDs})
+	}
+	if len(req.Types) != 0 {
+		q = q.Where(sq.Eq{accountDDL.WithPrefix(accountDDL.ColumnType): req.Types})
+	}
+	if len(req.AccountGroupIDs) != 0 {
+		q = q.Where(sq.Eq{accountDDL.WithPrefix(accountDDL.ColumnAccountGroupID): req.AccountGroupIDs})
+	}
+	if req.DateFrom != nil {
+		q = q.Where(sq.GtOrEq{transactionDDL.WithPrefix(transactionDDL.ColumnDate): req.DateFrom})
+	}
+	if req.DateTo != nil {
+		q = q.Where(sq.LtOrEq{transactionDDL.WithPrefix(transactionDDL.ColumnDate): req.DateTo})
+	}
+
+	return q
+}
+
+// GetSumAllTransactionsToAccount возвращает суммы всех транзакций, которые исходили из счетов
+func (r *AccountRepository) GetSumAllTransactionsToAccount(ctx context.Context, req accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error) {
+
+	var amountsArray []amountsArray
 
 	// Вычисляем сумму всех транзакций из счетов, id - сумма из
-	if err := r.db.Select(ctx, &amountsArray,
-		applyFilters(
-			sq.
-				Select("t.account_to_id AS id", "COALESCE(SUM(t.amount_to), 0) AS remainder").
-				From("coin.transactions t").
-				Join("coin.accounts a ON t.account_to_id = a.id").
-				GroupBy("t.account_to_id"),
-			req,
-		),
-	); err != nil {
+	if err := r.db.Select(ctx, &amountsArray, buildRequestForGettingSumTransactions(req, SumTransactionsToAccount)); err != nil {
 		return nil, err
 	}
 
@@ -56,17 +97,10 @@ func (r *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req 
 		amountFromAccount[remainder.ID] = remainder.Remainder
 	}
 
+	amountsArray = nil
+
 	// Вычисляем сумму всех транзакций в счета, id - сумма в
-	if err := r.db.Select(ctx, &amountsArray,
-		applyFilters(
-			sq.
-				Select("t.account_from_id AS id", "COALESCE(SUM(t.amount_from), 0) AS remainder").
-				From("coin.transactions t").
-				Join("coin.accounts a ON t.account_from_id = a.id").
-				GroupBy("t.account_from_id"),
-			req,
-		),
-	); err != nil {
+	if err := r.db.Select(ctx, &amountsArray, buildRequestForGettingSumTransactions(req, SumTransactionsFromAccount)); err != nil {
 		return nil, err
 	}
 

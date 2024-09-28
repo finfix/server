@@ -4,16 +4,17 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"server/internal/services/user/repository/deviceDDL"
 )
 
 // DeleteDevice Удаляет девайс пользователя
 func (r *UserRepository) DeleteDevice(ctx context.Context, userID uint32, deviceID string) error {
 	return r.db.Exec(ctx, sq.
-		Delete(`coin.devices`).
-		From(`coin.devices`).
+		Delete(deviceDDL.Table).
 		Where(sq.Eq{
-			"user_id":   userID,
-			"device_ID": deviceID,
+			deviceDDL.ColumnUserID:   userID,
+			deviceDDL.ColumnDeviceID: deviceID,
 		}),
 	)
 }

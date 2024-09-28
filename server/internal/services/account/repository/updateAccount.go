@@ -6,7 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
-
+	"server/internal/services/account/repository/accountDDL"
 	accountRepoModel "server/internal/services/account/repository/model"
 )
 
@@ -20,43 +20,43 @@ func (r *AccountRepository) UpdateAccount(ctx context.Context, updateReqs map[ui
 
 		// Добавляем в запрос только те поля, которые необходимо обновить
 		if fields.IconID != nil {
-			updates["icon_id"] = *fields.IconID
+			updates[accountDDL.ColumnIconID] = *fields.IconID
 		}
 		if fields.AccountingInHeader != nil {
-			updates["accounting_in_header"] = *fields.AccountingInHeader
+			updates[accountDDL.ColumnAccountingInHeader] = *fields.AccountingInHeader
 		}
 		if fields.AccountingInCharts != nil {
-			updates["accounting_in_charts"] = *fields.AccountingInCharts
+			updates[accountDDL.ColumnAccountingInCharts] = *fields.AccountingInCharts
 		}
 		if fields.Name != nil {
-			updates["name"] = *fields.Name
+			updates[accountDDL.ColumnName] = *fields.Name
 		}
 		if fields.Visible != nil {
-			updates["visible"] = *fields.Visible
+			updates[accountDDL.ColumnVisible] = *fields.Visible
 		}
 		if fields.Budget.DaysOffset != nil {
-			updates["budget_days_offset"] = *fields.Budget.DaysOffset
+			updates[accountDDL.ColumnBudgetDaysOffset] = *fields.Budget.DaysOffset
 		}
 		if fields.Budget.Amount != nil {
-			updates["budget_amount"] = *fields.Budget.Amount
+			updates[accountDDL.ColumnBudgetAmount] = *fields.Budget.Amount
 		}
 		if fields.Budget.FixedSum != nil {
-			updates["budget_fixed_sum"] = *fields.Budget.FixedSum
+			updates[accountDDL.ColumnBudgetFixedSum] = *fields.Budget.FixedSum
 		}
 		if fields.Budget.GradualFilling != nil {
-			updates["budget_gradual_filling"] = *fields.Budget.GradualFilling
+			updates[accountDDL.ColumnBudgetGradualFilling] = *fields.Budget.GradualFilling
 		}
 		if fields.Currency != nil {
-			updates["currency_signatura"] = *fields.Currency
+			updates[accountDDL.ColumnCurrency] = *fields.Currency
 		}
 		if fields.SerialNumber != nil {
-			updates["serial_number"] = *fields.SerialNumber
+			updates[accountDDL.ColumnSerialNumber] = *fields.SerialNumber
 		}
 		if fields.ParentAccountID != nil {
 			if *fields.ParentAccountID == 0 {
-				updates["parent_account_id"] = nil
+				updates[accountDDL.ColumnParentAccountID] = nil
 			} else {
-				updates["parent_account_id"] = *fields.ParentAccountID
+				updates[accountDDL.ColumnParentAccountID] = *fields.ParentAccountID
 			}
 		}
 
@@ -70,9 +70,9 @@ func (r *AccountRepository) UpdateAccount(ctx context.Context, updateReqs map[ui
 
 		// Обновляем счет
 		err := r.db.Exec(ctx, sq.
-			Update("coin.accounts").
+			Update(accountDDL.Table).
 			SetMap(updates).
-			Where(sq.Eq{"id": id}),
+			Where(sq.Eq{accountDDL.ColumnID: id}),
 		)
 		if err != nil {
 			return err

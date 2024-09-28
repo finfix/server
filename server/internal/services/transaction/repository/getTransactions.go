@@ -5,45 +5,62 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
+	"server/internal/services/account/repository/accountDDL"
 	"server/internal/services/transaction/model"
+	"server/internal/services/transaction/repository/transactionDDL"
 )
 
 // GetTransactions возвращает все транзакции по фильтрам
 func (r *TransactionRepository) GetTransactions(ctx context.Context, req model.GetTransactionsReq) (transactions []model.Transaction, err error) {
 
+	accountsFromPrefix, accountsToPrefix := "a1", "a2"
+
 	q := sq.
-		Select("t.*").
-		From("coin.transactions t").
-		Join("coin.accounts a1 ON a1.id = t.account_from_id").
-		Join("coin.accounts a2 ON a2.id = t.account_to_id")
+		Select(transactionDDL.WithPrefix(ddlHelper.SelectAll)).
+		From(transactionDDL.TableWithAlias)
 
 	// Добавляем фильтры
 	if len(req.AccountGroupIDs) != 0 {
-		q = q.Where(sq.Eq{
-			"a1.account_group_id": req.AccountGroupIDs,
-			"a2.account_group_id": req.AccountGroupIDs,
-		})
+		q = q.
+			Join(ddlHelper.BuildJoin(
+				ddlHelper.WithCustomAlias(accountDDL.Table, accountsFromPrefix),
+				ddlHelper.WithCustomPrefix(accountDDL.ColumnID, accountsFromPrefix),
+				transactionDDL.WithPrefix(transactionDDL.ColumnAccountFromID),
+			)).
+			Join(ddlHelper.BuildJoin(
+				ddlHelper.WithCustomAlias(accountDDL.Table, accountsToPrefix),
+				ddlHelper.WithCustomPrefix(accountDDL.ColumnID, accountsToPrefix),
+				transactionDDL.WithPrefix(transactionDDL.ColumnAccountToID),
+			)).
+			Where(sq.Eq{
+				ddlHelper.WithCustomPrefix(accountDDL.ColumnAccountGroupID, accountsFromPrefix): req.AccountGroupIDs,
+				ddlHelper.WithCustomPrefix(accountDDL.ColumnAccountGroupID, accountsToPrefix):   req.AccountGroupIDs,
+			})
 	}
 	if len(req.IDs) != 0 {
-		q = q.Where(sq.Eq{"t.id": req.IDs})
+		q = q.Where(sq.Eq{transactionDDL.ColumnID: req.IDs})
 	}
 	if req.AccountID != nil {
 		q = q.Where(sq.Or{
-			sq.Eq{"t.account_from_id": *req.AccountID},
-			sq.Eq{"t.account_to_id": *req.AccountID},
+			sq.Eq{transactionDDL.WithPrefix(transactionDDL.ColumnAccountFromID): *req.AccountID},
+			sq.Eq{transactionDDL.WithPrefix(transactionDDL.ColumnAccountToID): *req.AccountID},
 		})
 	}
 	if req.Type != nil {
-		q = q.Where(sq.Eq{"t.type_signatura": *req.Type})
+		q = q.Where(sq.Eq{transactionDDL.WithPrefix(transactionDDL.ColumnType): *req.Type})
 	}
 	if req.DateFrom != nil {
-		q = q.Where(sq.GtOrEq{"t.date_transaction": req.DateFrom})
+		q = q.Where(sq.GtOrEq{transactionDDL.WithPrefix(transactionDDL.ColumnDate): req.DateFrom})
 	}
 	if req.DateTo != nil {
-		q = q.Where(sq.LtOrEq{"t.date_transaction": req.DateTo})
+		q = q.Where(sq.LtOrEq{transactionDDL.WithPrefix(transactionDDL.ColumnDate): req.DateTo})
 	}
 
-	q = q.OrderBy("t.date_transaction DESC, t.datetime_create DESC")
+	q = q.OrderBy(
+		ddlHelper.Desc(transactionDDL.WithPrefix(transactionDDL.ColumnDate)),
+		ddlHelper.Desc(transactionDDL.WithPrefix(transactionDDL.ColumnDatetimeCreate)),
+	)
 
 	if req.Limit != nil {
 		q = q.Limit(uint64(*req.Limit))

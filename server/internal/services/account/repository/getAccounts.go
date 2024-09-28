@@ -5,8 +5,10 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	"pkg/errors"
 	"server/internal/services/account/model"
+	"server/internal/services/account/repository/accountDDL"
 	accountRepoModel "server/internal/services/account/repository/model"
 )
 
@@ -16,31 +18,31 @@ func (r *AccountRepository) GetAccounts(ctx context.Context, req accountRepoMode
 	filters := make(sq.Eq)
 
 	if len(req.AccountGroupIDs) != 0 {
-		filters["a.account_group_id"] = req.AccountGroupIDs
+		filters[accountDDL.ColumnAccountGroupID] = req.AccountGroupIDs
 	}
 	if len(req.IDs) != 0 {
-		filters["a.id"] = req.IDs
+		filters[accountDDL.ColumnID] = req.IDs
 	}
 	if len(req.Types) != 0 {
-		filters["a.type_signatura"] = req.Types
+		filters[accountDDL.ColumnType] = req.Types
 	}
 	if len(req.Currencies) != 0 {
-		filters["a.currency_signatura"] = req.Currencies
+		filters[accountDDL.ColumnCurrency] = req.Currencies
 	}
 	if len(req.ParentAccountIDs) != 0 {
-		filters["a.parent_account_id"] = req.ParentAccountIDs
+		filters[accountDDL.ColumnParentAccountID] = req.ParentAccountIDs
 	}
 	if req.IsParent != nil {
-		filters["a.is_parent"] = req.IsParent
+		filters[accountDDL.ColumnIsParent] = req.IsParent
 	}
 	if req.AccountingInHeader != nil {
-		filters["a.accounting_in_header"] = req.AccountingInHeader
+		filters[accountDDL.ColumnAccountingInHeader] = req.AccountingInHeader
 	}
 	if req.AccountingInCharts != nil {
-		filters["a.accounting_in_charts"] = req.AccountingInCharts
+		filters[accountDDL.ColumnAccountingInCharts] = req.AccountingInCharts
 	}
 	if req.Visible != nil {
-		filters["a.visible"] = req.Visible
+		filters[accountDDL.ColumnVisible] = req.Visible
 	}
 
 	// Проверяем, что хоть один фильтр был передан
@@ -50,8 +52,8 @@ func (r *AccountRepository) GetAccounts(ctx context.Context, req accountRepoMode
 
 	// Выполняем запрос
 	if err = r.db.Select(ctx, &accounts, sq.
-		Select("a.*").
-		From("coin.accounts a").
+		Select(ddlHelper.SelectAll).
+		From(accountDDL.Table).
 		Where(filters),
 	); err != nil {
 		return accounts, err

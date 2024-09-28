@@ -5,6 +5,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
+	"server/internal/services/accountGroup/repository/accountGroupDDL"
 	accountGroupRepoModel "server/internal/services/accountGroup/repository/model"
 )
 
@@ -13,8 +15,11 @@ func (r *AccountGroupRepository) CreateAccountGroup(ctx context.Context, account
 
 	// Получаем текущий максимальный серийный номер группы счетов
 	row, err := r.db.QueryRow(ctx, sq.
-		Select("COALESCE(MAX(serial_number), 1) AS serial_number").
-		From("coin.account_groups"),
+		Select(ddlHelper.Coalesce(
+			ddlHelper.Max(accountGroupDDL.ColumnSerialNumber),
+			"1",
+		)).
+		From(accountGroupDDL.TableName),
 	)
 	if err != nil {
 		return id, serialNumber, err
@@ -30,14 +35,14 @@ func (r *AccountGroupRepository) CreateAccountGroup(ctx context.Context, account
 
 	// Создаем группу счетов
 	id, err = r.db.ExecWithLastInsertID(ctx, sq.
-		Insert("coin.account_groups").
+		Insert(accountGroupDDL.TableName).
 		SetMap(map[string]any{
-			"name":            accountGroup.Name,
-			"currency":        accountGroup.Currency,
-			"visible":         accountGroup.Visible,
-			"datetime_create": accountGroup.DatetimeCreate,
-			"serial_number":   serialNumber,
-			"user_id":         accountGroup.UserID,
+			accountGroupDDL.ColumnName:            accountGroup.Name,
+			accountGroupDDL.ColumnCurrency:        accountGroup.Currency,
+			accountGroupDDL.ColumnVisible:         accountGroup.Visible,
+			accountGroupDDL.ColumnDatetimeCreate:  accountGroup.DatetimeCreate,
+			accountGroupDDL.ColumnSerialNumber:    serialNumber,
+			accountGroupDDL.ColumnCreatedByUserID: accountGroup.UserID,
 		}),
 	)
 	if err != nil {

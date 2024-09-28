@@ -18,7 +18,7 @@ import (
 func (s *AccountService) ChangeAccountRemainder(ctx context.Context, account model.Account, remainderToUpdate decimal.Decimal, userID uint32) (res model.UpdateAccountRes, err error) {
 
 	// Получаем остаток счета
-	remainders, err := s.accountRepository.CalculateRemainderAccounts(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
+	remainders, err := s.accountRepository.GetSumAllTransactionsToAccount(ctx, accountRepoModel.CalculateRemaindersAccountsReq{
 		IDs:             []uint32{account.ID},
 		AccountGroupIDs: nil,
 		Types:           nil,

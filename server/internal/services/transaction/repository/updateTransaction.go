@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/transaction/repository/transactionDDL"
 
 	"server/internal/services/transaction/model"
 )
@@ -17,28 +18,28 @@ func (r *TransactionRepository) UpdateTransaction(ctx context.Context, fields mo
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.IsExecuted != nil {
-		updates["is_executed"] = *fields.IsExecuted
+		updates[transactionDDL.ColumnIsExecuted] = *fields.IsExecuted
 	}
 	if fields.AccountFromID != nil {
-		updates["account_from_id"] = *fields.AccountFromID
+		updates[transactionDDL.ColumnAccountFromID] = *fields.AccountFromID
 	}
 	if fields.AccountToID != nil {
-		updates["account_to_id"] = *fields.AccountToID
+		updates[transactionDDL.ColumnAccountToID] = *fields.AccountToID
 	}
 	if fields.AmountFrom != nil {
-		updates["amount_from"] = *fields.AmountFrom
+		updates[transactionDDL.ColumnAmountFrom] = *fields.AmountFrom
 	}
 	if fields.AmountTo != nil {
-		updates["amount_to"] = *fields.AmountTo
+		updates[transactionDDL.ColumnAmountTo] = *fields.AmountTo
 	}
 	if fields.DateTransaction != nil {
-		updates["date_transaction"] = *fields.DateTransaction
+		updates[transactionDDL.ColumnDate] = *fields.DateTransaction
 	}
 	if fields.AccountingInCharts != nil {
-		updates["accounting_in_charts"] = *fields.AccountingInCharts
+		updates[transactionDDL.ColumnAccountingInCharts] = *fields.AccountingInCharts
 	}
 	if fields.Note != nil {
-		updates["note"] = *fields.Note
+		updates[transactionDDL.ColumnNote] = *fields.Note
 	}
 
 	// Проверяем, что есть поля для обновления
@@ -51,8 +52,8 @@ func (r *TransactionRepository) UpdateTransaction(ctx context.Context, fields mo
 
 	// Создаем транзакцию
 	return r.db.Exec(ctx, sq.
-		Update("coin.transactions").
+		Update(transactionDDL.Table).
 		SetMap(updates).
-		Where(sq.Eq{"id": fields.ID}),
+		Where(sq.Eq{transactionDDL.ColumnID: fields.ID}),
 	)
 }

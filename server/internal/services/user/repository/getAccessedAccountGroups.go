@@ -5,8 +5,12 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	"pkg/log"
+	"server/internal/services/accountGroup/repository/accountGroupDDL"
 	"server/internal/services/user/model"
+	"server/internal/services/user/repository/userDDL"
+	"server/internal/services/user/repository/userToAccountGroupDDL"
 )
 
 // GetAccessedAccountGroups возвращает доступы пользователей к группам счетов
@@ -24,11 +28,29 @@ func (r *UserRepository) GetAccessedAccountGroups(ctx context.Context, userID ui
 
 	// Получаем связки между пользователями и группами счетов
 	if err = r.db.Select(ctx, &usersToAccountGroups, sq.
-		Select("u.id AS user_id", "ag.id AS account_group_id").
-		From("coin.account_groups ag").
-		Join("coin.users_to_account_groups utag ON utag.account_group_id = ag.id").
-		Join("coin.users u ON utag.user_id = u.id"),
-	); err != nil {
+		Select(
+			ddlHelper.As(
+				userDDL.WithPrefix(userDDL.ColumnID),
+				"user_id",
+			),
+			ddlHelper.As(
+				accountGroupDDL.WithPrefix(accountGroupDDL.ColumnID),
+				"account_group_id",
+			),
+		).
+		From(accountGroupDDL.TableNameWithAlias).
+		Join(ddlHelper.BuildJoin(
+			userToAccountGroupDDL.TableWithAlias,
+			userToAccountGroupDDL.WithPrefix(userToAccountGroupDDL.ColumnAccountGroupID),
+			accountGroupDDL.WithPrefix(accountGroupDDL.ColumnID),
+		)).
+		Join(ddlHelper.BuildJoin(
+			userDDL.TableWithAlias,
+			userDDL.WithPrefix(userDDL.ColumnID),
+			userToAccountGroupDDL.WithPrefix(userToAccountGroupDDL.ColumnUserID),
+		)),
+	)
+		err != nil {
 		return nil, err
 	}
 

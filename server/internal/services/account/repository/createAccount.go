@@ -5,6 +5,8 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
+	"server/internal/services/account/repository/accountDDL"
 	accountRepoModel "server/internal/services/account/repository/model"
 )
 
@@ -13,9 +15,12 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account accountRe
 
 	// Получаем максимальный серийный номер в группе счетов
 	row, err := r.db.QueryRow(ctx, sq.
-		Select("COALESCE(MAX(serial_number), 1) AS serial_number").
-		From("coin.accounts").
-		Where(sq.Eq{"account_group_id": account.AccountGroupID}),
+		Select(ddlHelper.Coalesce(
+			ddlHelper.Max(accountDDL.WithPrefix(accountDDL.ColumnSerialNumber)),
+			"1",
+		)).
+		From(accountDDL.Table).
+		Where(sq.Eq{accountDDL.ColumnAccountGroupID: account.AccountGroupID}),
 	)
 	if err != nil {
 		return id, serialNumber, err
@@ -31,25 +36,25 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account accountRe
 
 	// Создаем счет
 	id, err = r.db.ExecWithLastInsertID(ctx, sq.
-		Insert("coin.accounts").
+		Insert(accountDDL.Table).
 		SetMap(map[string]any{
-			"budget_amount":          account.Budget.Amount,
-			"name":                   account.Name,
-			"icon_id":                account.IconID,
-			"type_signatura":         account.Type,
-			"currency_signatura":     account.Currency,
-			"visible":                account.Visible,
-			"account_group_id":       account.AccountGroupID,
-			"accounting_in_header":   account.AccountingInHeader,
-			"accounting_in_charts":   account.AccountingInCharts,
-			"budget_gradual_filling": account.Budget.GradualFilling,
-			"is_parent":              account.IsParent,
-			"budget_fixed_sum":       account.Budget.FixedSum,
-			"budget_days_offset":     account.Budget.DaysOffset,
-			"parent_account_id":      account.ParentAccountID,
-			"created_by_user_id":     account.UserID,
-			"datetime_create":        account.DatetimeCreate,
-			"serial_number":          serialNumber,
+			accountDDL.ColumnBudgetAmount:         account.Budget.Amount,
+			accountDDL.ColumnName:                 account.Name,
+			accountDDL.ColumnIconID:               account.IconID,
+			accountDDL.ColumnType:                 account.Type,
+			accountDDL.ColumnCurrency:             account.Currency,
+			accountDDL.ColumnVisible:              account.Visible,
+			accountDDL.ColumnAccountGroupID:       account.AccountGroupID,
+			accountDDL.ColumnAccountingInHeader:   account.AccountingInHeader,
+			accountDDL.ColumnAccountingInCharts:   account.AccountingInCharts,
+			accountDDL.ColumnBudgetGradualFilling: account.Budget.GradualFilling,
+			accountDDL.ColumnIsParent:             account.IsParent,
+			accountDDL.ColumnBudgetFixedSum:       account.Budget.FixedSum,
+			accountDDL.ColumnBudgetDaysOffset:     account.Budget.DaysOffset,
+			accountDDL.ColumnParentAccountID:      account.ParentAccountID,
+			accountDDL.ColumnCreatedByUserID:      account.UserID,
+			accountDDL.ColumnDatetimeCreate:       account.DatetimeCreate,
+			accountDDL.ColumnSerialNumber:         serialNumber,
 		}))
 	if err != nil {
 		return id, serialNumber, err

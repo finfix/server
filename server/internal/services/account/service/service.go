@@ -33,7 +33,7 @@ type AccountRepository interface {
 	DeleteAccount(ctx context.Context, id uint32) error
 
 	ChangeSerialNumbers(ctx context.Context, accountGroupID, oldValue, newValue uint32) error
-	CalculateRemainderAccounts(context.Context, accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
+	GetSumAllTransactionsToAccount(context.Context, accountRepoModel.CalculateRemaindersAccountsReq) (map[uint32]decimal.Decimal, error)
 
 	CheckAccess(context.Context, []uint32, []uint32) error
 }

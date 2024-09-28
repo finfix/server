@@ -4,14 +4,16 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"server/internal/services/tag/repository/tagToTransactionDDL"
 )
 
 // LinkTagsToTransaction привязывает подкатегории к транзакции
 func (r *TagRepository) LinkTagsToTransaction(ctx context.Context, tagIDs []uint32, transactionID uint32) error {
 
 	q := sq.
-		Insert("coin.tags_to_transaction").
-		Columns("transaction_id", "tag_id")
+		Insert(tagToTransactionDDL.TableWithAlias).
+		Columns(tagToTransactionDDL.ColumnTransactionID, tagToTransactionDDL.ColumnTagID)
 
 	for _, tagID := range tagIDs {
 		q = q.Values(transactionID, tagID)

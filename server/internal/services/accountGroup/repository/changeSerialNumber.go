@@ -4,28 +4,31 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"pkg/ddlHelper"
+	"server/internal/services/accountGroup/repository/accountGroupDDL"
 )
 
 // ChangeSerialNumbers вставляет группу счетов на новое место
 func (r *AccountGroupRepository) ChangeSerialNumbers(ctx context.Context, oldValue, newValue uint32) error {
 
 	// Формируем первичный запрос
-	q := sq.Update("coin.account_groups")
+	q := sq.Update(accountGroupDDL.TableName)
 
 	// Дополняем запрос в зависимости от того, в какую сторону двигаем элемент
 	if newValue < oldValue {
 		q = q.
-			Set("serial_number", sq.Expr("serial_number + 1")).
+			Set(accountGroupDDL.ColumnSerialNumber, sq.Expr(ddlHelper.Plus(accountGroupDDL.ColumnSerialNumber, 1))).
 			Where(sq.And{
-				sq.GtOrEq{"serial_number": newValue},
-				sq.Lt{"serial_number": oldValue},
+				sq.GtOrEq{accountGroupDDL.ColumnSerialNumber: newValue},
+				sq.Lt{accountGroupDDL.ColumnSerialNumber: oldValue},
 			})
 	} else {
 		q = q.
-			Set("serial_number", sq.Expr("serial_number - 1")).
+			Set(accountGroupDDL.ColumnSerialNumber, sq.Expr(ddlHelper.Minus(accountGroupDDL.ColumnSerialNumber, 1))).
 			Where(sq.And{
-				sq.Gt{"serial_number": oldValue},
-				sq.LtOrEq{"serial_number": newValue},
+				sq.Gt{accountGroupDDL.ColumnSerialNumber: oldValue},
+				sq.LtOrEq{accountGroupDDL.ColumnSerialNumber: newValue},
 			})
 	}
 

@@ -4,6 +4,8 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"server/internal/services/accountGroup/repository/accountGroupDDL"
 )
 
 // DeleteAccountGroup удаляет группу счетов
@@ -11,7 +13,7 @@ func (r *AccountGroupRepository) DeleteAccountGroup(ctx context.Context, id uint
 
 	// Исполняем запрос на удаление группы счетов
 	return r.db.Exec(ctx, sq.
-		Delete("coin.account_groups").
-		Where(sq.Eq{"id": id}),
+		Delete(accountGroupDDL.TableName).
+		Where(sq.Eq{accountGroupDDL.ColumnID: id}),
 	)
 }

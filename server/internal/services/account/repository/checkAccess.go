@@ -7,6 +7,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/account/repository/accountDDL"
 )
 
 // CheckAccess проверяет, имеет ли набор групп счетов пользователя доступ к указанным идентификаторам счетов
@@ -14,10 +15,13 @@ func (r *AccountRepository) CheckAccess(ctx context.Context, accountGroupIDs, ac
 
 	// Получаем все доступные счета по группам счетов и перечисленным счетам
 	rows, err := r.db.Query(ctx, sq.
-		Select("a.id").
-		From("coin.accounts a").
-		Where(sq.Eq{"a.account_group_id": accountGroupIDs}).
-		Where(sq.Eq{"a.id": accountIDs}))
+		Select(accountDDL.ColumnID).
+		From(accountDDL.Table).
+		Where(sq.Eq{
+			accountDDL.ColumnAccountGroupID: accountGroupIDs,
+			accountDDL.ColumnID:             accountIDs,
+		}),
+	)
 	if err != nil {
 		return err
 	}

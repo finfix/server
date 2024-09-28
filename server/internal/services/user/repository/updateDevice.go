@@ -6,6 +6,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 
 	"pkg/errors"
+	"server/internal/services/user/repository/deviceDDL"
 
 	userRepoModel "server/internal/services/user/repository/model"
 )
@@ -17,28 +18,28 @@ func (r *UserRepository) UpdateDevice(ctx context.Context, fields userRepoModel.
 
 	// Добавляем в запрос поля, которые нужно изменить
 	if fields.RefreshToken != nil {
-		updates["refresh_token"] = *fields.RefreshToken
+		updates[deviceDDL.ColumnRefreshToken] = *fields.RefreshToken
 	}
 	if fields.NotificationToken != nil {
-		updates["notification_token"] = *fields.NotificationToken
+		updates[deviceDDL.ColumnNotificationToken] = *fields.NotificationToken
 	}
 	if fields.ApplicationInformation.BundleID != nil {
-		updates["application_bundle_id"] = *fields.ApplicationInformation.BundleID
+		updates[deviceDDL.ColumnApplicationBundleID] = *fields.ApplicationInformation.BundleID
 	}
 	if fields.ApplicationInformation.Build != nil {
-		updates["application_build"] = *fields.ApplicationInformation.Build
+		updates[deviceDDL.ColumnApplicationBuild] = *fields.ApplicationInformation.Build
 	}
 	if fields.ApplicationInformation.Version != nil {
-		updates["application_version"] = *fields.ApplicationInformation.Version
+		updates[deviceDDL.ColumnApplicationVersion] = *fields.ApplicationInformation.Version
 	}
 	if fields.DeviceInformation.VersionOS != nil {
-		updates["device_os_version"] = *fields.DeviceInformation.VersionOS
+		updates[deviceDDL.ColumnDeviceOSVersion] = *fields.DeviceInformation.VersionOS
 	}
 	if fields.DeviceInformation.IPAddress != nil {
-		updates["device_ip_address"] = *fields.DeviceInformation.IPAddress
+		updates[deviceDDL.ColumnDeviceIPAddress] = *fields.DeviceInformation.IPAddress
 	}
 	if fields.DeviceInformation.UserAgent != nil {
-		updates["device_user_agent"] = *fields.DeviceInformation.UserAgent
+		updates[deviceDDL.ColumnDeviceUserAgent] = *fields.DeviceInformation.UserAgent
 	}
 
 	if len(updates) == 0 {
@@ -46,11 +47,11 @@ func (r *UserRepository) UpdateDevice(ctx context.Context, fields userRepoModel.
 	}
 
 	// Обновляем девайс
-	return r.db.Exec(ctx, sq.Update("coin.devices").
+	return r.db.Exec(ctx, sq.Update(deviceDDL.Table).
 		SetMap(updates).
 		Where(sq.Eq{
-			"user_id":   fields.UserID,
-			"device_id": fields.DeviceID,
+			deviceDDL.ColumnUserID:   fields.UserID,
+			deviceDDL.ColumnDeviceID: fields.DeviceID,
 		}),
 	)
 }

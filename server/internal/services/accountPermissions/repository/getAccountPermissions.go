@@ -5,16 +5,19 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	"pkg/log"
+	permissionAccountType "server/internal/services/accountPermissions/repository/accountType"
+	"server/internal/services/accountPermissions/repository/actionType"
 
 	"server/internal/services/account/model/accountType"
 	"server/internal/services/accountPermissions/model"
 )
 
 type permissionItem struct {
-	AccountType string `db:"account_type"`
-	ActionType  string `db:"action_type"`
-	Access      bool   `db:"access"`
+	AccountType permissionAccountType.Type `db:"account_type"`
+	ActionType  actionType.Type            `db:"action_type"`
+	Access      bool                       `db:"access"`
 }
 
 func (r *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context) (permissionSet model.PermissionSet, err error) {
@@ -31,8 +34,8 @@ func (r *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context
 
 	// Делаем запрос в базу
 	if err = r.db.Select(ctx, &permissions, sq.
-		Select("*").
-		From("permissions.account_permissions"),
+		Select(ddlHelper.SelectAll).
+		From(TableName),
 	); err != nil {
 		return permissionSet, err
 	}
@@ -46,35 +49,37 @@ func (r *AccountPermissionsRepository) GetAccountPermissions(ctx context.Context
 	// Проходимся по каждой строке из базы данных
 	for _, permissionItem := range permissions {
 
+		accountTypeClassification := permissionAccountType.ClassificationMatching[permissionItem.AccountType]
+
 		// Получаем права доступа, которые уже лежат в объекте permissionSet для данного типа аккаунта
 		var permission model.AccountPermissions
-		switch permissionItem.AccountType {
-		case "regular", "debt", "earnings", "expense", "balancing":
+		switch accountTypeClassification {
+		case permissionAccountType.AccountTypeByType:
 			permission = permissionSet.TypeToPermissions[accountType.Type(permissionItem.AccountType)]
-		case "parent", "general": //nolint:goconst
-			permission = permissionSet.IsParentToPermissions[permissionItem.AccountType == "parent"] //nolint:goconst
+		case permissionAccountType.AccountTypeByParent:
+			permission = permissionSet.IsParentToPermissions[permissionItem.AccountType == permissionAccountType.Parent]
 		}
 
 		// Смотрим на действие и присваиваем соответствующий доступ
 		switch permissionItem.ActionType {
-		case "update_budget":
+		case actionType.UpdateBudget:
 			permission.UpdateBudget = permissionItem.Access
-		case "update_remainder":
+		case actionType.UpdateRemainder:
 			permission.UpdateRemainder = permissionItem.Access
-		case "update_currency":
+		case actionType.UpdateCurrency:
 			permission.UpdateCurrency = permissionItem.Access
-		case "update_parent_account_id":
+		case actionType.UpdateParentAccountID:
 			permission.UpdateParentAccountID = permissionItem.Access
-		case "create_transaction":
+		case actionType.CreateTransaction:
 			permission.CreateTransaction = permissionItem.Access
 		}
 
 		// Сохраняем права доступа в объект permissionSet до следующей итерации
-		switch permissionItem.AccountType {
-		case "regular", "debt", "earnings", "expense", "balancing":
+		switch accountTypeClassification {
+		case permissionAccountType.AccountTypeByType:
 			permissionSet.TypeToPermissions[accountType.Type(permissionItem.AccountType)] = permission
-		case "parent", "general":
-			permissionSet.IsParentToPermissions[permissionItem.AccountType == "parent"] = permission
+		case permissionAccountType.AccountTypeByParent:
+			permissionSet.IsParentToPermissions[permissionItem.AccountType == permissionAccountType.Parent] = permission
 		}
 	}
 

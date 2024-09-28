@@ -5,7 +5,9 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	userModel "server/internal/services/user/model"
+	"server/internal/services/user/repository/deviceDDL"
 	userRepoModel "server/internal/services/user/repository/model"
 )
 
@@ -15,19 +17,19 @@ func (r *UserRepository) GetDevices(ctx context.Context, filters userRepoModel.G
 	filtersEq := make(sq.Eq)
 
 	if len(filters.IDs) > 0 {
-		filtersEq["id"] = filters.IDs
+		filtersEq[deviceDDL.ColumnID] = filters.IDs
 	}
 	if len(filters.DeviceIDs) > 0 {
-		filtersEq["device_id"] = filters.DeviceIDs
+		filtersEq[deviceDDL.ColumnDeviceID] = filters.DeviceIDs
 	}
 	if len(filters.UserIDs) > 0 {
-		filtersEq["user_id"] = filters.UserIDs
+		filtersEq[deviceDDL.ColumnUserID] = filters.UserIDs
 	}
 
 	// Получаем устройства пользователей
 	return devices, r.db.Select(ctx, &devices, sq.
-		Select("*").
-		From("coin.devices").
+		Select(ddlHelper.SelectAll).
+		From(deviceDDL.Table).
 		Where(filtersEq),
 	)
 }

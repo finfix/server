@@ -5,7 +5,9 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
+	"pkg/ddlHelper"
 	"pkg/errors"
+	"server/internal/services/tag/repository/tagDDL"
 
 	"server/internal/services/tag/model"
 )
@@ -16,7 +18,7 @@ func (r *TagRepository) GetTags(ctx context.Context, req model.GetTagsReq) (tags
 	filtersEq := make(sq.Eq)
 
 	if len(req.AccountGroupIDs) > 0 {
-		filtersEq["account_group_id"] = req.AccountGroupIDs
+		filtersEq[tagDDL.ColumnAccountGroupID] = req.AccountGroupIDs
 	}
 
 	// Проверяем, что есть фильтры
@@ -26,8 +28,8 @@ func (r *TagRepository) GetTags(ctx context.Context, req model.GetTagsReq) (tags
 
 	// Получаем подкатегории
 	return tags, r.db.Select(ctx, &tags, sq.
-		Select("*").
-		From("coin.tags").
+		Select(ddlHelper.SelectAll).
+		From(tagDDL.Table).
 		Where(filtersEq),
 	)
 }

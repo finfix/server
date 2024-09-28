@@ -8,11 +8,11 @@ type Type string
 
 // enums:"regular,expense,debt,income,balancing"
 const (
-	Regular   = Type("regular")
-	Expense   = Type("expense")
-	Debt      = Type("debt")
-	Earnings  = Type("earnings")
-	Balancing = Type("balancing")
+	Regular   Type = "regular"
+	Expense   Type = "expense"
+	Debt      Type = "debt"
+	Earnings  Type = "earnings"
+	Balancing Type = "balancing"
 )
 
 func (t *Type) Validate() error {

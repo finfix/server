@@ -4,6 +4,8 @@ import (
 	"context"
 
 	sq "github.com/Masterminds/squirrel"
+
+	"server/internal/services/tag/repository/tagToTransactionDDL"
 )
 
 // UnlinkTagsFromTransaction отвязывает подкатегории от транзакции
@@ -11,12 +13,12 @@ func (r *TagRepository) UnlinkTagsFromTransaction(ctx context.Context, tagIDs []
 
 	filtersEq := make(sq.Eq)
 
-	filtersEq["tag_id"] = tagIDs
-	filtersEq["transaction_id"] = transactionID
+	filtersEq[tagToTransactionDDL.ColumnTagID] = tagIDs
+	filtersEq[tagToTransactionDDL.ColumnTransactionID] = transactionID
 
 	// Удаляем связь между подкатегориями и транзакцией
 	return r.db.Exec(ctx, sq.
-		Delete("coin.tags_to_transaction").
+		Delete(tagToTransactionDDL.Table).
 		Where(filtersEq),
 	)
 }
