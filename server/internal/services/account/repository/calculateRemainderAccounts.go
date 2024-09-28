@@ -40,7 +40,7 @@ func (r *AccountRepository) CalculateRemainderAccounts(ctx context.Context, req 
 	if err := r.db.Select(ctx, &amountsArray,
 		applyFilters(
 			sq.
-				Select("t.account_to_id AS id", "COALESCE(SUM(t.amount_from), 0) AS remainder").
+				Select("t.account_to_id AS id", "COALESCE(SUM(t.amount_to), 0) AS remainder").
 				From("coin.transactions t").
 				Join("coin.accounts a ON t.account_to_id = a.id").
 				GroupBy("t.account_to_id"),
