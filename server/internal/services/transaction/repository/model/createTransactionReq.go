@@ -22,4 +22,5 @@ type CreateTransactionReq struct {
 	CreatedByUserID    uint32
 	DatetimeCreate     time.Time
 	AccountingInCharts bool
+	AccountGroupID     uint32
 }

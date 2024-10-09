@@ -21,4 +21,5 @@ type Transaction struct {
 	AccountingInCharts bool                 `json:"accountingInCharts" db:"accounting_in_charts"`                                       // Учитывается ли транзакция в графиках или нет
 	CreatedByUserID    uint32               `json:"createdByUserID" db:"created_by_user_id" minimum:"1"`                                // Идентификатор пользователя, создавшего транзакцию
 	DatetimeCreate     datetime.Time        `json:"datetimeCreate" db:"datetime_create" format:"date-time"`                             // Дата и время создания транзакции
+	AccountGroupID     uint32               `json:"accountGroupID" db:"account_group_id"`                                               // Идентификатор группы счетов
 }
