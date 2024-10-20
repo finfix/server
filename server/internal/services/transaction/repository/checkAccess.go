@@ -6,35 +6,20 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 
-	"pkg/ddlHelper"
 	"pkg/errors"
-	"server/internal/services/account/repository/accountDDL"
 	"server/internal/services/transaction/repository/transactionDDL"
 )
 
 // CheckAccess проверяет, имеет ли набор групп счетов пользователя доступ к указанным идентификаторам транзакций
 func (r *TransactionRepository) CheckAccess(ctx context.Context, accountGroupIDs, transactionIDs []uint32) error {
 
-	accountsFromPrefix, accountsToPrefix := "a1", "a2"
-
 	// Получаем все доступные транзакции по группам счетов и перечисленным транзакциям
 	rows, err := r.db.Query(ctx, sq.
 		Select(transactionDDL.ColumnID).
 		From(transactionDDL.TableWithAlias).
-		Join(ddlHelper.BuildJoin(
-			ddlHelper.WithCustomAlias(accountDDL.Table, accountsFromPrefix),
-			ddlHelper.WithCustomPrefix(accountDDL.ColumnID, accountsFromPrefix),
-			transactionDDL.WithPrefix(transactionDDL.ColumnAccountFromID),
-		)).
-		Join(ddlHelper.BuildJoin(
-			ddlHelper.WithCustomAlias(accountDDL.Table, accountsToPrefix),
-			ddlHelper.WithCustomPrefix(accountDDL.ColumnID, accountsToPrefix),
-			transactionDDL.WithPrefix(transactionDDL.ColumnAccountToID),
-		)).
 		Where(sq.Eq{
-			ddlHelper.WithCustomPrefix(accountDDL.ColumnAccountGroupID, accountsFromPrefix): accountGroupIDs,
-			ddlHelper.WithCustomPrefix(accountDDL.ColumnAccountGroupID, accountsToPrefix):   accountGroupIDs,
-			transactionDDL.WithPrefix(transactionDDL.ColumnID):                              transactionIDs,
+			transactionDDL.ColumnAccountGroupID: accountGroupIDs,
+			transactionDDL.ColumnID:             transactionIDs,
 		}))
 	if err != nil {
 		return err
