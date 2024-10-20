@@ -2,6 +2,10 @@ name: go-test
 
 on:
   workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
   pull_request:
 
 jobs:
@@ -27,8 +31,12 @@ jobs:
 
         # Генерируем swagger
       - name: Generate swagger
-        run: go generate ./...
+        run: |
+          cd ${{ inputs.service_name }}
+          go generate ./...
 
         # Тестируем код
       - name: Go test
-        run: go test -v ./...
+        run: |
+          cd ${{ inputs.service_name }}
+          go test -v ./...

@@ -7,6 +7,9 @@ inputs:
   service_port:
     required: true
     description: "Port which service will be listening on"
+  test_suffix:
+    required: false
+    description: "Suffix for .env file"
 runs:
   using: composite
   steps:
@@ -17,6 +20,7 @@ runs:
           -e "s|@{project_name}|${{ inputs.project_name }}|g" \
           -e "s|@{service_port}|${{ inputs.service_port }}|g" \
           -e "s|@{build_number}|${{ github.run_id }}|g" \
+          -e "s|@{test_suffix}|${{ inputs.test_suffix }}|g" \
           -e "s|@{version_number}|${GITHUB_REF##*/}|g" \
           < "./.github/actions/dockerfile-build/Dockerfile-template" \
           > "Dockerfile"
