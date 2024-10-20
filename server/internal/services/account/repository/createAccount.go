@@ -16,7 +16,7 @@ func (r *AccountRepository) CreateAccount(ctx context.Context, account accountRe
 	// Получаем максимальный серийный номер в группе счетов
 	row, err := r.db.QueryRow(ctx, sq.
 		Select(ddlHelper.Coalesce(
-			ddlHelper.Max(accountDDL.WithPrefix(accountDDL.ColumnSerialNumber)),
+			ddlHelper.Max(accountDDL.ColumnSerialNumber),
 			"1",
 		)).
 		From(accountDDL.Table).

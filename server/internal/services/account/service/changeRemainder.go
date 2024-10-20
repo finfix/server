@@ -59,6 +59,7 @@ func (s *AccountService) ChangeAccountRemainder(ctx context.Context, account mod
 		CreatedByUserID:    userID,
 		DatetimeCreate:     time.Now(),
 		AccountingInCharts: true,
+		AccountGroupID:     account.AccountGroupID,
 	})
 	if err != nil {
 		return res, err

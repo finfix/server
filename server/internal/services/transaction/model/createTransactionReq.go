@@ -24,6 +24,7 @@ type CreateTransactionReq struct {
 	TagIDs             []uint32             `json:"tagIDs"`                                                                           // Идентификаторы тегов
 	DatetimeCreate     datetime.Time        `json:"datetimeCreate" validate:"required"`                                               // Дата создания транзакции
 	AccountingInCharts *bool                `json:"accountingInCharts" validate:"required"`                                           // Учитывается ли транзакция в графиках или нет
+	AccountGroupID     uint32               `json:"accountGroupID" validate:"required" minimum:"1"`                                   // Идентификатор группы счетов
 }
 
 func (s CreateTransactionReq) Validate() error {
@@ -50,5 +51,6 @@ func (s *CreateTransactionReq) ConvertToRepoReq() model.CreateTransactionReq {
 		CreatedByUserID:    s.Necessary.UserID,
 		DatetimeCreate:     s.DatetimeCreate.Time,
 		AccountingInCharts: *s.AccountingInCharts,
+		AccountGroupID:     s.AccountGroupID,
 	}
 }

@@ -26,6 +26,7 @@ func (r *TransactionRepository) CreateTransaction(ctx context.Context, req model
 			transactionDDL.ColumnDatetimeCreate:     req.DatetimeCreate,
 			transactionDDL.ColumnCreatedByUserID:    req.CreatedByUserID,
 			transactionDDL.ColumnAccountingInCharts: req.AccountingInCharts,
+			transactionDDL.ColumnAccountGroupID:     req.AccountGroupID,
 		}),
 	)
 }

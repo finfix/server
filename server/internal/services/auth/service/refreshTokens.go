@@ -24,7 +24,7 @@ func (s *AuthService) RefreshTokens(ctx context.Context, req model.RefreshTokens
 	}
 	if len(devices) == 0 {
 		return newTokens, errors.Unauthorized.New("Device not found",
-			errors.HumanTextOption("Девайс не найдена"),
+			errors.HumanTextOption("Девайс не найден"),
 		)
 	}
 	device := devices[0]

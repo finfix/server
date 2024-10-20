@@ -12,7 +12,7 @@ import (
 func (r *TagRepository) LinkTagsToTransaction(ctx context.Context, tagIDs []uint32, transactionID uint32) error {
 
 	q := sq.
-		Insert(tagToTransactionDDL.TableWithAlias).
+		Insert(tagToTransactionDDL.Table).
 		Columns(tagToTransactionDDL.ColumnTransactionID, tagToTransactionDDL.ColumnTagID)
 
 	for _, tagID := range tagIDs {

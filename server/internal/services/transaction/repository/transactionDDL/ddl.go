@@ -21,6 +21,7 @@ const (
 	ColumnDatetimeCreate     = "datetime_create"
 	ColumnAccountingInCharts = "accounting_in_charts"
 	ColumnCreatedByUserID    = "created_by_user_id"
+	ColumnAccountGroupID     = "account_group_id"
 )
 
 func WithPrefix(column string) string {
